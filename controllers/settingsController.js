@@ -44,7 +44,8 @@ const updateSettings = async (req, res) => {
         if (req.file) {
             // Kita akan simpan logo sebagai base64 string di database
             // Ini sederhana dan tidak memerlukan manajemen file statis yang kompleks
-            const fileData = fs.readFileSync(req.file.path);
+            // const fileData = fs.readFileSync(req.file.path);
+            const fileData = req.file.buffer; // AMBIL DARI BUFFER
             const base64String = `data:${req.file.mimetype};base64,${fileData.toString('base64')}`;
 
             await connection.query(
@@ -53,7 +54,7 @@ const updateSettings = async (req, res) => {
             );
 
             // Hapus file sementara setelah dibaca
-            fs.unlinkSync(req.file.path);
+            // fs.unlinkSync(req.file.path);
         }
 
         await connection.commit();
