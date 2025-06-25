@@ -1,0 +1,1204 @@
+{
+  "timestamp": "2025-06-19T12:38:20.617Z",
+  "period": {
+    "name": "Periode Mei 2025",
+    "start_date": "2025-04-30",
+    "end_date": "2025-06-19"
+  },
+  "financial_summary": {
+    "period": {
+      "start_date": "2025-04-30",
+      "end_date": "2025-06-19"
+    },
+    "profit_loss_statement": {
+      "total_revenue": 1134000,
+      "total_cogs": 587000,
+      "gross_profit": 547000,
+      "operational_expenses": {
+        "details": [
+          {
+            "category_name": "Pembelian Barang",
+            "total_amount": 705000
+          }
+        ],
+        "total": 705000
+      },
+      "net_profit": -158000
+    },
+    "cash_flow_statement": {
+      "cash_in": 1132000,
+      "cash_out": 705000,
+      "net_cash_flow": 427000
+    },
+    "equity_statement": {
+      "beginning_capital": 98000,
+      "net_profit": -158000,
+      "owner_draw": 0,
+      "ending_capital": -60000
+    }
+  },
+  "data": {
+    "users": [
+      {
+        "user_id": 3,
+        "username": "owner",
+        "password": "$2b$10$uXf5QuLRpC4TS.gWxMXnruCkA0KhzUqhaRe9Wtw86w88C9HwghQpa",
+        "full_name": "Pemilik Toko",
+        "role": "owner",
+        "created_at": "2025-06-14T15:28:28.000Z",
+        "created_by": null,
+        "is_active": 1
+      },
+      {
+        "user_id": 9,
+        "username": "ADMIN01",
+        "password": "$2b$10$Qmrz/73g0eZE5SqKC//BHu8.SRlDdYNsesVUy2tbEHEKxfJ6lHx9C",
+        "full_name": "ADMIN01",
+        "role": "admin",
+        "created_at": "2025-06-16T10:55:59.000Z",
+        "created_by": 3,
+        "is_active": 1
+      },
+      {
+        "user_id": 10,
+        "username": "ADMINY",
+        "password": "$2b$10$FGf5BApFsWAMBXC3e4BOdO1h35dO5wSLaeQhL7T0Tv6ZP.qYCIe0W",
+        "full_name": "ADMINY",
+        "role": "admin",
+        "created_at": "2025-06-19T11:21:48.000Z",
+        "created_by": 3,
+        "is_active": 1
+      }
+    ],
+    "products": [
+      {
+        "product_id": 39,
+        "item_code": "P001",
+        "item_name": "Map Kertas",
+        "item_type": "barang",
+        "selling_price": "3000.00",
+        "purchase_price": "1000.00",
+        "current_stock": 30,
+        "min_stock": 20,
+        "created_at": "2025-06-17T12:34:36.000Z",
+        "updated_at": "2025-06-19T12:30:27.000Z",
+        "last_purchase_date": "2025-06-16T16:00:00.000Z",
+        "is_active": 1
+      },
+      {
+        "product_id": 40,
+        "item_code": "J001",
+        "item_name": "Jilid",
+        "item_type": "jasa",
+        "selling_price": "4000.00",
+        "purchase_price": "0.00",
+        "current_stock": 0,
+        "min_stock": 0,
+        "created_at": "2025-06-17T12:34:36.000Z",
+        "updated_at": "2025-06-17T12:34:36.000Z",
+        "last_purchase_date": null,
+        "is_active": 1
+      },
+      {
+        "product_id": 41,
+        "item_code": "P002",
+        "item_name": "Pulpen",
+        "item_type": "barang",
+        "selling_price": "4000.00",
+        "purchase_price": "3000.00",
+        "current_stock": 20,
+        "min_stock": 2,
+        "created_at": "2025-06-17T12:34:43.000Z",
+        "updated_at": "2025-06-19T12:30:18.000Z",
+        "last_purchase_date": null,
+        "is_active": 1
+      },
+      {
+        "product_id": 42,
+        "item_code": "J002",
+        "item_name": "Fotokopi",
+        "item_type": "jasa",
+        "selling_price": "4000.00",
+        "purchase_price": "0.00",
+        "current_stock": 0,
+        "min_stock": 0,
+        "created_at": "2025-06-17T12:34:43.000Z",
+        "updated_at": "2025-06-17T13:50:25.000Z",
+        "last_purchase_date": null,
+        "is_active": 1
+      },
+      {
+        "product_id": 44,
+        "item_code": "P004",
+        "item_name": "Pulpen Pilot G2",
+        "item_type": "barang",
+        "selling_price": "3000.00",
+        "purchase_price": "2000.00",
+        "current_stock": 20,
+        "min_stock": 10,
+        "created_at": "2025-06-17T14:02:05.000Z",
+        "updated_at": "2025-06-19T12:30:23.000Z",
+        "last_purchase_date": null,
+        "is_active": 1
+      },
+      {
+        "product_id": 45,
+        "item_code": "P005",
+        "item_name": "map plastik",
+        "item_type": "barang",
+        "selling_price": "2000.00",
+        "purchase_price": "1000.00",
+        "current_stock": 30,
+        "min_stock": 20,
+        "created_at": "2025-06-17T14:49:11.000Z",
+        "updated_at": "2025-06-19T12:30:30.000Z",
+        "last_purchase_date": null,
+        "is_active": 1
+      },
+      {
+        "product_id": 46,
+        "item_code": "J003",
+        "item_name": "laminating",
+        "item_type": "jasa",
+        "selling_price": "3000.00",
+        "purchase_price": "0.00",
+        "current_stock": 0,
+        "min_stock": 0,
+        "created_at": "2025-06-17T14:49:11.000Z",
+        "updated_at": "2025-06-17T14:49:11.000Z",
+        "last_purchase_date": null,
+        "is_active": 1
+      },
+      {
+        "product_id": 49,
+        "item_code": "P006",
+        "item_name": "Pulpen Snowman",
+        "item_type": "barang",
+        "selling_price": "3000.00",
+        "purchase_price": "2500.00",
+        "current_stock": 30,
+        "min_stock": 10,
+        "created_at": "2025-06-18T09:54:20.000Z",
+        "updated_at": "2025-06-19T12:30:34.000Z",
+        "last_purchase_date": null,
+        "is_active": 1
+      },
+      {
+        "product_id": 50,
+        "item_code": "P007",
+        "item_name": "Spidol Besar",
+        "item_type": "barang",
+        "selling_price": "7000.00",
+        "purchase_price": "5000.00",
+        "current_stock": 20,
+        "min_stock": 6,
+        "created_at": "2025-06-18T09:58:47.000Z",
+        "updated_at": "2025-06-19T12:30:38.000Z",
+        "last_purchase_date": null,
+        "is_active": 1
+      },
+      {
+        "product_id": 51,
+        "item_code": "J004",
+        "item_name": "Foto 2x3",
+        "item_type": "jasa",
+        "selling_price": "2000.00",
+        "purchase_price": "0.00",
+        "current_stock": 0,
+        "min_stock": 0,
+        "created_at": "2025-06-18T09:58:47.000Z",
+        "updated_at": "2025-06-18T09:58:47.000Z",
+        "last_purchase_date": null,
+        "is_active": 1
+      }
+    ],
+    "transactions": [
+      {
+        "transaction_id": 1,
+        "transaction_code": "TRX-20250618-001",
+        "admin_id": 3,
+        "total_amount": "2000.00",
+        "payment_method": "transfer",
+        "payment_received": "2000.00",
+        "change_amount": "0.00",
+        "transaction_date": "2025-06-18T14:44:42.000Z"
+      },
+      {
+        "transaction_id": 2,
+        "transaction_code": "TRX-20250619-001",
+        "admin_id": 3,
+        "total_amount": "99000.00",
+        "payment_method": "cash",
+        "payment_received": "100000.00",
+        "change_amount": "1000.00",
+        "transaction_date": "2025-06-19T12:12:31.000Z"
+      },
+      {
+        "transaction_id": 3,
+        "transaction_code": "TRX-20250619-002",
+        "admin_id": 3,
+        "total_amount": "27000.00",
+        "payment_method": "cash",
+        "payment_received": "30000.00",
+        "change_amount": "3000.00",
+        "transaction_date": "2025-06-19T12:13:41.000Z"
+      },
+      {
+        "transaction_id": 4,
+        "transaction_code": "TRX-20250619-003",
+        "admin_id": 3,
+        "total_amount": "1006000.00",
+        "payment_method": "cash",
+        "payment_received": "1010000.00",
+        "change_amount": "4000.00",
+        "transaction_date": "2025-06-19T12:25:14.000Z"
+      }
+    ],
+    "transaction_details": [
+      {
+        "detail_id": 1,
+        "transaction_id": 1,
+        "product_id": 45,
+        "quantity": 1,
+        "unit_price": "2000.00",
+        "subtotal": "2000.00"
+      },
+      {
+        "detail_id": 2,
+        "transaction_id": 2,
+        "product_id": 51,
+        "quantity": 5,
+        "unit_price": "2000.00",
+        "subtotal": "10000.00"
+      },
+      {
+        "detail_id": 3,
+        "transaction_id": 2,
+        "product_id": 42,
+        "quantity": 5,
+        "unit_price": "4000.00",
+        "subtotal": "20000.00"
+      },
+      {
+        "detail_id": 4,
+        "transaction_id": 2,
+        "product_id": 40,
+        "quantity": 3,
+        "unit_price": "4000.00",
+        "subtotal": "12000.00"
+      },
+      {
+        "detail_id": 5,
+        "transaction_id": 2,
+        "product_id": 45,
+        "quantity": 4,
+        "unit_price": "2000.00",
+        "subtotal": "8000.00"
+      },
+      {
+        "detail_id": 6,
+        "transaction_id": 2,
+        "product_id": 39,
+        "quantity": 2,
+        "unit_price": "3000.00",
+        "subtotal": "6000.00"
+      },
+      {
+        "detail_id": 7,
+        "transaction_id": 2,
+        "product_id": 46,
+        "quantity": 2,
+        "unit_price": "3000.00",
+        "subtotal": "6000.00"
+      },
+      {
+        "detail_id": 8,
+        "transaction_id": 2,
+        "product_id": 41,
+        "quantity": 2,
+        "unit_price": "4000.00",
+        "subtotal": "8000.00"
+      },
+      {
+        "detail_id": 9,
+        "transaction_id": 2,
+        "product_id": 44,
+        "quantity": 2,
+        "unit_price": "3000.00",
+        "subtotal": "6000.00"
+      },
+      {
+        "detail_id": 10,
+        "transaction_id": 2,
+        "product_id": 49,
+        "quantity": 3,
+        "unit_price": "3000.00",
+        "subtotal": "9000.00"
+      },
+      {
+        "detail_id": 11,
+        "transaction_id": 2,
+        "product_id": 50,
+        "quantity": 2,
+        "unit_price": "7000.00",
+        "subtotal": "14000.00"
+      },
+      {
+        "detail_id": 12,
+        "transaction_id": 3,
+        "product_id": 44,
+        "quantity": 9,
+        "unit_price": "3000.00",
+        "subtotal": "27000.00"
+      },
+      {
+        "detail_id": 13,
+        "transaction_id": 4,
+        "product_id": 45,
+        "quantity": 95,
+        "unit_price": "2000.00",
+        "subtotal": "190000.00"
+      },
+      {
+        "detail_id": 14,
+        "transaction_id": 4,
+        "product_id": 39,
+        "quantity": 128,
+        "unit_price": "3000.00",
+        "subtotal": "384000.00"
+      },
+      {
+        "detail_id": 15,
+        "transaction_id": 4,
+        "product_id": 41,
+        "quantity": 18,
+        "unit_price": "4000.00",
+        "subtotal": "72000.00"
+      },
+      {
+        "detail_id": 16,
+        "transaction_id": 4,
+        "product_id": 44,
+        "quantity": 50,
+        "unit_price": "3000.00",
+        "subtotal": "150000.00"
+      },
+      {
+        "detail_id": 17,
+        "transaction_id": 4,
+        "product_id": 49,
+        "quantity": 21,
+        "unit_price": "3000.00",
+        "subtotal": "63000.00"
+      },
+      {
+        "detail_id": 18,
+        "transaction_id": 4,
+        "product_id": 50,
+        "quantity": 21,
+        "unit_price": "7000.00",
+        "subtotal": "147000.00"
+      }
+    ],
+    "stock_movements": [
+      {
+        "movement_id": 174,
+        "product_id": 39,
+        "movement_type": "in",
+        "quantity": 100,
+        "reference_type": "initial",
+        "reference_id": null,
+        "notes": "Stok awal",
+        "user_id": 3,
+        "created_at": "2025-06-17T12:34:36.000Z"
+      },
+      {
+        "movement_id": 175,
+        "product_id": 41,
+        "movement_type": "in",
+        "quantity": 10,
+        "reference_type": "initial",
+        "reference_id": null,
+        "notes": "Stok awal",
+        "user_id": 3,
+        "created_at": "2025-06-17T12:34:43.000Z"
+      },
+      {
+        "movement_id": 183,
+        "product_id": 39,
+        "movement_type": "in",
+        "quantity": 99,
+        "reference_type": "initial",
+        "reference_id": null,
+        "notes": "Stok awal periode owner",
+        "user_id": 3,
+        "created_at": "2025-06-17T12:49:16.000Z"
+      },
+      {
+        "movement_id": 184,
+        "product_id": 41,
+        "movement_type": "in",
+        "quantity": 4,
+        "reference_type": "initial",
+        "reference_id": null,
+        "notes": "Stok awal periode owner",
+        "user_id": 3,
+        "created_at": "2025-06-17T12:49:16.000Z"
+      },
+      {
+        "movement_id": 185,
+        "product_id": 39,
+        "movement_type": "in",
+        "quantity": 99,
+        "reference_type": "initial",
+        "reference_id": null,
+        "notes": "Stok awal periode reset 2",
+        "user_id": 3,
+        "created_at": "2025-06-17T12:55:59.000Z"
+      },
+      {
+        "movement_id": 186,
+        "product_id": 41,
+        "movement_type": "in",
+        "quantity": 4,
+        "reference_type": "initial",
+        "reference_id": null,
+        "notes": "Stok awal periode reset 2",
+        "user_id": 3,
+        "created_at": "2025-06-17T12:55:59.000Z"
+      },
+      {
+        "movement_id": 189,
+        "product_id": 44,
+        "movement_type": "in",
+        "quantity": 12,
+        "reference_type": "initial",
+        "reference_id": null,
+        "notes": "Stok awal",
+        "user_id": 3,
+        "created_at": "2025-06-17T14:02:05.000Z"
+      },
+      {
+        "movement_id": 190,
+        "product_id": 45,
+        "movement_type": "in",
+        "quantity": 100,
+        "reference_type": "initial",
+        "reference_id": null,
+        "notes": "Stok awal",
+        "user_id": 3,
+        "created_at": "2025-06-17T14:49:11.000Z"
+      },
+      {
+        "movement_id": 191,
+        "product_id": 39,
+        "movement_type": "in",
+        "quantity": 10,
+        "reference_type": "",
+        "reference_id": 1,
+        "notes": "Pembelian dari Supplier",
+        "user_id": 3,
+        "created_at": "2025-06-17T15:41:48.000Z"
+      },
+      {
+        "movement_id": 192,
+        "product_id": 39,
+        "movement_type": "in",
+        "quantity": 2,
+        "reference_type": "",
+        "reference_id": 2,
+        "notes": "Pembelian dari Supplier",
+        "user_id": 3,
+        "created_at": "2025-06-17T15:42:16.000Z"
+      },
+      {
+        "movement_id": 193,
+        "product_id": 39,
+        "movement_type": "in",
+        "quantity": 110,
+        "reference_type": "initial",
+        "reference_id": null,
+        "notes": "Stok awal periode reset 3",
+        "user_id": 3,
+        "created_at": "2025-06-17T15:58:53.000Z"
+      },
+      {
+        "movement_id": 194,
+        "product_id": 41,
+        "movement_type": "in",
+        "quantity": 4,
+        "reference_type": "initial",
+        "reference_id": null,
+        "notes": "Stok awal periode reset 3",
+        "user_id": 3,
+        "created_at": "2025-06-17T15:58:53.000Z"
+      },
+      {
+        "movement_id": 196,
+        "product_id": 44,
+        "movement_type": "in",
+        "quantity": 12,
+        "reference_type": "initial",
+        "reference_id": null,
+        "notes": "Stok awal periode reset 3",
+        "user_id": 3,
+        "created_at": "2025-06-17T15:58:53.000Z"
+      },
+      {
+        "movement_id": 197,
+        "product_id": 45,
+        "movement_type": "in",
+        "quantity": 100,
+        "reference_type": "initial",
+        "reference_id": null,
+        "notes": "Stok awal periode reset 3",
+        "user_id": 3,
+        "created_at": "2025-06-17T15:58:53.000Z"
+      },
+      {
+        "movement_id": 198,
+        "product_id": 39,
+        "movement_type": "in",
+        "quantity": 1,
+        "reference_type": "manual",
+        "reference_id": null,
+        "notes": "butuh",
+        "user_id": 3,
+        "created_at": "2025-06-18T07:24:46.000Z"
+      },
+      {
+        "movement_id": 199,
+        "product_id": 39,
+        "movement_type": "in",
+        "quantity": 9,
+        "reference_type": "",
+        "reference_id": null,
+        "notes": "Update via edit produk",
+        "user_id": 3,
+        "created_at": "2025-06-18T07:31:02.000Z"
+      },
+      {
+        "movement_id": 200,
+        "product_id": 39,
+        "movement_type": "in",
+        "quantity": 10,
+        "reference_type": "manual",
+        "reference_id": null,
+        "notes": "tambahan",
+        "user_id": 3,
+        "created_at": "2025-06-18T07:50:28.000Z"
+      },
+      {
+        "movement_id": 203,
+        "product_id": 41,
+        "movement_type": "in",
+        "quantity": 6,
+        "reference_type": "manual",
+        "reference_id": null,
+        "notes": "Stok in manual",
+        "user_id": 3,
+        "created_at": "2025-06-18T09:26:05.000Z"
+      },
+      {
+        "movement_id": 205,
+        "product_id": 49,
+        "movement_type": "in",
+        "quantity": 24,
+        "reference_type": "initial",
+        "reference_id": null,
+        "notes": "Stok awal produk baru",
+        "user_id": 3,
+        "created_at": "2025-06-18T09:54:20.000Z"
+      },
+      {
+        "movement_id": 206,
+        "product_id": 41,
+        "movement_type": "in",
+        "quantity": 1,
+        "reference_type": "manual",
+        "reference_id": null,
+        "notes": "Stok in manual",
+        "user_id": 3,
+        "created_at": "2025-06-18T09:54:44.000Z"
+      },
+      {
+        "movement_id": 207,
+        "product_id": 50,
+        "movement_type": "in",
+        "quantity": 24,
+        "reference_type": "initial",
+        "reference_id": null,
+        "notes": "Stok awal produk baru",
+        "user_id": 3,
+        "created_at": "2025-06-18T09:58:47.000Z"
+      },
+      {
+        "movement_id": 210,
+        "product_id": 41,
+        "movement_type": "in",
+        "quantity": 10,
+        "reference_type": "manual",
+        "reference_id": null,
+        "notes": "Stok in manual",
+        "user_id": 3,
+        "created_at": "2025-06-18T10:50:33.000Z"
+      },
+      {
+        "movement_id": 211,
+        "product_id": 45,
+        "movement_type": "out",
+        "quantity": 1,
+        "reference_type": "transaction",
+        "reference_id": 1,
+        "notes": null,
+        "user_id": 3,
+        "created_at": "2025-06-18T14:44:42.000Z"
+      },
+      {
+        "movement_id": 214,
+        "product_id": 45,
+        "movement_type": "out",
+        "quantity": 4,
+        "reference_type": "transaction",
+        "reference_id": 2,
+        "notes": null,
+        "user_id": 3,
+        "created_at": "2025-06-19T12:12:31.000Z"
+      },
+      {
+        "movement_id": 215,
+        "product_id": 39,
+        "movement_type": "out",
+        "quantity": 2,
+        "reference_type": "transaction",
+        "reference_id": 2,
+        "notes": null,
+        "user_id": 3,
+        "created_at": "2025-06-19T12:12:31.000Z"
+      },
+      {
+        "movement_id": 216,
+        "product_id": 41,
+        "movement_type": "out",
+        "quantity": 2,
+        "reference_type": "transaction",
+        "reference_id": 2,
+        "notes": null,
+        "user_id": 3,
+        "created_at": "2025-06-19T12:12:31.000Z"
+      },
+      {
+        "movement_id": 217,
+        "product_id": 44,
+        "movement_type": "out",
+        "quantity": 2,
+        "reference_type": "transaction",
+        "reference_id": 2,
+        "notes": null,
+        "user_id": 3,
+        "created_at": "2025-06-19T12:12:31.000Z"
+      },
+      {
+        "movement_id": 218,
+        "product_id": 49,
+        "movement_type": "out",
+        "quantity": 3,
+        "reference_type": "transaction",
+        "reference_id": 2,
+        "notes": null,
+        "user_id": 3,
+        "created_at": "2025-06-19T12:12:31.000Z"
+      },
+      {
+        "movement_id": 219,
+        "product_id": 50,
+        "movement_type": "out",
+        "quantity": 2,
+        "reference_type": "transaction",
+        "reference_id": 2,
+        "notes": null,
+        "user_id": 3,
+        "created_at": "2025-06-19T12:12:31.000Z"
+      },
+      {
+        "movement_id": 220,
+        "product_id": 44,
+        "movement_type": "out",
+        "quantity": 9,
+        "reference_type": "transaction",
+        "reference_id": 3,
+        "notes": null,
+        "user_id": 3,
+        "created_at": "2025-06-19T12:13:41.000Z"
+      },
+      {
+        "movement_id": 221,
+        "product_id": 44,
+        "movement_type": "in",
+        "quantity": 10,
+        "reference_type": "manual",
+        "reference_id": null,
+        "notes": "Stok in manual",
+        "user_id": 3,
+        "created_at": "2025-06-19T12:14:36.000Z"
+      },
+      {
+        "movement_id": 222,
+        "product_id": 44,
+        "movement_type": "out",
+        "quantity": 10,
+        "reference_type": "manual",
+        "reference_id": null,
+        "notes": "Stok out manual",
+        "user_id": 3,
+        "created_at": "2025-06-19T12:14:54.000Z"
+      },
+      {
+        "movement_id": 223,
+        "product_id": 44,
+        "movement_type": "in",
+        "quantity": 100,
+        "reference_type": "manual",
+        "reference_id": null,
+        "notes": "Stok in manual",
+        "user_id": 3,
+        "created_at": "2025-06-19T12:15:07.000Z"
+      },
+      {
+        "movement_id": 224,
+        "product_id": 44,
+        "movement_type": "adjustment",
+        "quantity": 50,
+        "reference_type": "manual",
+        "reference_id": null,
+        "notes": "Stok adjustment manual",
+        "user_id": 3,
+        "created_at": "2025-06-19T12:15:19.000Z"
+      },
+      {
+        "movement_id": 225,
+        "product_id": 50,
+        "movement_type": "out",
+        "quantity": 10,
+        "reference_type": "manual",
+        "reference_id": null,
+        "notes": "Stok out manual",
+        "user_id": 3,
+        "created_at": "2025-06-19T12:20:25.000Z"
+      },
+      {
+        "movement_id": 226,
+        "product_id": 50,
+        "movement_type": "in",
+        "quantity": 10,
+        "reference_type": "manual",
+        "reference_id": null,
+        "notes": "Stok in manual",
+        "user_id": 3,
+        "created_at": "2025-06-19T12:20:36.000Z"
+      },
+      {
+        "movement_id": 227,
+        "product_id": 45,
+        "movement_type": "out",
+        "quantity": 95,
+        "reference_type": "transaction",
+        "reference_id": 4,
+        "notes": null,
+        "user_id": 3,
+        "created_at": "2025-06-19T12:25:14.000Z"
+      },
+      {
+        "movement_id": 228,
+        "product_id": 39,
+        "movement_type": "out",
+        "quantity": 128,
+        "reference_type": "transaction",
+        "reference_id": 4,
+        "notes": null,
+        "user_id": 3,
+        "created_at": "2025-06-19T12:25:14.000Z"
+      },
+      {
+        "movement_id": 229,
+        "product_id": 41,
+        "movement_type": "out",
+        "quantity": 18,
+        "reference_type": "transaction",
+        "reference_id": 4,
+        "notes": null,
+        "user_id": 3,
+        "created_at": "2025-06-19T12:25:14.000Z"
+      },
+      {
+        "movement_id": 230,
+        "product_id": 44,
+        "movement_type": "out",
+        "quantity": 50,
+        "reference_type": "transaction",
+        "reference_id": 4,
+        "notes": null,
+        "user_id": 3,
+        "created_at": "2025-06-19T12:25:14.000Z"
+      },
+      {
+        "movement_id": 231,
+        "product_id": 49,
+        "movement_type": "out",
+        "quantity": 21,
+        "reference_type": "transaction",
+        "reference_id": 4,
+        "notes": null,
+        "user_id": 3,
+        "created_at": "2025-06-19T12:25:14.000Z"
+      },
+      {
+        "movement_id": 232,
+        "product_id": 50,
+        "movement_type": "out",
+        "quantity": 21,
+        "reference_type": "transaction",
+        "reference_id": 4,
+        "notes": null,
+        "user_id": 3,
+        "created_at": "2025-06-19T12:25:14.000Z"
+      },
+      {
+        "movement_id": 233,
+        "product_id": 39,
+        "movement_type": "in",
+        "quantity": 20,
+        "reference_type": "manual",
+        "reference_id": null,
+        "notes": "Stok in manual",
+        "user_id": 3,
+        "created_at": "2025-06-19T12:30:08.000Z"
+      },
+      {
+        "movement_id": 234,
+        "product_id": 45,
+        "movement_type": "in",
+        "quantity": 20,
+        "reference_type": "manual",
+        "reference_id": null,
+        "notes": "Stok in manual",
+        "user_id": 3,
+        "created_at": "2025-06-19T12:30:13.000Z"
+      },
+      {
+        "movement_id": 235,
+        "product_id": 41,
+        "movement_type": "in",
+        "quantity": 20,
+        "reference_type": "manual",
+        "reference_id": null,
+        "notes": "Stok in manual",
+        "user_id": 3,
+        "created_at": "2025-06-19T12:30:18.000Z"
+      },
+      {
+        "movement_id": 236,
+        "product_id": 44,
+        "movement_type": "in",
+        "quantity": 20,
+        "reference_type": "manual",
+        "reference_id": null,
+        "notes": "Stok in manual",
+        "user_id": 3,
+        "created_at": "2025-06-19T12:30:23.000Z"
+      },
+      {
+        "movement_id": 237,
+        "product_id": 39,
+        "movement_type": "in",
+        "quantity": 10,
+        "reference_type": "manual",
+        "reference_id": null,
+        "notes": "Stok in manual",
+        "user_id": 3,
+        "created_at": "2025-06-19T12:30:27.000Z"
+      },
+      {
+        "movement_id": 238,
+        "product_id": 45,
+        "movement_type": "in",
+        "quantity": 10,
+        "reference_type": "manual",
+        "reference_id": null,
+        "notes": "Stok in manual",
+        "user_id": 3,
+        "created_at": "2025-06-19T12:30:30.000Z"
+      },
+      {
+        "movement_id": 239,
+        "product_id": 49,
+        "movement_type": "in",
+        "quantity": 30,
+        "reference_type": "manual",
+        "reference_id": null,
+        "notes": "Stok in manual",
+        "user_id": 3,
+        "created_at": "2025-06-19T12:30:34.000Z"
+      },
+      {
+        "movement_id": 240,
+        "product_id": 50,
+        "movement_type": "in",
+        "quantity": 20,
+        "reference_type": "manual",
+        "reference_id": null,
+        "notes": "Stok in manual",
+        "user_id": 3,
+        "created_at": "2025-06-19T12:30:38.000Z"
+      }
+    ],
+    "expenses": [
+      {
+        "expense_id": 1,
+        "expense_date": "2025-06-18T16:00:00.000Z",
+        "category_id": 6,
+        "description": "Pembelian awal: Pulpen",
+        "amount": "40000.00",
+        "payment_method": "cash",
+        "receipt_number": null,
+        "notes": "Stok awal untuk produk baru #52",
+        "created_by": 3,
+        "created_at": "2025-06-19T11:56:45.000Z"
+      },
+      {
+        "expense_id": 2,
+        "expense_date": "2025-06-18T16:00:00.000Z",
+        "category_id": 6,
+        "description": "Pembelian awal: Pulpen",
+        "amount": "60000.00",
+        "payment_method": "cash",
+        "receipt_number": null,
+        "notes": "Stok awal untuk produk baru #53",
+        "created_by": 3,
+        "created_at": "2025-06-19T11:58:06.000Z"
+      },
+      {
+        "expense_id": 3,
+        "expense_date": "2025-06-18T16:00:00.000Z",
+        "category_id": 6,
+        "description": "Penambahan stok: Pulpen Pilot G2",
+        "amount": "20000.00",
+        "payment_method": "cash",
+        "receipt_number": null,
+        "notes": "Penambahan stok manual produk #44",
+        "created_by": 3,
+        "created_at": "2025-06-19T12:14:36.000Z"
+      },
+      {
+        "expense_id": 4,
+        "expense_date": "2025-06-18T16:00:00.000Z",
+        "category_id": 6,
+        "description": "Penambahan stok: Pulpen Pilot G2",
+        "amount": "200000.00",
+        "payment_method": "cash",
+        "receipt_number": null,
+        "notes": "Penambahan stok manual produk #44",
+        "created_by": 3,
+        "created_at": "2025-06-19T12:15:07.000Z"
+      },
+      {
+        "expense_id": 5,
+        "expense_date": "2025-06-18T16:00:00.000Z",
+        "category_id": 6,
+        "description": "Penambahan stok: Spidol Besar",
+        "amount": "50000.00",
+        "payment_method": "cash",
+        "receipt_number": null,
+        "notes": "Penambahan stok manual produk #50",
+        "created_by": 3,
+        "created_at": "2025-06-19T12:20:36.000Z"
+      },
+      {
+        "expense_id": 6,
+        "expense_date": "2025-06-18T16:00:00.000Z",
+        "category_id": 6,
+        "description": "Penambahan stok: Map Kertas",
+        "amount": "20000.00",
+        "payment_method": "cash",
+        "receipt_number": null,
+        "notes": "Penambahan stok manual produk #39",
+        "created_by": 3,
+        "created_at": "2025-06-19T12:30:08.000Z"
+      },
+      {
+        "expense_id": 7,
+        "expense_date": "2025-06-18T16:00:00.000Z",
+        "category_id": 6,
+        "description": "Penambahan stok: map plastik",
+        "amount": "20000.00",
+        "payment_method": "cash",
+        "receipt_number": null,
+        "notes": "Penambahan stok manual produk #45",
+        "created_by": 3,
+        "created_at": "2025-06-19T12:30:13.000Z"
+      },
+      {
+        "expense_id": 8,
+        "expense_date": "2025-06-18T16:00:00.000Z",
+        "category_id": 6,
+        "description": "Penambahan stok: Pulpen",
+        "amount": "60000.00",
+        "payment_method": "cash",
+        "receipt_number": null,
+        "notes": "Penambahan stok manual produk #41",
+        "created_by": 3,
+        "created_at": "2025-06-19T12:30:18.000Z"
+      },
+      {
+        "expense_id": 9,
+        "expense_date": "2025-06-18T16:00:00.000Z",
+        "category_id": 6,
+        "description": "Penambahan stok: Pulpen Pilot G2",
+        "amount": "40000.00",
+        "payment_method": "cash",
+        "receipt_number": null,
+        "notes": "Penambahan stok manual produk #44",
+        "created_by": 3,
+        "created_at": "2025-06-19T12:30:23.000Z"
+      },
+      {
+        "expense_id": 10,
+        "expense_date": "2025-06-18T16:00:00.000Z",
+        "category_id": 6,
+        "description": "Penambahan stok: Map Kertas",
+        "amount": "10000.00",
+        "payment_method": "cash",
+        "receipt_number": null,
+        "notes": "Penambahan stok manual produk #39",
+        "created_by": 3,
+        "created_at": "2025-06-19T12:30:27.000Z"
+      },
+      {
+        "expense_id": 11,
+        "expense_date": "2025-06-18T16:00:00.000Z",
+        "category_id": 6,
+        "description": "Penambahan stok: map plastik",
+        "amount": "10000.00",
+        "payment_method": "cash",
+        "receipt_number": null,
+        "notes": "Penambahan stok manual produk #45",
+        "created_by": 3,
+        "created_at": "2025-06-19T12:30:30.000Z"
+      },
+      {
+        "expense_id": 12,
+        "expense_date": "2025-06-18T16:00:00.000Z",
+        "category_id": 6,
+        "description": "Penambahan stok: Pulpen Snowman",
+        "amount": "75000.00",
+        "payment_method": "cash",
+        "receipt_number": null,
+        "notes": "Penambahan stok manual produk #49",
+        "created_by": 3,
+        "created_at": "2025-06-19T12:30:34.000Z"
+      },
+      {
+        "expense_id": 13,
+        "expense_date": "2025-06-18T16:00:00.000Z",
+        "category_id": 6,
+        "description": "Penambahan stok: Spidol Besar",
+        "amount": "100000.00",
+        "payment_method": "cash",
+        "receipt_number": null,
+        "notes": "Penambahan stok manual produk #50",
+        "created_by": 3,
+        "created_at": "2025-06-19T12:30:38.000Z"
+      }
+    ],
+    "expense_categories": [
+      {
+        "category_id": 1,
+        "category_name": "Listrik",
+        "category_type": "operational",
+        "description": "Pembayaran listrik bulanan",
+        "is_active": 1,
+        "created_at": "2025-06-17T11:32:07.000Z"
+      },
+      {
+        "category_id": 2,
+        "category_name": "Air",
+        "category_type": "operational",
+        "description": "Pembayaran air bulanan",
+        "is_active": 1,
+        "created_at": "2025-06-17T11:32:07.000Z"
+      },
+      {
+        "category_id": 3,
+        "category_name": "Internet",
+        "category_type": "operational",
+        "description": "Pembayaran internet bulanan",
+        "is_active": 1,
+        "created_at": "2025-06-17T11:32:07.000Z"
+      },
+      {
+        "category_id": 4,
+        "category_name": "Gaji Karyawan",
+        "category_type": "operational",
+        "description": "Pembayaran gaji karyawan",
+        "is_active": 1,
+        "created_at": "2025-06-17T11:32:07.000Z"
+      },
+      {
+        "category_id": 5,
+        "category_name": "Sewa Tempat",
+        "category_type": "operational",
+        "description": "Pembayaran sewa tempat usaha",
+        "is_active": 1,
+        "created_at": "2025-06-17T11:32:07.000Z"
+      },
+      {
+        "category_id": 6,
+        "category_name": "Pembelian Barang",
+        "category_type": "purchase",
+        "description": "Pembelian stok barang dagangan",
+        "is_active": 1,
+        "created_at": "2025-06-17T11:32:07.000Z"
+      },
+      {
+        "category_id": 7,
+        "category_name": "Transportasi",
+        "category_type": "operational",
+        "description": "Biaya transportasi dan bensin",
+        "is_active": 1,
+        "created_at": "2025-06-17T11:32:07.000Z"
+      },
+      {
+        "category_id": 8,
+        "category_name": "Maintenance",
+        "category_type": "operational",
+        "description": "Biaya perawatan dan perbaikan",
+        "is_active": 1,
+        "created_at": "2025-06-17T11:32:07.000Z"
+      },
+      {
+        "category_id": 9,
+        "category_name": "Marketing",
+        "category_type": "operational",
+        "description": "Biaya promosi dan marketing",
+        "is_active": 1,
+        "created_at": "2025-06-17T11:32:07.000Z"
+      },
+      {
+        "category_id": 10,
+        "category_name": "Lain-lain",
+        "category_type": "other",
+        "description": "Pengeluaran lainnya",
+        "is_active": 1,
+        "created_at": "2025-06-17T11:32:07.000Z"
+      },
+      {
+        "category_id": 21,
+        "category_name": "Prive",
+        "category_type": "other",
+        "description": "Pengambilan dana pribadi oleh pemilik untuk keperluan non-bisnis",
+        "is_active": 1,
+        "created_at": "2025-06-18T13:23:54.000Z"
+      }
+    ]
+  }
+}
