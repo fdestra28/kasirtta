@@ -3,7 +3,7 @@
 // --- PERBAIKAN KONSISTENSI ---
 // Definisikan API_URL di sini, konsisten dengan yang ada di main.js
 // Ini memastikan halaman login yang berdiri sendiri tetap bisa berfungsi.
-const API_URL = 'http://localhost:5000/api';
+const API_URL = '/api';
 
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('loginForm');

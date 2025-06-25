@@ -1,7 +1,7 @@
 // public/js/main.js - TOKOATK PRO REVAMP VERSION (REVISED & HARDENED)
 
 // ===== GLOBAL CONFIGURATION =====
-const API_URL = 'http://localhost:5000/api';
+const API_URL = '/api';
 let currentUser = null;
 let currentPage = 'dashboard';
 let appSettings = {};
