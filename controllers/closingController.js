@@ -145,26 +145,26 @@ const executeClosing = async (req, res) => {
         
         await connection.beginTransaction();
         
-        const backupDir = require('path').join(__dirname, '..', 'backups');
-        await require('fs').promises.mkdir(backupDir, { recursive: true });
+        // const backupDir = require('path').join(__dirname, '..', 'backups');
+        // await require('fs').promises.mkdir(backupDir, { recursive: true });
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         const backupFile = `backup_${timestamp}.json`;
-        const backupPath = require('path').join(backupDir, backupFile);
-        const backupData = {
-            timestamp: new Date().toISOString(),
-            period: { name: period_name, start_date, end_date },
-            financial_summary: financial_report,
-            data: {}
-        };
+        // const backupPath = require('path').join(backupDir, backupFile);
+        // const backupData = {
+        //     timestamp: new Date().toISOString(),
+        //     period: { name: period_name, start_date, end_date },
+        //     financial_summary: financial_report,
+        //     data: {}
+        // };
 
-        // Hapus 'purchases' dan 'purchase_details' dari daftar tabel yang akan di-backup
-        const tables = ['users', 'products', 'transactions', 'transaction_details', 'stock_movements', 'expenses', 'expense_categories'];
+        // // Hapus 'purchases' dan 'purchase_details' dari daftar tabel yang akan di-backup
+        // const tables = ['users', 'products', 'transactions', 'transaction_details', 'stock_movements', 'expenses', 'expense_categories'];
     
-        for (const table of tables) {
-            const [rows] = await connection.query(`SELECT * FROM ${table}`);
-            backupData.data[table] = rows;
-        }
-        await require('fs').promises.writeFile(backupPath, JSON.stringify(backupData, null, 2));
+        // for (const table of tables) {
+        //     const [rows] = await connection.query(`SELECT * FROM ${table}`);
+        //     backupData.data[table] = rows;
+        // }
+        // await require('fs').promises.writeFile(backupPath, JSON.stringify(backupData, null, 2));
         
         const { beginning_capital, ending_capital } = financial_report.equity_statement;
         const [closingResult] = await connection.query(
@@ -217,10 +217,14 @@ const getClosingHistory = async (req, res) => {
 
 const downloadBackup = async (req, res) => {
     try {
-        const { filename } = req.params;
-        const backupPath = require('path').join(__dirname, '..', 'backups', filename);
-        await require('fs').promises.access(backupPath);
-        res.download(backupPath);
+        // const { filename } = req.params;
+        // const backupPath = require('path').join(__dirname, '..', 'backups', filename);
+        // await require('fs').promises.access(backupPath);
+        // res.download(backupPath);
+        return res.status(501).json({ 
+            success: false, 
+            message: 'Fitur download backup saat ini tidak tersedia di lingkungan ini. File backup tidak disimpan secara fisik di server.' 
+        });
     } catch (error) {
         res.status(404).json({ success: false, message: 'File backup tidak ditemukan!' });
     }
@@ -228,22 +232,27 @@ const downloadBackup = async (req, res) => {
 
 const getHistoricalReport = async (req, res) => {
     try {
-        const { id } = req.params; // Ini adalah closing_id
+        // const { id } = req.params; // Ini adalah closing_id
 
-        // 1. Dapatkan nama file backup dari database
-        const [closings] = await db.query(
-            'SELECT backup_file, period_name FROM book_closings WHERE closing_id = ?', 
-            [id]
-        );
+        // // 1. Dapatkan nama file backup dari database
+        // const [closings] = await db.query(
+        //     'SELECT backup_file, period_name FROM book_closings WHERE closing_id = ?', 
+        //     [id]
+        // );
 
-        if (closings.length === 0) {
-            return res.status(404).json({ success: false, message: 'Riwayat tutup buku tidak ditemukan.' });
-        }
+        // if (closings.length === 0) {
+        //     return res.status(404).json({ success: false, message: 'Riwayat tutup buku tidak ditemukan.' });
+        // }
 
-        const { backup_file, period_name } = closings[0];
-        if (!backup_file) {
-            return res.status(404).json({ success: false, message: 'File backup untuk periode ini tidak terdaftar.' });
-        }
+        // const { backup_file, period_name } = closings[0];
+        // if (!backup_file) {
+        //     return res.status(404).json({ success: false, message: 'File backup untuk periode ini tidak terdaftar.' });
+        // }
+
+        return res.status(501).json({ 
+            success: false, 
+            message: 'Fitur laporan historis dari file backup saat ini tidak tersedia. Data laporan tidak disimpan sebagai file fisik.'
+        });
 
         // 2. Baca file backup
         const backupPath = path.join(__dirname, '..', 'backups', backup_file);
@@ -265,9 +274,7 @@ const getHistoricalReport = async (req, res) => {
         });
 
     } catch (error) {
-        if (error.code === 'ENOENT') {
-            return res.status(404).json({ success: false, message: 'File backup fisik tidak ditemukan di server.' });
-        }
+        // if (error.code === 'ENOENT') { /* ... */ }
         console.error('Get historical report error:', error);
         res.status(500).json({ success: false, message: 'Gagal mengambil laporan historis.' });
     }

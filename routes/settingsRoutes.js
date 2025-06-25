@@ -5,8 +5,20 @@ const settingsController = require('../controllers/settingsController');
 const { verifyToken, adminOrOwner } = require('../middlewares/authMiddleware');
 const multer = require('multer');
 
+const path = require('path'); // Tambahkan ini
+// ...
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, '/tmp'); // Simpan ke direktori /tmp
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+  }
+});
+const upload = multer({ storage: storage });
+
 // Konfigurasi Multer untuk menyimpan file sementara
-const upload = multer({ dest: 'uploads/' });
+// const upload = multer({ dest: 'uploads/' });
 
 // Semua rute di file ini hanya bisa diakses oleh owner
 router.use(verifyToken, adminOrOwner);
