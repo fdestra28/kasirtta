@@ -1,7 +1,7 @@
 // controllers/settingsController.js
 const { db } = require('../config/database');
-const fs = require('fs');
-const path = require('path');
+// const fs = require('fs');
+// const path = require('path');
 
 // Fungsi untuk mengambil semua pengaturan
 const getAllSettings = async (req, res) => {
@@ -28,10 +28,9 @@ const updateSettings = async (req, res) => {
     try {
         await connection.beginTransaction();
 
-        // Proses data teks
         const textSettings = req.body;
         for (const key in textSettings) {
-            if (Object.hasOwnProperty.call(textSettings, key)) {
+            if (Object.hasOwnProperty.call(textSettings, key) && key !== 'store_logo_favicon') { // Hindari memproses field file
                 const value = textSettings[key];
                 await connection.query(
                     'INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?',
