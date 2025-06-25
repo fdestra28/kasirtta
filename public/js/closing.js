@@ -1,4 +1,4 @@
-// public/js/closing.js - TOKOATK PRO REVAMP VERSION
+// public/js/closing.js - KASIRTTA PRO REVAMP VERSION
 
 // ===== GLOBAL STATE FOR CLOSING PAGE =====
 let currentFinancialReport = null;

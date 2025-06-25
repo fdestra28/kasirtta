@@ -1,4 +1,4 @@
-// public/js/settings.js - TOKOATK PRO REVAMP VERSION
+// public/js/settings.js - KASIRTTA PRO REVAMP VERSION
 
 let settingsEventListenersInitialized = false;
 

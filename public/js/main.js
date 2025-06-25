@@ -1,4 +1,4 @@
-// public/js/main.js - TOKOATK PRO REVAMP VERSION (REVISED & HARDENED)
+// public/js/main.js - KASIRTTA PRO REVAMP VERSION (REVISED & HARDENED)
 
 // ===== GLOBAL CONFIGURATION =====
 const API_URL = '/api';
@@ -416,7 +416,7 @@ function applyBranding() {
         mainTitle.textContent = appSettings.store_name;
     }
     
-    document.title = `${appSettings.store_name || 'TokoATK Pro'} - Modern POS System`;
+    document.title = `${appSettings.store_name || 'Kasirtta'} - By Kasirtta`;
     
     const favicon = document.getElementById('favicon');
     if (favicon && appSettings.store_logo_favicon) {
@@ -771,7 +771,7 @@ function renderReportTables(reportData) {
             </div>
             
             <div class="report-actions">
-                <button class="btn btn-success" onclick="exportToExcel('mainReportContainer', 'Laporan_TokoATK')">
+                <button class="btn btn-success" onclick="exportToExcel('mainReportContainer', 'Laporan_KASIRTTA')">
                     <ion-icon name="download-outline"></ion-icon>
                     Export
                 </button>
@@ -1267,7 +1267,7 @@ function printReceipt(transaction) {
         </head>
         <body>
             <div class="header">
-                <h2>${appSettings.store_name || 'TokoATK Pro'}</h2>
+                <h2>${appSettings.store_name || 'Kasirtta'}</h2>
                 <p>${appSettings.store_address || ''}<br>${appSettings.store_phone || ''}</p>
             </div>
             <div class="info">

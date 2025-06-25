@@ -1,4 +1,4 @@
-// public/js/cashier.js - TOKOATK PRO REVAMP VERSION
+// public/js/cashier.js - KASIRTTA PRO REVAMP VERSION
 
 // ===== GLOBAL STATE FOR CASHIER PAGE =====
 let cart = [];
@@ -238,7 +238,7 @@ async function processTransaction() {
 
 function showReceiptPreview(transaction) {
     const contentDiv = document.getElementById('receiptPreviewContent');
-    const storeName = appSettings.store_name || 'TokoATK Pro';
+    const storeName = appSettings.store_name || 'KASIRTTA';
     const storeAddress = appSettings.store_address || '';
     const receiptHtml = `<div class="receipt-preview"><h3>${storeName}</h3><p>${storeAddress}</p><div class="receipt-info"><div><span>No:</span><span>${transaction.transaction_code}</span></div><div><span>Tgl:</span><span>${formatDate(transaction.transaction_date)}</span></div><div><span>Kasir:</span><span>${currentUser.full_name}</span></div></div><div class="receipt-items"><div class="item-line item-header"><span>Nama Item</span><span>Total</span></div>${transaction.items.map(item => `<div><div class="item-line"><span>${item.product_name}</span><span>${formatCurrency(item.subtotal)}</span></div><div class="item-details">${item.quantity} x ${formatCurrency(item.unit_price)}</div></div>`).join('')}</div><div class="receipt-total"><div><span>Total</span><span>${formatCurrency(transaction.total_amount)}</span></div><div><span>Bayar</span><span>${formatCurrency(transaction.payment_received)}</span></div><div><span>Kembali</span><span>${formatCurrency(transaction.change_amount)}</span></div></div><div class="receipt-footer"><p>Terima kasih!</p></div></div>`;
     contentDiv.innerHTML = receiptHtml;

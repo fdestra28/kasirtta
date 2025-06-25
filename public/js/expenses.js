@@ -1,4 +1,4 @@
-// public/js/expenses.js - TOKOATK PRO REVAMP VERSION
+// public/js/expenses.js - KASIRTTA PRO REVAMP VERSION
 
 // ===== GLOBAL STATE FOR EXPENSES PAGE =====
 let expenseList = [];

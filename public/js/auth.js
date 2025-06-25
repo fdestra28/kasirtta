@@ -1,4 +1,4 @@
-// public/js/auth.js - TOKOATK PRO REVAMP VERSION (REVISED & FIXED)
+// public/js/auth.js - KASIRTTA PRO REVAMP VERSION (REVISED & FIXED)
 
 // --- PERBAIKAN KONSISTENSI ---
 // Definisikan API_URL di sini, konsisten dengan yang ada di main.js

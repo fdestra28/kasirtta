@@ -1,4 +1,4 @@
-// public/js/users.js - TOKOATK PRO REVAMP VERSION
+// public/js/users.js - KASIRTTA PRO REVAMP VERSION
 
 // ===== GLOBAL STATE FOR USERS PAGE =====
 let users = [];

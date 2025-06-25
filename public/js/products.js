@@ -1,4 +1,4 @@
-// public/js/products.js - TOKOATK PRO REVAMP VERSION WITH PAGINATION
+// public/js/products.js - KASIRTTA PRO REVAMP VERSION WITH PAGINATION
 
 // ===== GLOBAL STATE FOR PRODUCTS PAGE =====
 let allProductsList = [];
@@ -247,7 +247,7 @@ function exportProducts() {
     const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `Produk_TokoATK_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.download = `Produk_KASIRTTA_${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
     showNotification('Data produk berhasil di-export!', 'success');
 }
