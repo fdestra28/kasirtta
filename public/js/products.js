@@ -8,6 +8,8 @@ let productCurrentPage = 1;
 const productLimit = 10; // Menetapkan 10 item per halaman
 let productEventListenersInitialized = false;
 let importData = []; // Tetap pertahankan untuk fungsi import
+let originalFileForUpload = null; // Menyimpan objek File asli untuk diupload jika backend memproses file mentah
+
 
 /**
  * Initializes the product page, loads data, and sets up event listeners.
@@ -252,9 +254,217 @@ function exportProducts() {
     showNotification('Data produk berhasil di-export!', 'success');
 }
 
-function handleImportFile(e) { /* Logika tidak berubah */ }
-function showImportPreview() { /* Logika tidak berubah */ }
-async function confirmImport() { /* Logika tidak berubah */ }
+// function handleImportFile(e) { /* Logika tidak berubah */ }
+// function showImportPreview() { /* Logika tidak berubah */ }
+// async function confirmImport() { /* Logika tidak berubah */ }
+
+/**
+ * Dipanggil ketika user memilih file untuk diimpor.
+ * Membaca file, mem-parse datanya, dan menampilkan preview.
+ * @param {Event} e - Event dari input file.
+ */
+ 
+function handleImportFile(e) {
+    const file = e.target.files[0];
+    if (!file) {
+        importData = [];
+        originalFileForUpload = null;
+        return;
+    }
+
+    originalFileForUpload = file; // Simpan file asli jika backend yang akan parse
+    const reader = new FileReader();
+
+    reader.onload = function(event) {
+        const data = event.target.result;
+        try {
+            if (file.name.endsWith('.csv')) {
+                // Parsing CSV sederhana
+                const csvText = new TextDecoder().decode(data); // Jika 'data' adalah ArrayBuffer
+                // const csvText = data; // Jika 'data' sudah string (tergantung reader.readAs...)
+                const lines = csvText.split(/\r\n|\n/);
+                if (lines.length < 2) throw new Error("File CSV tidak valid atau kosong.");
+                
+                const headers = lines[0].split(',').map(h => h.trim());
+                importData = []; // Reset importData
+                for (let i = 1; i < lines.length; i++) {
+                    if (lines[i].trim() === '') continue; // Lewati baris kosong
+                    const values = lines[i].split(',');
+                    let obj = {};
+                    headers.forEach((header, index) => {
+                        obj[header] = values[index] ? values[index].trim() : '';
+                    });
+                    importData.push(obj);
+                }
+            } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                if (typeof XLSX === 'undefined') {
+                    showNotification('Library XLSX (SheetJS) tidak termuat. Tidak bisa memproses file Excel.', 'error');
+                    throw new Error("XLSX library not loaded.");
+                }
+                const workbook = XLSX.read(data, { type: 'array' }); // atau 'binary' jika readAsBinaryString
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                importData = XLSX.utils.sheet_to_json(worksheet, { header: 1 , defval:""}); // header:1 agar array of arrays, baris pertama header
+                // Jika ingin objek, gunakan: importData = XLSX.utils.sheet_to_json(worksheet, { defval:"" });
+            } else {
+                throw new Error("Format file tidak didukung. Harap unggah file CSV atau Excel (.xls, .xlsx).");
+            }
+            
+            if (importData.length === 0) {
+                 showNotification('File tidak berisi data atau format tidak dikenal.', 'warning');
+                 return;
+            }
+            showImportPreview(); // Tampilkan modal preview
+
+        } catch (error) {
+            console.error("Error parsing file:", error);
+            showNotification(`Gagal memproses file: ${error.message}`, 'error');
+            importData = [];
+            originalFileForUpload = null;
+        }
+    };
+
+    reader.onerror = function() {
+        showNotification('Gagal membaca file.', 'error');
+        importData = [];
+        originalFileForUpload = null;
+    };
+
+    // Pilih cara membaca file berdasarkan tipe atau kebutuhan parsing
+    if (file.name.endsWith('.csv')) {
+        reader.readAsArrayBuffer(file); // Atau readAsText(file)
+    } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+        reader.readAsArrayBuffer(file); // XLSX.read lebih suka ArrayBuffer atau string biner
+    } else {
+         showNotification("Format file tidak didukung. Harap unggah file CSV atau Excel.", 'error');
+         e.target.value = ''; // Reset input file
+         return;
+    }
+    
+    // Reset input file agar bisa memilih file yang sama lagi jika ada perubahan/kesalahan
+    e.target.value = '';
+}
+window.handleImportFile = handleImportFile; // Jika dipanggil dari HTML onclick
+
+
+/**
+ * Menampilkan data yang akan diimpor dalam modal preview.
+ */
+function showImportPreview() {
+    const previewDiv = document.getElementById('importPreview');
+    if (importData.length === 0) {
+        previewDiv.innerHTML = '<p class="text-muted">Tidak ada data untuk ditampilkan.</p>';
+        openModal('importModal');
+        // Mungkin disable tombol konfirmasi jika tidak ada data
+        document.getElementById('confirmImport').disabled = true; 
+        return;
+    }
+
+    let tableHTML = '<table class="import-preview-table"><thead><tr>';
+    // Asumsi importData dari XLSX (header:1) adalah array of arrays, baris pertama adalah header
+    // Atau jika CSV, importData adalah array of objects, ambil keys dari objek pertama
+    let headers;
+    if (Array.isArray(importData[0])) { // Untuk XLSX dengan header:1
+        headers = importData[0];
+    } else if (typeof importData[0] === 'object' && importData[0] !== null) { // Untuk CSV yang diparse jadi objek
+        headers = Object.keys(importData[0]);
+    } else {
+        previewDiv.innerHTML = '<p class="text-danger">Format data preview tidak dikenal.</p>';
+        openModal('importModal');
+        document.getElementById('confirmImport').disabled = true;
+        return;
+    }
+
+    headers.forEach(header => {
+        tableHTML += `<th>${header}</th>`;
+    });
+    tableHTML += '</tr></thead><tbody>';
+
+    const dataRows = Array.isArray(importData[0]) ? importData.slice(1) : importData;
+
+    dataRows.slice(0, 20).forEach(row => { // Tampilkan N baris pertama untuk preview (misal 20)
+        tableHTML += '<tr>';
+        if (Array.isArray(row)) { // Untuk XLSX dengan header:1
+            row.forEach(cell => {
+                tableHTML += `<td>${cell !== null && cell !== undefined ? cell : ''}</td>`;
+            });
+        } else if (typeof row === 'object' && row !== null) { // Untuk CSV yang diparse jadi objek
+             headers.forEach(header => {
+                tableHTML += `<td>${row[header] !== null && row[header] !== undefined ? row[header] : ''}</td>`;
+            });
+        }
+        tableHTML += '</tr>';
+    });
+    tableHTML += '</tbody></table>';
+    if(dataRows.length > 20) {
+        tableHTML += `<p class="text-muted">Menampilkan 20 dari ${dataRows.length} baris data...</p>`;
+    }
+
+    previewDiv.innerHTML = tableHTML;
+    document.getElementById('confirmImport').disabled = false;
+    openModal('importModal');
+}
+window.showImportPreview = showImportPreview;
+
+
+/**
+ * Mengirim file yang sudah dipilih ke backend untuk diproses.
+ */
+async function confirmImport() {
+    if (!originalFileForUpload) { // Kita akan selalu mengirim file asli ke backend
+        showNotification('Tidak ada file yang dipilih atau data preview tidak valid.', 'error');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('importFile', originalFileForUpload); // 'importFile' harus sama dengan nama field di multer backend
+
+    const importButton = document.getElementById('confirmImport');
+    const originalButtonText = importButton.innerHTML;
+    importButton.disabled = true;
+    importButton.innerHTML = '<span class="spinner-sm"></span> Mengimpor...';
+    
+    try {
+        const response = await fetch(`${API_URL}/products/import`, { // Pastikan API_URL sudah benar
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                // 'Content-Type': 'multipart/form-data' TIDAK PERLU DISET MANUAL untuk FormData
+            },
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            showNotification(data.message || 'Proses impor berhasil atau sedang berjalan.', 'success');
+            if (data.data && data.data.errors && data.data.errors.length > 0) {
+                let errorMessages = "Detail impor:\n";
+                data.data.errors.slice(0, 5).forEach(err => errorMessages += `- ${err}\n`); // Tampilkan beberapa error
+                if(data.data.errors.length > 5) errorMessages += `Dan ${data.data.errors.length - 5} error lainnya (lihat console).`;
+                console.warn('Detail lengkap impor:', data.data);
+                // Pertimbangkan untuk menampilkan ini di UI yang lebih baik daripada alert
+                alert(errorMessages); 
+            }
+            await loadProducts(); // Muat ulang daftar produk
+        } else {
+            showNotification(data.message || 'Gagal mengimpor produk.', 'error');
+            if (data.error) console.error('Import error detail:', data.error);
+        }
+    } catch (error) {
+        console.error('Error importing products:', error);
+        showNotification('Terjadi kesalahan jaringan saat mengimpor produk.', 'error');
+    } finally {
+        importButton.disabled = false;
+        importButton.innerHTML = originalButtonText;
+        closeModal('importModal');
+        importData = []; // Kosongkan setelah proses
+        originalFileForUpload = null;
+        const fileInput = document.getElementById('importFile'); // Reset input file
+        if (fileInput) fileInput.value = '';
+    }
+}
+window.confirmImport = confirmImport;
 
 function downloadTemplate() {
     const csvContent = 'Nama Produk,Jenis,Harga Jual,Harga Beli,Stok Saat Ini,Stok Minimal\n"Pulpen Pilot G2","barang",25000,18000,144,24\n"Jasa Jilid Spiral","jasa",15000,0,0,0\n';

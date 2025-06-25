@@ -1,12 +1,13 @@
 // controllers/productController.js
 const { db } = require('../config/database');
+const { parse } = require('csv-parse'); // Untuk CSV
+const xlsx = require('xlsx');           // Untuk Excel
 
 // --- PERBAIKAN PADA DEFINISI FUNGSI ---
 // Pastikan 'connection' adalah parameter pertama
 const generateProductCode = async (connection, itemType) => {
     const prefix = itemType === 'barang' ? 'P' : 'J';
-    // Query ini sekarang menggunakan 'connection' yang dilewatkan, bukan 'db' global.
-    const [result] = await connection.query(
+    const [result] = await connection.query( // Menggunakan connection
         `SELECT item_code FROM products 
          WHERE item_type = ? AND item_code LIKE ?
          ORDER BY CAST(SUBSTRING(item_code, 2) AS UNSIGNED) DESC 
@@ -288,6 +289,209 @@ const deleteProduct = async (req, res) => {
     }
 };
 
+const importProducts = async (req, res) => {
+    console.log('Backend log: importProducts function started.');
+    if (!req.file) {
+        console.log('Backend log: No file uploaded.');
+        return res.status(400).json({ success: false, message: 'Tidak ada file yang diunggah.' });
+    }
+
+    const connection = await db.getConnection();
+    console.log('Backend log: Database connection obtained for import.');
+    try {
+        await connection.beginTransaction();
+        console.log('Backend log: Database transaction started for import.');
+
+        let productsToImport = [];
+        const fileBuffer = req.file.buffer;
+        const originalFilename = req.file.originalname.toLowerCase(); //ToLower untuk case-insensitive check extension
+        console.log(`Backend log: Processing file: ${req.file.originalname}, Mimetype: ${req.file.mimetype}`);
+
+        if (originalFilename.endsWith('.csv')) {
+            console.log('Backend log: Attempting to parse CSV file.');
+            // Menggunakan TextDecoder untuk ArrayBuffer jika reader.readAsArrayBuffer digunakan di frontend
+            const csvString = Buffer.from(fileBuffer).toString('utf8'); // Lebih aman untuk konversi buffer ke string
+
+            const records = parse(csvString, {
+                columns: true, // Baris pertama CSV dianggap header
+                skip_empty_lines: true,
+                trim: true,
+                bom: true, // Untuk menangani Byte Order Mark jika ada
+                relax_column_count: true // Lebih toleran jika jumlah kolom per baris bervariasi
+            });
+
+            for await (const record of records) {
+                // --- SESUAIKAN NAMA KOLOM DI BAWAH INI ---
+                // Ini adalah contoh, ganti dengan nama header kolom di file CSV Anda
+                const productName = record['Nama Produk'] || record['item_name'] || record['Product Name'];
+                const itemType = record['Jenis'] || record['item_type'] || record['Type'];
+                const sellingPrice = record['Harga Jual'] || record['selling_price'] || record['Selling Price'];
+                const purchasePrice = record['Harga Beli'] || record['purchase_price'] || record['Purchase Price'];
+                const currentStock = record['Stok Saat Ini'] || record['current_stock'] || record['Current Stock'];
+                const minStock = record['Stok Minimal'] || record['min_stock'] || record['Min Stock'];
+                // --- AKHIR PENYESUAIAN NAMA KOLOM ---
+
+                if (productName && itemType && sellingPrice !== undefined) {
+                    productsToImport.push({
+                        item_name: String(productName).trim(),
+                        item_type: String(itemType).trim().toLowerCase(),
+                        selling_price: parseFloat(sellingPrice),
+                        purchase_price: purchasePrice !== undefined && purchasePrice !== '' ? parseFloat(purchasePrice) : 0,
+                        current_stock: currentStock !== undefined && currentStock !== '' ? parseInt(currentStock) : 0,
+                        min_stock: minStock !== undefined && minStock !== '' ? parseInt(minStock) : 10
+                    });
+                } else {
+                    console.warn('Backend log: Skipped CSV record due to missing essential data:', record);
+                }
+            }
+        } else if (originalFilename.endsWith('.xlsx') || originalFilename.endsWith('.xls')) {
+            console.log('Backend log: Attempting to parse Excel file.');
+            const workbook = xlsx.read(fileBuffer, { type: 'buffer' });
+            const sheetName = workbook.SheetNames[0];
+            if (!sheetName) {
+                throw new Error("Sheet pertama tidak ditemukan di file Excel.");
+            }
+            const worksheet = workbook.Sheets[sheetName];
+            // Menggunakan sheet_to_json untuk langsung mendapatkan array of objects
+            // Pastikan header di file Excel Anda tidak mengandung karakter aneh
+            const jsonData = xlsx.utils.sheet_to_json(worksheet, { defval: "", rawNumbers: false }); // rawNumbers: false agar angka ter-parse
+
+            jsonData.forEach(record => {
+                // --- SESUAIKAN NAMA KOLOM DI BAWAH INI ---
+                // Ini adalah contoh, ganti dengan nama header kolom di file Excel Anda
+                const productName = record['Nama Produk'] || record['item_name'] || record['Product Name'];
+                const itemType = record['Jenis'] || record['item_type'] || record['Type'];
+                const sellingPrice = record['Harga Jual'] || record['selling_price'] || record['Selling Price'];
+                const purchasePrice = record['Harga Beli'] || record['purchase_price'] || record['Purchase Price'];
+                const currentStock = record['Stok Saat Ini'] || record['current_stock'] || record['Current Stock'];
+                const minStock = record['Stok Minimal'] || record['min_stock'] || record['Min Stock'];
+                // --- AKHIR PENYESUAIAN NAMA KOLOM ---
+
+                if (productName && itemType && sellingPrice !== undefined) {
+                    productsToImport.push({
+                        item_name: String(productName).trim(),
+                        item_type: String(itemType).trim().toLowerCase(),
+                        selling_price: parseFloat(sellingPrice),
+                        purchase_price: purchasePrice !== undefined && purchasePrice !== '' ? parseFloat(purchasePrice) : 0,
+                        current_stock: currentStock !== undefined && currentStock !== '' ? parseInt(currentStock) : 0,
+                        min_stock: minStock !== undefined && minStock !== '' ? parseInt(minStock) : 10
+                    });
+                } else {
+                     console.warn('Backend log: Skipped Excel record due to missing essential data:', record);
+                }
+            });
+        } else {
+            await connection.rollback();
+            console.log('Backend log: Unsupported file format.');
+            return res.status(400).json({ success: false, message: 'Format file tidak didukung. Hanya CSV, XLS, atau XLSX.' });
+        }
+
+        console.log(`Backend log: Parsed ${productsToImport.length} products from file.`);
+        if (productsToImport.length === 0) {
+            await connection.rollback();
+            return res.status(400).json({ success: false, message: 'Tidak ada data produk yang valid untuk diimpor dari file tersebut.' });
+        }
+
+        let importedCount = 0;
+        let skippedCount = 0;
+        let errors = [];
+
+        for (const product of productsToImport) {
+            // Validasi data dasar
+            if (!product.item_name || !product.item_type || isNaN(product.selling_price) ||
+                (product.item_type !== 'barang' && product.item_type !== 'jasa')) {
+                skippedCount++;
+                errors.push(`Data tidak lengkap/tipe salah untuk: ${product.item_name || 'N/A (Nama Produk Kosong)'}`);
+                console.warn(`Backend log: Skipping product (incomplete/type error): ${product.item_name || 'N/A'}`);
+                continue;
+            }
+            if (product.selling_price < 0 || product.purchase_price < 0 || product.current_stock < 0 || product.min_stock < 0) {
+                skippedCount++;
+                errors.push(`Nilai negatif tidak diizinkan untuk: ${product.item_name}`);
+                console.warn(`Backend log: Skipping product (negative value): ${product.item_name}`);
+                continue;
+            }
+
+            try {
+                const [existingProduct] = await connection.query('SELECT product_id FROM products WHERE LOWER(item_name) = LOWER(?)', [product.item_name.trim()]);
+                
+                if (existingProduct.length > 0) {
+                    skippedCount++;
+                    errors.push(`Produk "${product.item_name}" sudah ada, dilewati.`);
+                    console.log(`Backend log: Product "${product.item_name}" already exists, skipping.`);
+                    continue;
+                }
+
+                const item_code = await generateProductCode(connection, product.item_type);
+                console.log(`Backend log: Generated item_code ${item_code} for ${product.item_name}`);
+
+                const [result] = await connection.query(
+                    `INSERT INTO products (item_code, item_name, item_type, selling_price, purchase_price, current_stock, min_stock, is_active) 
+                     VALUES (?, ?, ?, ?, ?, ?, ?, TRUE)`,
+                    [item_code, product.item_name, product.item_type, product.selling_price, 
+                     product.item_type === 'barang' ? product.purchase_price : 0, 
+                     product.item_type === 'barang' ? product.current_stock : 0, 
+                     product.item_type === 'barang' ? product.min_stock : 0]
+                );
+                const newProductId = result.insertId;
+                console.log(`Backend log: Inserted product ${product.item_name} with ID ${newProductId}`);
+
+                // Logika tambahan untuk stok awal dan expense jika produk adalah 'barang'
+                if (product.item_type === 'barang') {
+                    if (product.current_stock > 0) {
+                         if (product.purchase_price > 0) {
+                            const totalPurchaseCost = product.current_stock * product.purchase_price;
+                            const [categories] = await connection.query(`SELECT category_id FROM expense_categories WHERE category_name = 'Pembelian Barang' LIMIT 1`);
+                            if (categories.length > 0) {
+                                await connection.query(
+                                    `INSERT INTO expenses (expense_date, category_id, description, amount, payment_method, notes, created_by) VALUES (NOW(), ?, ?, ?, 'cash', ?, ?)`,
+                                    [categories[0].category_id, `Pembelian dari import: ${product.item_name}`, totalPurchaseCost, `Stok awal dari import produk #${newProductId}`, req.user.user_id]
+                                );
+                                console.log(`Backend log: Created expense record for initial stock of ${product.item_name}`);
+                            }
+                        }
+                        await connection.query(
+                            `INSERT INTO stock_movements (product_id, movement_type, quantity, reference_type, notes, user_id) VALUES (?, 'in', ?, 'initial', 'Stok awal dari import', ?)`,
+                            [newProductId, product.current_stock, req.user.user_id]
+                        );
+                        console.log(`Backend log: Created stock_movement record for ${product.item_name}`);
+                    }
+                }
+                importedCount++;
+            } catch (dbError) {
+                console.error(`Backend log: DB error during import for product "${product.item_name}":`, dbError);
+                skippedCount++;
+                errors.push(`Gagal impor "${product.item_name}": Periksa konsistensi data atau error database.`);
+            }
+        }
+
+        await connection.commit();
+        console.log('Backend log: Database transaction committed for import.');
+        res.json({ 
+            success: true, 
+            message: `Impor selesai. Berhasil: ${importedCount}, Dilewati/Gagal: ${skippedCount}.`,
+            data: { importedCount, skippedCount, errors }
+        });
+
+    } catch (error) {
+        if (connection) await connection.rollback(); // Pastikan rollback jika error terjadi sebelum atau selama transaksi
+        console.error('Backend log: Critical error in importProducts function:', error);
+        let errorMessage = 'Gagal memproses file import.';
+        if (error.message && error.message.toLowerCase().includes('csv')) {
+             errorMessage = 'Format CSV tidak valid atau terjadi error saat parsing CSV.';
+        } else if (error.message && error.message.toLowerCase().includes('excel')) {
+             errorMessage = 'Format Excel tidak valid atau terjadi error saat parsing Excel.';
+        } else if (error.message) {
+            errorMessage = error.message;
+        }
+        res.status(500).json({ success: false, message: errorMessage, errorDetails: error.toString() });
+    } finally {
+        if (connection) {
+            connection.release();
+            console.log('Backend log: Database connection released after import attempt.');
+        }
+    }
+};
 
 module.exports = {
     getAllProducts,
@@ -296,5 +500,6 @@ module.exports = {
     updateProduct,
     updateStock,
     getLowStock,
-    deleteProduct
+    deleteProduct,
+    importProducts
 };

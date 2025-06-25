@@ -34,6 +34,10 @@ app.use((err, req, res, next) => {
     });
 });
 
+console.log("Memuat rute produk dari ./routes/productRoutes ...");
+app.use('/api/products', require('./routes/productRoutes'));
+console.log("Rute produk selesai dimuat.");
+
 // Start server
 const PORT = process.env.PORT || 5000;
 

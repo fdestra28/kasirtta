@@ -329,7 +329,7 @@ function exportFinancialReportToCSV(report, periodName) {
     const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `Laporan_Keuangan_${periodName.replace(/ /g, '_')}.csv`;
+    link.download = `Kasirtta_${periodName.replace(/ /g, '_')}.csv`;
     link.click();
     showNotification('Laporan berhasil di-export!', 'success');
 }
