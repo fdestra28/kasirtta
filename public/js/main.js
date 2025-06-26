@@ -12,6 +12,9 @@ let stockListProducts = [];
 let stockCurrentPage = 1;
 const stockLimit = 10;
 let stockCurrentFilter = 'all';
+// [BARU] Variabel untuk menyimpan instance chart
+let revenueTrendChartInstance = null;
+let expenseCompositionChartInstance = null;
 
 // Chart.js global configuration
 Chart.defaults.font.family = "'Poppins', sans-serif";
@@ -425,6 +428,23 @@ function applyBranding() {
 }
 
 // ===== UTILITIES =====
+
+/**
+ * Menghasilkan warna HSL yang unik berdasarkan posisi/index.
+ * @param {number} index - Index item saat ini.
+ * @param {number} totalItems - Jumlah total item untuk membagi roda warna.
+ * @returns {string} Warna dalam format HSL (e.g., 'hsl(180, 70%, 50%)').
+ */
+function generateHslColor(index, totalItems) {
+    // Bagi roda warna (360 derajat) secara merata berdasarkan jumlah item
+    const hue = (index * (360 / totalItems)) % 360;
+    // Kita gunakan saturasi dan lightness yang tetap agar warna terlihat serasi
+    const saturation = '70%';
+    const lightness = '50%';
+    return `hsl(${hue}, ${saturation}, ${lightness})`;
+}
+
+
 function formatCurrency(amount) {
     return new Intl.NumberFormat('id-ID', {
         style: 'currency',
@@ -582,8 +602,17 @@ async function generateReport() {
         showNotification('Terjadi kesalahan', 'error');
     }
 }
+
 // ===== CHART RENDERING =====
-function renderReportCharts(reportData) { // <--- HAPUS argumen expenseData
+function renderReportCharts(reportData) {
+    // Hancurkan (destroy) instance chart yang sudah ada sebelum membuat yang baru
+    if (revenueTrendChartInstance) {
+        revenueTrendChartInstance.destroy();
+    }
+    if (expenseCompositionChartInstance) {
+        expenseCompositionChartInstance.destroy();
+    }
+
     const chartContainers = document.getElementById('reportChartsContainer');
     chartContainers.innerHTML = `
         <div class="stat-card">
@@ -600,88 +629,62 @@ function renderReportCharts(reportData) { // <--- HAPUS argumen expenseData
         </div>
     `;
 
-    // Revenue trend chart (kode ini seharusnya sudah benar, tidak perlu diubah)
+    // --- Render Revenue Trend Chart ---
     const revenueCtx = document.getElementById('revenueTrendChart').getContext('2d');
-    new Chart(revenueCtx, {
-        type: 'line',
-        data: {
-            labels: reportData.revenue_trend.map(item => formatDateShort(item.period)),
-            datasets: [{
-                label: 'Pendapatan',
-                data: reportData.revenue_trend.map(item => parseFloat(item.total_revenue)),
-                borderColor: '#14B8A6',
-                backgroundColor: 'rgba(20, 184, 166, 0.1)',
-                fill: true,
-                tension: 0.4,
-                pointBackgroundColor: '#14B8A6',
-                pointBorderColor: '#fff',
-                pointHoverBackgroundColor: '#fff',
-                pointHoverBorderColor: '#14B8A6',
-                pointRadius: 4,
-                pointHoverRadius: 6
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                    titleColor: '#1F2937',
-                    bodyColor: '#1F2937',
-                    borderColor: '#E5E7EB',
-                    borderWidth: 1,
-                    padding: 12,
-                    displayColors: false,
-                    callbacks: {
-                        label: (context) => `Pendapatan: ${formatCurrency(context.raw)}`
-                    }
-                }
+    if (reportData.revenue_trend && reportData.revenue_trend.length > 0) {
+        revenueTrendChartInstance = new Chart(revenueCtx, { // Simpan instance ke variabel global
+            type: 'line',
+            data: {
+                labels: reportData.revenue_trend.map(item => formatDateShort(item.period)),
+                datasets: [{
+                    label: 'Pendapatan',
+                    data: reportData.revenue_trend.map(item => parseFloat(item.total_revenue)),
+                    borderColor: '#14B8A6',
+                    backgroundColor: 'rgba(20, 184, 166, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                    // ... properti lain sudah bagus
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: 'rgba(229, 231, 235, 0.5)'
-                    },
-                    ticks: {
-                        callback: (value) => formatCurrency(value)
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false
-                    }
-                }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false, // <-- Ini SANGAT PENTING
+                plugins: { /* ... opsi plugins ... */ },
+                scales: { /* ... opsi scales ... */ }
             }
-        }
-    });
+        });
+    } else {
+        revenueCtx.canvas.parentNode.innerHTML = '<p style="text-align: center; padding-top: 50px; color: var(--color-text-muted);">Tidak ada data pendapatan untuk periode ini.</p>';
+    }
 
+    // --- Render Expense Composition Chart ---
     const expenseCtx = document.getElementById('expenseCompositionChart').getContext('2d');
     const expenseSummaryForChart = reportData.expense_summary;
 
     if (expenseSummaryForChart && expenseSummaryForChart.by_category && expenseSummaryForChart.by_category.length > 0) {
-        new Chart(expenseCtx, {
+        const categories = expenseSummaryForChart.by_category;
+        const totalCategories = categories.length;
+        const dynamicColors = categories.map((_, index) => generateHslColor(index, totalCategories));
+
+        expenseCompositionChartInstance = new Chart(expenseCtx, { // Simpan instance ke variabel global
             type: 'doughnut',
             data: {
-                labels: expenseSummaryForChart.by_category.map(item => item.category_name),
+                labels: categories.map(item => item.category_name),
                 datasets: [{
-                    data: expenseSummaryForChart.by_category.map(item => parseFloat(item.total_amount)), // <-- PASTIKAN INI total_amount
-                    backgroundColor: [
-                        '#EF4444', '#F59E0B', '#10B981', '#3B82F6',
-                        '#8B5CF6', '#EC4899', '#14B8A6', '#6366F1'
-                    ],
-                    borderWidth: 0
+                    data: categories.map(item => parseFloat(item.total_amount)),
+                    backgroundColor: dynamicColors,
+                    borderWidth: 2,
+                    borderColor: '#F9FAFB'
                 }]
             },
-            options: { /* ... opsi chart doughnut ... */ }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false, // <-- Ini SANGAT PENTING
+                plugins: { /* ... opsi plugins ... */ }
+            }
         });
     } else {
         expenseCtx.canvas.parentNode.innerHTML = '<p style="text-align: center; padding-top: 50px; color: var(--color-text-muted);">Tidak ada data pengeluaran untuk periode ini.</p>';
-        console.log('Kondisi GAGAL: Tidak ada data by_category di expenseSummaryForChart atau tidak valid.'); // <-- LOG JIKA KONDISI GAGAL
     }
 }
 

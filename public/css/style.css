@@ -548,8 +548,7 @@ body.sidebar-collapsed .sidebar .nav-link {
 .header-with-actions {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    /* Gunakan flex-start untuk alignment atas */
+    align-items: center;
     flex-wrap: wrap;
     gap: var(--spacing-md);
 }
@@ -666,7 +665,7 @@ body.sidebar-collapsed .sidebar .nav-link {
 }
 
 .stat-number {
-    font-size: var(--font-size-4xl);
+    font-size: var(--font-size-2xl);
     font-weight: 700;
     color: var(--color-primary);
     margin-bottom: var(--spacing-sm);
