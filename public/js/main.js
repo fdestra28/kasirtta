@@ -136,24 +136,24 @@ async function apiRequest(endpoint, options = {}) {
             'Authorization': `Bearer ${token}`
         }
     };
-    
+
     try {
         showLoadingState();
-        
+
         const response = await fetch(`${API_URL}${endpoint}`, {
             ...defaultOptions,
             ...options,
             headers: { ...defaultOptions.headers, ...options.headers }
         });
-        
+
         hideLoadingState();
-        
+
         if (response.status === 401) {
             localStorage.clear();
             window.location.href = 'login.html';
             return;
         }
-        
+
         return response;
     } catch (error) {
         hideLoadingState();
@@ -200,26 +200,26 @@ function showNotification(message, type = 'success') {
     const container = document.getElementById('notificationContainer');
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
-    
+
     const icon = type === 'success' ? 'checkmark-circle' : 'alert-circle';
     notification.innerHTML = `
         <ion-icon name="${icon}-outline"></ion-icon>
         <span>${message}</span>
         <div class="notification-progress"></div>
     `;
-    
+
     container.appendChild(notification);
-    
+
     // Animate progress bar
     const progressBar = notification.querySelector('.notification-progress');
     progressBar.style.animation = 'progressBar 3s linear';
-    
+
     // Auto remove after 3 seconds
     setTimeout(() => {
         notification.style.animation = 'slideOut 0.3s ease-out';
         setTimeout(() => notification.remove(), 300);
     }, 3000);
-    
+
     // Click to dismiss
     notification.addEventListener('click', () => {
         notification.style.animation = 'slideOut 0.3s ease-out';
@@ -231,7 +231,7 @@ function showNotification(message, type = 'success') {
 function setupModalHandlers() {
     // Loop melalui setiap elemen modal di halaman
     document.querySelectorAll('.modal').forEach(modal => {
-        
+
         // --- PERBAIKAN: NONAKTIFKAN PENUTUPAN VIA BACKDROP ---
         // Blok kode di bawah ini, yang menambahkan event listener ke backdrop,
         // akan kita nonaktifkan dengan memberinya komentar.
@@ -249,7 +249,7 @@ function setupModalHandlers() {
             closeBtn.addEventListener('click', () => closeModal(modal));
         }
     });
-    
+
     // Fungsi untuk menutup modal dengan tombol 'Escape' juga tetap dipertahankan
     // Ini adalah praktik aksesibilitas yang baik.
     document.addEventListener('keydown', (e) => {
@@ -271,7 +271,7 @@ function openModal(modalId) {
             modal.querySelector('.modal-content').style.transform = 'translateY(0)';
             modal.querySelector('.modal-content').style.opacity = '1';
         }, 10);
-        
+
         // Focus first input
         const firstInput = modal.querySelector('input:not([type="hidden"]), select, textarea');
         if (firstInput) setTimeout(() => firstInput.focus(), 300);
@@ -282,12 +282,12 @@ function closeModal(modal) {
     if (typeof modal === 'string') {
         modal = document.getElementById(modal);
     }
-    
+
     if (modal) {
         modal.querySelector('.modal-backdrop').style.opacity = '0';
         modal.querySelector('.modal-content').style.transform = 'translateY(-50px)';
         modal.querySelector('.modal-content').style.opacity = '0';
-        
+
         setTimeout(() => {
             modal.style.display = 'none';
         }, 300);
@@ -301,16 +301,16 @@ function navigateToPage(pageName) {
         showNotification('Anda tidak memiliki akses ke halaman ini', 'error');
         return;
     }
-    
+
     // Hide current page with animation
     const currentPageEl = document.querySelector('.page.active');
     if (currentPageEl) {
         currentPageEl.style.opacity = '0';
         currentPageEl.style.transform = 'translateY(20px)';
-        
+
         setTimeout(() => {
             currentPageEl.classList.remove('active');
-            
+
             // Show new page
             const newPageEl = document.getElementById(`${pageName}Page`);
             if (newPageEl) {
@@ -332,13 +332,13 @@ function navigateToPage(pageName) {
             }, 50);
         }
     }
-    
+
     // Update navigation
     document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
     document.querySelector(`[data-page="${pageName}"]`)?.classList.add('active');
-    
+
     currentPage = pageName;
-    
+
     // Load page specific data
     switch (pageName) {
         case 'dashboard': loadDashboard(); break;
@@ -359,7 +359,7 @@ function setupEventListeners() {
     // Navigation links
     document.querySelectorAll('.nav-link').forEach(link => {
         link.addEventListener('click', (e) => {
-            e.preventDefault();            
+            e.preventDefault();
             navigateToPage(e.currentTarget.getAttribute('data-page'));
             if (window.innerWidth <= 768 && document.getElementById('sidebar').classList.contains('show')) {
                 toggleSidebar();
@@ -368,7 +368,7 @@ function setupEventListeners() {
     });
 
     document.querySelector('.sidebar-backdrop').addEventListener('click', toggleSidebar);
-    
+
     // Logout button
     document.getElementById('logoutBtn').addEventListener('click', () => {
         if (confirm('Apakah Anda yakin ingin logout?')) {
@@ -376,13 +376,13 @@ function setupEventListeners() {
             window.location.href = 'login.html';
         }
     });
-    
+
     // Generate report button
     const generateBtn = document.getElementById('generateReport');
     if (generateBtn) {
         generateBtn.addEventListener('click', generateReport);
     }
-    
+
     // Handle window resize for responsive sidebar
     let resizeTimeout;
     window.addEventListener('resize', () => {
@@ -415,9 +415,9 @@ function applyBranding() {
     if (mainTitle && appSettings.store_name) {
         mainTitle.textContent = appSettings.store_name;
     }
-    
+
     document.title = `${appSettings.store_name || 'Kasirtta'} - By Kasirtta`;
-    
+
     const favicon = document.getElementById('favicon');
     if (favicon && appSettings.store_logo_favicon) {
         favicon.href = appSettings.store_logo_favicon;
@@ -434,12 +434,12 @@ function formatCurrency(amount) {
 }
 
 function formatDate(dateString) {
-    const options = { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric', 
-        hour: '2-digit', 
-        minute: '2-digit' 
+    const options = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
     };
     return new Date(dateString).toLocaleDateString('id-ID', options);
 }
@@ -472,18 +472,18 @@ async function loadDashboard() {
                 card.style.transform = 'translateY(0)';
             }, index * 100);
         });
-        
+
         // Load dashboard data
         const response = await apiRequest('/transactions/summary/daily');
         const data = await response.json();
-        
+
         if (data.success) {
             const summary = data.data.summary;
-            
+
             // Animate number changes
             animateNumber('todayTransactions', 0, summary.total_transactions, 1000);
             animateNumber('todayRevenue', 0, summary.total_revenue, 1000, true);
-            
+
             // Top products with animation
             const topProductsHtml = data.data.top_products.slice(0, 5).map((p, index) => `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; opacity: 0; transform: translateX(-20px); animation: slideInFromLeft 0.5s ease ${index * 0.1}s forwards;">
@@ -493,11 +493,11 @@ async function loadDashboard() {
             `).join('');
             document.getElementById('topProducts').innerHTML = topProductsHtml || '<p class="text-muted">Belum ada data</p>';
         }
-        
+
         // Load low stock data
         const stockResponse = await apiRequest('/products/low-stock');
         const stockData = await stockResponse.json();
-        
+
         if (stockData.success) {
             const lowStockHtml = stockData.data.slice(0, 5).map((p, index) => `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; opacity: 0; transform: translateX(-20px); animation: slideInFromLeft 0.5s ease ${index * 0.1}s forwards;">
@@ -519,7 +519,7 @@ function animateNumber(elementId, start, end, duration, isCurrency = false) {
     if (!element) return; // Add guard clause
     const increment = (end - start) / (duration / 16);
     let current = start;
-    
+
     const timer = setInterval(() => {
         current += increment;
         if (current >= end) {
@@ -541,42 +541,49 @@ async function loadReports() {
 async function generateReport() {
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
-    
+
     if (!startDate || !endDate) {
         showNotification('Pilih tanggal awal dan akhir', 'error');
         return;
     }
-    
+
     if (new Date(startDate) > new Date(endDate)) {
         showNotification('Tanggal awal harus lebih kecil dari tanggal akhir', 'error');
         return;
     }
-    
+
+    console.log("MEMULAI generateReport(). Tanggal:", startDate, "s/d", endDate); // <--- LOG AWAL
+
     try {
-        document.getElementById('reportChartsContainer').innerHTML = ''; // Kosongkan chart dulu
+        document.getElementById('reportChartsContainer').innerHTML = '';
         document.getElementById('reportContent').innerHTML = '<div class="spinner"></div>';
-        
-        // Cukup satu panggilan API sekarang
-        const response = await apiRequest(`/transactions/report/data?start_date=${startDate}&end_date=${endDate}`);
+
+        const cacheBuster = new Date().getTime(); // Optional: untuk cache busting selama dev
+        const response = await apiRequest(`/transactions/report/data?start_date=${startDate}&end_date=${endDate}&v=${cacheBuster}`);
         const result = await response.json();
-        
-        if (result.success) {
-            // Kita perlu membuat objek expenseData dummy untuk chart, karena chart masih butuh data terpisah
-            const expenseDataForChart = { by_category: [] }; // Kita bisa perbaiki ini nanti
-            renderReportCharts(result.data, expenseDataForChart); // Chart mungkin kosong, tapi tidak error
-            renderReportTables(result.data); // Tabel akan menampilkan data yang benar
+
+        // --- LOGGING KRUSIAL ---
+        console.log("Full API Response (result):", JSON.stringify(result, null, 2));
+
+        if (result && result.success && result.data) {
+            console.log("API Sukses. Data (result.data):", JSON.stringify(result.data, null, 2));
+            console.log("Expense Summary dari API (result.data.expense_summary):", JSON.stringify(result.data.expense_summary, null, 2));
+
+            renderReportCharts(result.data);
+            renderReportTables(result.data);
         } else {
-            document.getElementById('reportContent').innerHTML = '<p class="text-danger">Gagal memuat data laporan.</p>';
+            console.error("API GAGAL atau data tidak sesuai:", result); // <-- LOG JIKA API TIDAK SUKSES
+            document.getElementById('reportContent').innerHTML = '<p class="text-danger">Gagal memuat data laporan atau data tidak lengkap.</p>';
+            document.getElementById('reportChartsContainer').innerHTML = '';
         }
     } catch (error) {
-        console.error('Generate report error:', error);
+        console.error('Generate report error:', error); // <-- LOG ERROR di CATCH
         document.getElementById('reportContent').innerHTML = '<p class="text-danger">Terjadi kesalahan saat memuat laporan</p>';
         showNotification('Terjadi kesalahan', 'error');
     }
 }
 // ===== CHART RENDERING =====
-function renderReportCharts(reportData, expenseData) {
-    // Clear existing charts
+function renderReportCharts(reportData) { // <--- HAPUS argumen expenseData
     const chartContainers = document.getElementById('reportChartsContainer');
     chartContainers.innerHTML = `
         <div class="stat-card">
@@ -592,8 +599,8 @@ function renderReportCharts(reportData, expenseData) {
             </div>
         </div>
     `;
-    
-    // Revenue trend chart
+
+    // Revenue trend chart (kode ini seharusnya sudah benar, tidak perlu diubah)
     const revenueCtx = document.getElementById('revenueTrendChart').getContext('2d');
     new Chart(revenueCtx, {
         type: 'line',
@@ -652,69 +659,44 @@ function renderReportCharts(reportData, expenseData) {
             }
         }
     });
-    
-    // Expense composition chart
+
     const expenseCtx = document.getElementById('expenseCompositionChart').getContext('2d');
-    new Chart(expenseCtx, {
-        type: 'doughnut',
-        data: {
-            labels: expenseData.by_category.map(item => item.category_name),
-            datasets: [{
-                data: expenseData.by_category.map(item => parseFloat(item.total)),
-                backgroundColor: [
-                    '#EF4444', '#F59E0B', '#10B981', '#3B82F6', 
-                    '#8B5CF6', '#EC4899', '#14B8A6', '#6366F1'
-                ],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        padding: 12,
-                        usePointStyle: true,
-                        font: {
-                            size: 11
-                        }
-                    }
-                },
-                tooltip: {
-                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                    titleColor: '#1F2937',
-                    bodyColor: '#1F2937',
-                    borderColor: '#E5E7EB',
-                    borderWidth: 1,
-                    padding: 12,
-                    callbacks: {
-                        label: (context) => {
-                            const label = context.label || '';
-                            const value = formatCurrency(context.raw);
-                            const percentage = ((context.raw / context.dataset.data.reduce((a, b) => a + b, 0)) * 100).toFixed(1);
-                            return `${label}: ${value} (${percentage}%)`;
-                        }
-                    }
-                }
-            }
-        }
-    });
+    const expenseSummaryForChart = reportData.expense_summary;
+
+    if (expenseSummaryForChart && expenseSummaryForChart.by_category && expenseSummaryForChart.by_category.length > 0) {
+        new Chart(expenseCtx, {
+            type: 'doughnut',
+            data: {
+                labels: expenseSummaryForChart.by_category.map(item => item.category_name),
+                datasets: [{
+                    data: expenseSummaryForChart.by_category.map(item => parseFloat(item.total_amount)), // <-- PASTIKAN INI total_amount
+                    backgroundColor: [
+                        '#EF4444', '#F59E0B', '#10B981', '#3B82F6',
+                        '#8B5CF6', '#EC4899', '#14B8A6', '#6366F1'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: { /* ... opsi chart doughnut ... */ }
+        });
+    } else {
+        expenseCtx.canvas.parentNode.innerHTML = '<p style="text-align: center; padding-top: 50px; color: var(--color-text-muted);">Tidak ada data pengeluaran untuk periode ini.</p>';
+        console.log('Kondisi GAGAL: Tidak ada data by_category di expenseSummaryForChart atau tidak valid.'); // <-- LOG JIKA KONDISI GAGAL
+    }
 }
 
 // ===== REPORT TABLES RENDERING =====
 // [DIUBAH] Fungsi ini sekarang hanya butuh satu argumen
-function renderReportTables(reportData) { 
+function renderReportTables(reportData) {
+    console.log("MEMULAI renderReportTables. Menerima reportData:", JSON.stringify(reportData, null, 2)); // <-- LOG AWAL FUNGSI
     const { product_performance, cashier_performance, expense_summary } = reportData;
     const totalRevenue = reportData.revenue_trend.reduce((sum, item) => sum + parseFloat(item.total_revenue), 0);
     const totalTransactions = reportData.revenue_trend.reduce((sum, item) => sum + parseInt(item.total_transactions), 0);
-    
-    // [DIUBAH] Ambil total pengeluaran dari data yang benar
-    const totalExpense = parseFloat(expense_summary.total_expense) || 0;
-    
+    console.log("Expense Summary untuk tabel (expense_summary):", JSON.stringify(expense_summary, null, 2));
+    const totalExpense = (expense_summary && expense_summary.summary) ? parseFloat(expense_summary.summary.total_expense) || 0 : 0;
+    console.log("Total Expense dihitung:", totalExpense); // <-- LOG totalExpense
     const grossProfit = totalRevenue - totalExpense;
-    
+
     // --- PERBAIKAN DI SINI ---
     const reportHTML = `
         <div class="report-container glass-card" id="mainReportContainer">
@@ -782,7 +764,7 @@ function renderReportTables(reportData) {
             </div>
         </div>
     `;
-    
+
     document.getElementById('reportContent').innerHTML = reportHTML;
 }
 
@@ -793,27 +775,27 @@ function exportToExcel(tableContainerId, filename) {
         showNotification('Elemen laporan tidak ditemukan!', 'error');
         return;
     }
-    
+
     let csvContent = `"${container.querySelector('h1, h2, h3')?.textContent || 'Laporan'}"\n`;
     const startDate = document.getElementById('startDate')?.value;
     const endDate = document.getElementById('endDate')?.value;
-    
+
     if (startDate && endDate) {
         csvContent += `"Periode: ${startDate} sampai ${endDate}"\n`;
     }
-    
+
     csvContent += `\n`;
-    
+
     const tables = container.querySelectorAll('.report-table');
     tables.forEach(table => {
         const sectionHeader = table.previousElementSibling;
         if (sectionHeader && (sectionHeader.tagName === 'H3' || sectionHeader.tagName === 'H4')) {
             csvContent += `"${sectionHeader.textContent}"\n`;
         }
-        
+
         const headers = Array.from(table.querySelectorAll('thead th')).map(th => `"${th.textContent.trim()}"`).join(',');
         csvContent += headers + '\n';
-        
+
         const rows = table.querySelectorAll('tbody tr');
         rows.forEach(row => {
             const cells = Array.from(row.querySelectorAll('td')).map(td => {
@@ -827,14 +809,14 @@ function exportToExcel(tableContainerId, filename) {
         });
         csvContent += '\n';
     });
-    
+
     const BOM = '\uFEFF';
     const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = `${filename}_${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
-    
+
     showNotification('Laporan berhasil di-export!');
 }
 
@@ -855,28 +837,28 @@ function initHistory() {
             historyCurrentPage = 1;
             loadHistory(historyCurrentPage);
         });
-        
+
         document.getElementById('historyPrevBtn').addEventListener('click', () => {
             if (historyCurrentPage > 1) {
                 historyCurrentPage--;
                 loadHistory(historyCurrentPage);
             }
         });
-        
+
         document.getElementById('historyNextBtn').addEventListener('click', () => {
             historyCurrentPage++;
             loadHistory(historyCurrentPage);
         });
-        
+
         // Detail modal handlers
         document.querySelector('#historyDetailModal .close').addEventListener('click', () => {
             closeModal('historyDetailModal');
         });
-        
+
         document.getElementById('historyCloseDetailBtn').addEventListener('click', () => {
             closeModal('historyDetailModal');
         });
-        
+
         filterBtn._listener = true;
     }
 }
@@ -892,7 +874,7 @@ async function loadHistory(page) {
     try {
         const response = await apiRequest(`/transactions?start_date=${startDate}&end_date=${endDate}&limit=${historyLimit}&offset=${offset}`);
         const data = await response.json();
-        
+
         if (data.success) {
             renderHistoryTable(data.data);
             updateHistoryPagination(page, data.data.length);
@@ -929,7 +911,7 @@ function initStock() {
     // Reset state setiap kali halaman dibuka
     stockCurrentPage = 1;
     stockCurrentFilter = 'all';
-    
+
     // Reset UI
     document.getElementById('stockFilterSearch').value = '';
     document.querySelectorAll('#stockFilterTabs .filter-tab').forEach(tab => {
@@ -946,7 +928,7 @@ function initStock() {
                 document.querySelectorAll('#stockFilterTabs .filter-tab').forEach(t => t.classList.remove('active'));
                 e.currentTarget.classList.add('active');
                 renderStockTable();
-        
+
             });
         });
 
@@ -960,7 +942,7 @@ function initStock() {
             }, 300);
         });
 
-        
+
 
         // Pagination buttons
         document.getElementById('stockPrevBtn').addEventListener('click', () => {
@@ -975,12 +957,12 @@ function initStock() {
         });
 
         initStock.initialized = true;
-    document.getElementById('stockForm').addEventListener('submit', updateStock);
+        document.getElementById('stockForm').addEventListener('submit', updateStock);
         document.getElementById('cancelStockModal').addEventListener('click', () => closeModal('stockModal'));
 
         initStock.initialized = true;
     }
-    
+
     loadStockData();
 }
 
@@ -1006,7 +988,7 @@ async function updateStock(e) {
             showNotification('Stok berhasil diupdate', 'success');
             closeModal('stockModal');
             if (currentPage === 'stock') {
-                loadStockData(); 
+                loadStockData();
             } else if (currentPage === 'products') {
                 loadProducts();
             }
@@ -1038,7 +1020,7 @@ function renderStockTable() {
 
     // 2. Filter berdasarkan Pencarian
     if (filterText) {
-        filtered = filtered.filter(p => 
+        filtered = filtered.filter(p =>
             p.item_name.toLowerCase().includes(filterText) ||
             p.item_code.toLowerCase().includes(filterText)
         );
@@ -1053,10 +1035,10 @@ function renderStockTable() {
     } else {
         tbody.innerHTML = paginatedItems.map((p, index) => {
             const isLowStock = p.current_stock <= p.min_stock;
-            const statusBadge = isLowStock 
+            const statusBadge = isLowStock
                 ? `<span class="badge badge-danger">Menipis</span>`
                 : `<span class="badge badge-success">Aman</span>`;
-            
+
             return `
                 <tr style="opacity: 0; transform: translateY(10px); animation: fadeInUp 0.3s ease ${index * 0.05}s forwards;">
                     <td>${p.item_code}</td>
@@ -1086,12 +1068,12 @@ function updateStockPagination(totalItems) {
 
 function renderHistoryTable(transactions) {
     const tbody = document.getElementById('historyList');
-    
+
     if (transactions.length === 0 && historyCurrentPage === 1) {
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">Tidak ada transaksi pada periode ini.</td></tr>';
         return;
     }
-    
+
     tbody.innerHTML = transactions.map((t, index) => `
         <tr style="opacity: 0; transform: translateY(10px); animation: fadeInUp 0.3s ease ${index * 0.05}s forwards;">
             <td>${t.transaction_code}</td>
@@ -1126,11 +1108,11 @@ async function viewTransactionDetail(transactionId) {
     try {
         const response = await apiRequest(`/transactions/${transactionId}`);
         const data = await response.json();
-        
+
         if (data.success) {
             const trx = data.data;
             document.getElementById('historyDetailTitle').textContent = `Detail Transaksi ${trx.transaction_code}`;
-            
+
             contentDiv.innerHTML = `
                 <div class="transaction-detail">
                     <div class="detail-info">
@@ -1188,7 +1170,7 @@ async function viewTransactionDetail(transactionId) {
                     </div>
                 </div>
             `;
-            
+
             document.getElementById('historyReprintBtn').onclick = () => reprintReceipt(transactionId);
         } else {
             contentDiv.innerHTML = `<p class="text-danger">${data.message}</p>`;
@@ -1202,7 +1184,7 @@ async function reprintReceipt(transactionId) {
     try {
         const response = await apiRequest(`/transactions/${transactionId}`);
         const data = await response.json();
-        
+
         if (data.success) {
             const transactionDataForPrinting = { ...data.data, items: data.data.details };
             printReceipt(transactionDataForPrinting);
@@ -1218,7 +1200,7 @@ async function reprintReceipt(transactionId) {
 function printReceipt(transaction) {
     const receiptWindow = window.open('', 'Receipt', 'width=300,height=600');
     const cashierName = transaction.cashier_name || currentUser.full_name;
-    
+
     const receiptHTML = `
         <!DOCTYPE html>
         <html>
@@ -1301,7 +1283,7 @@ function printReceipt(transaction) {
         </body>
         </html>
     `;
-    
+
     receiptWindow.document.write(receiptHTML);
     receiptWindow.document.close();
 }
@@ -1321,9 +1303,9 @@ function showTooltip(e) {
     tooltip.textContent = e.target.getAttribute('title');
     tooltip.style.position = 'absolute';
     tooltip.style.zIndex = '1080';
-    
+
     document.body.appendChild(tooltip);
-    
+
     const rect = e.target.getBoundingClientRect();
     tooltip.style.left = `${rect.left + rect.width / 2 - tooltip.offsetWidth / 2}px`;
     tooltip.style.top = `${rect.top - tooltip.offsetHeight - 5}px`;
@@ -1466,7 +1448,7 @@ function printReportElement(elementId) {
             link.rel = 'stylesheet';
             link.href = styleSheet.href;
             printWindow.document.head.appendChild(link);
-        } 
+        }
         // Jika stylesheet adalah inline <style>...</style>, salin isinya
         else {
             try {
@@ -1484,9 +1466,9 @@ function printReportElement(elementId) {
     printWindow.document.write('</head><body style="background: white;">');
     printWindow.document.write(elementToPrint.innerHTML);
     printWindow.document.write('</body></html>');
-    
+
     printWindow.document.close();
-    
+
     // Beri sedikit waktu untuk semua stylesheet eksternal (font, ikon) dimuat di jendela baru
     printWindow.onload = () => {
         printWindow.focus();

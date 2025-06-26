@@ -331,60 +331,34 @@ const getReportData = async (req, res) => {
                 dateFormat = '%Y-%m';
                 break;
             case 'weekly':
-                dateFormat = '%Y-%u';
+                dateFormat = '%Y-%u'; // Week number
                 break;
-            default:
+            default: // daily
                 dateFormat = '%Y-%m-%d';
         }
 
-        // Get revenue data (tetap sama)
+        // Get revenue data
         const [revenueData] = await db.query(
-            `SELECT 
-                DATE_FORMAT(transaction_date, ?) as period,
-                COUNT(*) as total_transactions,
-                SUM(total_amount) as total_revenue
-             FROM transactions
-             WHERE DATE(transaction_date) BETWEEN ? AND ?
-             GROUP BY period
-             ORDER BY period`,
+            `SELECT DATE_FORMAT(transaction_date, ?) as period, COUNT(*) as total_transactions, SUM(total_amount) as total_revenue FROM transactions WHERE DATE(transaction_date) BETWEEN ? AND ? GROUP BY period ORDER BY period`,
             [dateFormat, start_date, end_date]
         );
 
-        // Get product performance (tetap sama)
+        // Get product performance
         const [productData] = await db.query(
-            `SELECT 
-                p.product_id,
-                p.item_name,
-                p.item_type,
-                SUM(td.quantity) as total_quantity,
-                SUM(td.subtotal) as total_revenue,
-                COUNT(DISTINCT t.transaction_id) as transaction_count
-             FROM transaction_details td
-             JOIN transactions t ON td.transaction_id = t.transaction_id
-             JOIN products p ON td.product_id = p.product_id
-             WHERE DATE(t.transaction_date) BETWEEN ? AND ?
-             GROUP BY p.product_id
-             ORDER BY total_revenue DESC`,
+            `SELECT p.product_id, p.item_name, p.item_type, SUM(td.quantity) as total_quantity, SUM(td.subtotal) as total_revenue, COUNT(DISTINCT t.transaction_id) as transaction_count FROM transaction_details td JOIN transactions t ON td.transaction_id = t.transaction_id JOIN products p ON td.product_id = p.product_id WHERE DATE(t.transaction_date) BETWEEN ? AND ? GROUP BY p.product_id ORDER BY total_revenue DESC`,
             [start_date, end_date]
         );
 
-        // Get cashier performance (tetap sama)
+        // Get cashier performance
         const [cashierData] = await db.query(
-            `SELECT 
-                u.user_id,
-                u.full_name,
-                COUNT(*) as total_transactions,
-                SUM(t.total_amount) as total_revenue
-             FROM transactions t
-             JOIN users u ON t.admin_id = u.user_id
-             WHERE DATE(t.transaction_date) BETWEEN ? AND ?
-             GROUP BY u.user_id
-             ORDER BY total_revenue DESC`,
+            `SELECT u.user_id, u.full_name, COUNT(*) as total_transactions, SUM(t.total_amount) as total_revenue FROM transactions t JOIN users u ON t.admin_id = u.user_id WHERE DATE(t.transaction_date) BETWEEN ? AND ? GROUP BY u.user_id ORDER BY total_revenue DESC`,
             [start_date, end_date]
         );
         
-        // [BARU] Get expense summary data
-        const [expenseSummary] = await db.query(
+        // --- PERBAIKAN UTAMA ADA DI BLOK INI ---
+
+        // 1. Get total expense summary
+        const [expenseTotalResult] = await db.query(
             `SELECT 
                 COALESCE(SUM(amount), 0) as total_expense,
                 COUNT(*) as total_expense_items
@@ -392,7 +366,21 @@ const getReportData = async (req, res) => {
              WHERE DATE(expense_date) BETWEEN ? AND ?`,
              [start_date, end_date]
         );
+        
+        // 2. Get expense data by category
+        const [expenseDataByCategory] = await db.query(
+            `SELECT 
+                ec.category_name,
+                COALESCE(SUM(e.amount), 0) as total_amount
+             FROM expense_categories ec
+             LEFT JOIN expenses e ON ec.category_id = e.category_id AND DATE(e.expense_date) BETWEEN ? AND ?
+             GROUP BY ec.category_id, ec.category_name
+             HAVING COALESCE(SUM(e.amount), 0) > 0
+             ORDER BY total_amount DESC`,
+            [start_date, end_date]
+        );
 
+        // 3. Combine both expense results into a single object and send to frontend
         res.json({
             success: true,
             data: {
@@ -400,11 +388,16 @@ const getReportData = async (req, res) => {
                 revenue_trend: revenueData,
                 product_performance: productData,
                 cashier_performance: cashierData,
-                // [BARU] Sertakan data pengeluaran dalam respons API
-                expense_summary: expenseSummary[0] 
+                expense_summary: {
+                    summary: expenseTotalResult[0],
+                    by_category: expenseDataByCategory
+                }
             }
         });
+        // --- AKHIR BLOK PERBAIKAN ---
+
     } catch (error) {
+        console.error("Error in getReportData:", error); // <-- Tambahkan log error di backend
         res.status(500).json({
             success: false,
             message: 'Gagal mengambil data laporan!',
