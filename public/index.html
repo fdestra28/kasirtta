@@ -176,14 +176,20 @@
 
             <!-- Cashier Page -->
             <div id="cashierPage" class="page">
-                <div class="page-header">
+                <!-- <div class="page-header">
                     <h2 class="page-title">Kasir</h2>
                     <p class="page-subtitle">Proses transaksi penjualan</p>
-                </div>
+                </div> -->
 
                 <div class="cashier-layout">
+
                     <!-- Kolom 1: Product Search & List -->
                     <div class="search-section glass-card cashier-column-search">
+                        <div class="page-header">
+                            <h2 class="page-title" style="color: var(--color-primary-dark)">Kasir</h2>
+                            <p class="page-subtitle" style="color: var(--color-primary-dark)">Proses transaksi penjualan
+                            </p>
+                        </div>
                         <div class="search-header">
                             <div class="search-input-wrapper">
                                 <ion-icon name="search-outline" class="search-icon"></ion-icon>
@@ -279,13 +285,15 @@
                 </div>
 
                 <div class="report-filters glass-card">
-                    <div class="filter-group">
-                        <label>Dari Tanggal:</label>
-                        <input type="date" id="historyStartDate" class="form-input">
-                    </div>
-                    <div class="filter-group">
-                        <label>Sampai Tanggal:</label>
-                        <input type="date" id="historyEndDate" class="form-input">
+                    <div style="display: flex; gap: var(--spacing-md);">
+                        <div class="filter-group">
+                            <label>Dari Tanggal:</label>
+                            <input type="date" id="historyStartDate" class="form-input">
+                        </div>
+                        <div class="filter-group">
+                            <label>Sampai Tanggal:</label>
+                            <input type="date" id="historyEndDate" class="form-input">
+                        </div>
                     </div>
                     <button id="filterHistoryBtn" class="btn btn-primary">
                         <ion-icon name="funnel-outline"></ion-icon>
@@ -454,7 +462,7 @@
 
                 <div class="page-actions glass-card">
                     <!-- Kelompokkan filter di dalam satu div -->
-                    <div style="display: flex; align-items: center; gap: var(--spacing-md); flex-wrap: wrap;">
+                    <div style="display: flex; align-items: flex-end; gap: var(--spacing-md); flex-wrap: wrap; ">
                         <div class="filter-group">
                             <label for="expenseFilterDateStart">Dari:</label>
                             <input type="date" id="expenseFilterDateStart" class="form-input">
@@ -517,14 +525,18 @@
                 </div>
 
                 <div class="report-filters glass-card">
-                    <div class="filter-group">
-                        <label>Dari Tanggal:</label>
-                        <input type="date" id="startDate" class="form-input">
+                    <div style="display: flex; gap: var(--spacing-md);">
+                        <div class="filter-group">
+                            <label>Dari Tanggal:</label>
+                            <input type="date" id="startDate" class="form-input">
+                        </div>
+
+                        <div class="filter-group">
+                            <label>Sampai Tanggal:</label>
+                            <input type="date" id="endDate" class="form-input">
+                        </div>
                     </div>
-                    <div class="filter-group">
-                        <label>Sampai Tanggal:</label>
-                        <input type="date" id="endDate" class="form-input">
-                    </div>
+
                     <button id="generateReport" class="btn btn-primary">
                         <ion-icon name="analytics-outline"></ion-icon>
                         Generate Laporan

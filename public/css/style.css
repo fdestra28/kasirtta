@@ -498,7 +498,7 @@ body.sidebar-collapsed .sidebar .nav-link {
 .content {
     flex: 1;
     overflow-y: auto;
-    padding: var(--spacing-md);
+    padding: var(--spacing-lg);
     display: flex;
     flex-direction: column;
 }
@@ -753,6 +753,7 @@ body.sidebar-collapsed .sidebar .nav-link {
     background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
     color: white;
     box-shadow: var(--shadow-md);
+    margin-bottom: 1px;
 }
 
 .btn-primary:hover {
@@ -762,6 +763,7 @@ body.sidebar-collapsed .sidebar .nav-link {
 .btn-secondary {
     background: var(--color-text-secondary);
     color: white;
+    margin-bottom: 1px;
 }
 
 .btn-secondary:hover {
@@ -1239,7 +1241,7 @@ body.sidebar-collapsed .sidebar .nav-link {
     gap: calc(var(--spacing-md) + 2px);
     flex-grow: 1;
     overflow: hidden;
-    height: calc(94vh - var(--header-height) - (var(--spacing-xl) * 2) - (var(--spacing-xl)));
+    height: calc(100vh - var(--header-height) - (var(--spacing-xl) * 2) - (var(--spacing-md)));
 }
 
 /* Styling Kolom Umum */
@@ -1510,8 +1512,9 @@ body.sidebar-collapsed .sidebar .nav-link {
     align-items: center;
     gap: var(--spacing-xs);
     margin: 0;
-    font-size: var(--font-size-md);
+    font-size: var(--font-size-lg);
     color: var(--color-text);
+    margin-top: var(--spacing-sm);
 }
 
 .cart-header-custom h3 ion-icon {
@@ -1909,7 +1912,7 @@ body.sidebar-collapsed .sidebar .nav-link {
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing-md);
-    align-items: center;
+    align-items: flex-end;
     margin-bottom: var(--spacing-xl);
     padding: var(--spacing-lg);
     background: var(--color-surface);
@@ -1955,7 +1958,7 @@ body.sidebar-collapsed .sidebar .nav-link {
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing-md);
-    align-items: center;
+    align-items: flex-end;
     /* [BARU] Tambahkan properti ini untuk mengatur distribusi ruang */
     justify-content: space-between;
     margin-bottom: var(--spacing-xl);
@@ -2816,8 +2819,9 @@ textarea:focus-visible {
 .filter-bar {
     display: flex;
     gap: var(--spacing-md);
-    align-items: center;
+    align-items: stretch;
     flex-wrap: wrap;
+    justify-content: space-between;
     /* Allow wrapping on smaller screens */
 }
 
