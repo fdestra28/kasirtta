@@ -177,7 +177,7 @@ window.removeFromCart = removeFromCart;
 function renderCart() {
     const tbody = document.getElementById('cartItems');
     if (cart.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 48px; color: var(--color-text-muted);">Keranjang kosong</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 80px; color: var(--color-text-muted);">Keranjang kosong</td></tr>';
     } else {
         tbody.innerHTML = cart.map(item => `<tr><td>${item.item_name}</td><td><input type="number" value="${item.quantity}" min="1" max="${item.item_type === 'barang' ? item.current_stock : 999}" class="form-input" style="width: 60px; text-align: center; padding: 4px;" onchange="updateQuantity(${item.product_id}, this.value)"></td><td>${formatCurrency(item.selling_price)}</td><td>${formatCurrency(item.selling_price * item.quantity)}</td><td><button class="btn btn-sm btn-danger" onclick="removeFromCart(${item.product_id})"><ion-icon name="trash-outline"></ion-icon></button></td></tr>`).join('');
     }

@@ -216,7 +216,7 @@
                         </div>
                         <div class="cart-content"> <!-- Konten asli dipindahkan ke sini -->
                             <table class="cart-table">
-                                <thead>
+                                <!-- <thead>
                                     <tr>
                                         <th>Nama Item</th>
                                         <th>Qty</th>
@@ -224,21 +224,21 @@
                                         <th>Subtotal</th>
                                         <th>Aksi</th>
                                     </tr>
-                                </thead>
+                                </thead> -->
                                 <tbody id="cartItems"></tbody>
                             </table>
                         </div>
-                    </div>
-
-                    <!-- Kolom 3: Cart Summary & Payment -->
-                    <div class="cashier-column-cart-summary glass-card">
-                        <!-- Konten .cart-summary asli dipindahkan ke sini -->
                         <div class="cart-summary">
-                            <div class="total-display">
-                                <span>Total:</span>
-                                <span id="totalAmount">Rp 0</span>
+                            <div id="flex-harga">
+                                <div class="total-display">
+                                    <span>Total:</span>
+                                    <span id="totalAmount">Rp 0</span>
+                                </div>
+                                <div class="total-display" style="color: var(--color-text)">
+                                    <span>Kembalian:</span>
+                                    <span id="changeAmount">Rp 0</span>
+                                </div>
                             </div>
-
                             <div class="payment-section">
                                 <div class="form-group">
                                     <label>Metode Pembayaran:</label>
@@ -251,25 +251,23 @@
                                 <div class="form-group" id="cashPaymentGroup">
                                     <label>Bayar:</label>
                                     <input type="number" id="paymentReceived" class="form-input" min="0">
-                                    <div class="change-display">
-                                        <span>Kembalian:</span>
-                                        <span id="changeAmount">Rp 0</span>
-                                    </div>
+
                                 </div>
 
                                 <div class="action-buttons">
-                                    <button id="processTransaction" class="btn btn-primary btn-lg btn-block">
-                                        <ion-icon name="checkmark-circle-outline"></ion-icon>
-                                        Proses Transaksi
-                                    </button>
                                     <button id="clearCart" class="btn btn-secondary btn-lg btn-block">
                                         <ion-icon name="trash-outline"></ion-icon>
                                         Batal
+                                    </button>
+                                    <button id="processTransaction" class="btn btn-primary btn-lg btn-block">
+                                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                                        Proses Transaksi
                                     </button>
                                 </div>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
 
