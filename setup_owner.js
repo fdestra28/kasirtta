@@ -5,12 +5,12 @@ const { db } = require('./config/database');
 const setupOwner = async () => {
     try {
         // Hash password
-        const hashedPassword = await bcrypt.hash('admin123', 10);
+        const hashedPassword = await bcrypt.hash('02163029', 10);
         
         // Insert owner
         await db.query(
             'INSERT INTO users (username, password, full_name, role) VALUES (?, ?, ?, ?)',
-            ['owner', hashedPassword, 'Pemilik Toko', 'owner']
+            ['zero', hashedPassword, 'Aswar Anas', 'owner']
         );
         
         console.log('✅ Owner berhasil dibuat!');
