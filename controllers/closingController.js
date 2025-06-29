@@ -1,10 +1,6 @@
 // controllers/closingController.js
 const { db } = require('../config/database');
-// Kita tidak lagi memerlukan fs, exec, dll. untuk backup di sini.
-// Backup akan tetap berjalan di fungsi executeClosing.
-
-const fs = require('fs').promises;
-const path = require('path');
+const bcrypt = require('bcryptjs');
 
 // Fungsi ini dirombak total untuk menghasilkan laporan keuangan
 const generateFinancialReport = async (req, res) => {
@@ -28,7 +24,6 @@ const generateFinancialReport = async (req, res) => {
         const cashIn = parseFloat(revenueResult[0].cash_in);
 
         // ================= 2. HPP (HARGA POKOK PENJUALAN) - PERBAIKAN LOGIKA =================
-        // Query ini sekarang mengambil purchase_price dari transaction_details, BUKAN dari products
         const [cogsResult] = await db.query(
             `SELECT 
                 COALESCE(SUM(td.quantity * td.purchase_price), 0) as total_cogs
@@ -50,12 +45,13 @@ const generateFinancialReport = async (req, res) => {
             `SELECT 
                 ec.category_name,
                 ec.category_type,
-                COALESCE(SUM(e.amount), 0) as total_amount
+                COALESCE(SUM(e.amount), 0) as total_amount,
+                e.payment_method
              FROM expenses e
              JOIN expense_categories ec ON e.category_id = ec.category_id
              WHERE DATE(e.expense_date) BETWEEN ? AND ?
-             GROUP BY ec.category_id`,
-            [`${start_date} 00:00:00`, `${end_date} 23:59:59`] // Perbaikan filter tanggal untuk DATETIME
+             GROUP BY ec.category_id, e.payment_method`,
+            [start_date, end_date] // Perbaikan filter tanggal
         );
         
         let operationalExpenses = [];
@@ -63,16 +59,28 @@ const generateFinancialReport = async (req, res) => {
         let totalOperationalExpenses = 0;
         let cashOut = 0;
 
+        const expenseMap = new Map();
         expensesResult.forEach(exp => {
             const amount = parseFloat(exp.total_amount);
-            if (exp.category_name.toLowerCase() === 'prive') {
+            if (expenseMap.has(exp.category_name)) {
+                expenseMap.set(exp.category_name, expenseMap.get(exp.category_name) + amount);
+            } else {
+                expenseMap.set(exp.category_name, amount);
+            }
+            if(exp.payment_method === 'cash'){
+                cashOut += amount;
+            }
+        });
+
+        expenseMap.forEach((amount, name) => {
+            if (name.toLowerCase() === 'prive') {
                 ownerDraw.total_amount = amount;
             } else {
-                operationalExpenses.push({ category_name: exp.category_name, total_amount: amount });
+                operationalExpenses.push({ category_name: name, total_amount: amount });
                 totalOperationalExpenses += amount;
             }
-            cashOut += amount;
         });
+
 
         // ================= 5. LABA BERSIH =================
         const netProfit = grossProfit - totalOperationalExpenses;
@@ -127,7 +135,6 @@ const generateFinancialReport = async (req, res) => {
     }
 };
 
-// GANTI FUNGSI LAMA executeClosing DENGAN VERSI FINAL INI
 const executeClosing = async (req, res) => {
     const connection = await db.getConnection();
     try {
@@ -137,7 +144,6 @@ const executeClosing = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Data laporan keuangan tidak lengkap.' });
         }
 
-        const bcrypt = require('bcryptjs');
         const [users] = await db.query('SELECT password FROM users WHERE user_id = ?', [req.user.user_id]);
         if (users.length === 0) return res.status(401).json({ success: false, message: 'User tidak valid.' });
         const isValid = await bcrypt.compare(password, users[0].password);
@@ -145,26 +151,8 @@ const executeClosing = async (req, res) => {
         
         await connection.beginTransaction();
         
-        // const backupDir = require('path').join(__dirname, '..', 'backups');
-        // await require('fs').promises.mkdir(backupDir, { recursive: true });
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        const backupFile = `backup_${timestamp}.json`;
-        // const backupPath = require('path').join(backupDir, backupFile);
-        // const backupData = {
-        //     timestamp: new Date().toISOString(),
-        //     period: { name: period_name, start_date, end_date },
-        //     financial_summary: financial_report,
-        //     data: {}
-        // };
-
-        // // Hapus 'purchases' dan 'purchase_details' dari daftar tabel yang akan di-backup
-        // const tables = ['users', 'products', 'transactions', 'transaction_details', 'stock_movements', 'expenses', 'expense_categories'];
-    
-        // for (const table of tables) {
-        //     const [rows] = await connection.query(`SELECT * FROM ${table}`);
-        //     backupData.data[table] = rows;
-        // }
-        // await require('fs').promises.writeFile(backupPath, JSON.stringify(backupData, null, 2));
+        const backupFile = `MANUAL_RESET_${timestamp}`;
         
         const { beginning_capital, ending_capital } = financial_report.equity_statement;
         const [closingResult] = await connection.query(
@@ -200,7 +188,6 @@ const executeClosing = async (req, res) => {
     }
 };
 
-// Fungsi getClosingHistory dan downloadBackup tetap sama
 const getClosingHistory = async (req, res) => {
     try {
         const [closings] = await db.query(
@@ -216,72 +203,20 @@ const getClosingHistory = async (req, res) => {
 };
 
 const downloadBackup = async (req, res) => {
-    try {
-        // const { filename } = req.params;
-        // const backupPath = require('path').join(__dirname, '..', 'backups', filename);
-        // await require('fs').promises.access(backupPath);
-        // res.download(backupPath);
-        return res.status(501).json({ 
-            success: false, 
-            message: 'Fitur download backup saat ini tidak tersedia di lingkungan ini. File backup tidak disimpan secara fisik di server.' 
-        });
-    } catch (error) {
-        res.status(404).json({ success: false, message: 'File backup tidak ditemukan!' });
-    }
+    return res.status(501).json({ 
+        success: false, 
+        message: 'Fitur download backup tidak tersedia. Backup tercatat di riwayat.' 
+    });
 };
 
 const getHistoricalReport = async (req, res) => {
-    try {
-        // const { id } = req.params; // Ini adalah closing_id
-
-        // // 1. Dapatkan nama file backup dari database
-        // const [closings] = await db.query(
-        //     'SELECT backup_file, period_name FROM book_closings WHERE closing_id = ?', 
-        //     [id]
-        // );
-
-        // if (closings.length === 0) {
-        //     return res.status(404).json({ success: false, message: 'Riwayat tutup buku tidak ditemukan.' });
-        // }
-
-        // const { backup_file, period_name } = closings[0];
-        // if (!backup_file) {
-        //     return res.status(404).json({ success: false, message: 'File backup untuk periode ini tidak terdaftar.' });
-        // }
-
-        return res.status(501).json({ 
-            success: false, 
-            message: 'Fitur laporan historis dari file backup saat ini tidak tersedia. Data laporan tidak disimpan sebagai file fisik.'
-        });
-
-        // 2. Baca file backup
-        const backupPath = path.join(__dirname, '..', 'backups', backup_file);
-        const backupContent = await fs.readFile(backupPath, 'utf8');
-        const backupData = JSON.parse(backupContent);
-
-        // 3. Ekstrak data laporan keuangan dari backup
-        if (!backupData.financial_summary) {
-            return res.status(404).json({ success: false, message: 'Data laporan keuangan tidak ditemukan di dalam file backup.' });
-        }
-
-        // 4. Kirim data ke frontend
-        res.json({
-            success: true,
-            data: {
-                report: backupData.financial_summary,
-                period_name: period_name
-            }
-        });
-
-    } catch (error) {
-        // if (error.code === 'ENOENT') { /* ... */ }
-        console.error('Get historical report error:', error);
-        res.status(500).json({ success: false, message: 'Gagal mengambil laporan historis.' });
-    }
+     return res.status(501).json({ 
+        success: false, 
+        message: 'Fitur laporan historis tidak tersedia. Silakan generate laporan baru untuk periode yang diinginkan.'
+    });
 };
 
 module.exports = {
-    // Kita ganti nama fungsinya agar lebih jelas
     generateFinancialReport,
     executeClosing,
     getClosingHistory,

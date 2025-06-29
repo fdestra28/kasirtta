@@ -55,7 +55,7 @@ const createExpense = async (req, res) => {
     }
 };
 
-// Get expenses (TETAP DIPERLUKAN)
+// Get expenses (DENGAN PERBAIKAN)
 const getExpenses = async (req, res) => {
     try {
         const { start_date, end_date, category_id } = req.query;
@@ -70,12 +70,14 @@ const getExpenses = async (req, res) => {
         const params = [];
         
         if (start_date) {
-            query += ' AND e.expense_date >= ?';
+            // Menggunakan DATE() untuk memastikan perbandingan tanggal saja
+            query += ' AND DATE(e.expense_date) >= ?';
             params.push(start_date);
         }
         
         if (end_date) {
-            query += ' AND e.expense_date <= ?';
+            // Menggunakan DATE() untuk memastikan perbandingan tanggal saja
+            query += ' AND DATE(e.expense_date) <= ?';
             params.push(end_date);
         }
         
@@ -122,7 +124,7 @@ const getExpenseSummary = async (req, res) => {
                 SUM(e.amount) as total
              FROM expense_categories ec
              LEFT JOIN expenses e ON ec.category_id = e.category_id 
-                AND e.expense_date BETWEEN ? AND ?
+                AND DATE(e.expense_date) BETWEEN ? AND ?  -- <<< PERBAIKAN DI SINI JUGA
              GROUP BY ec.category_id
              HAVING total > 0  -- Hanya tampilkan kategori yang ada pengeluarannya
              ORDER BY total DESC`,
@@ -135,7 +137,7 @@ const getExpenseSummary = async (req, res) => {
                 COUNT(*) as total_count,
                 SUM(amount) as total_amount
              FROM expenses 
-             WHERE expense_date BETWEEN ? AND ?`,
+             WHERE DATE(expense_date) BETWEEN ? AND ?`, // <<< PERBAIKAN DI SINI JUGA
             [start_date, end_date]
         );
         

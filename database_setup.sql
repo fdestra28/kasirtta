@@ -75,6 +75,7 @@ CREATE TABLE IF NOT EXISTS stock_movements (
 );
 
 -- Tambahkan di database_setup.sql atau jalankan manual
+-- Di file database_setup.sql, ubah definisi tabel book_closings menjadi:
 CREATE TABLE IF NOT EXISTS book_closings (
     closing_id INT PRIMARY KEY AUTO_INCREMENT,
     period_name VARCHAR(100) NOT NULL,
@@ -82,6 +83,8 @@ CREATE TABLE IF NOT EXISTS book_closings (
     end_date DATE NOT NULL,
     notes TEXT,
     backup_file VARCHAR(255),
+    beginning_capital DECIMAL(15,2) DEFAULT 0, -- DITAMBAHKAN
+    ending_capital DECIMAL(15,2) DEFAULT 0,    -- DITAMBAHKAN
     closed_by INT NOT NULL,
     closing_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (closed_by) REFERENCES users(user_id)
