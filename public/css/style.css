@@ -578,6 +578,7 @@ body.sidebar-collapsed .sidebar .nav-link {
     /* [FIX] Allow table to grow */
     flex-direction: column;
     /* [FIX] Allow table to grow */
+    table-layout: auto;
 }
 
 .table-container .data-table {
@@ -1632,18 +1633,20 @@ body.sidebar-collapsed .sidebar .nav-link {
 #flex-harga {
     display: flex;
     flex-direction: row;
-    gap: 1rem; /* Jarak antar card */
+    gap: 1rem;
+    /* Jarak antar card */
     margin-top: 1rem;
     margin-bottom: var(--spacing-md);
 }
 
-#flex-harga > .total-display {
-    flex: 1; /* Membuat kedua elemen berbagi ruang sama rata */
+#flex-harga>.total-display {
+    flex: 1;
+    /* Membuat kedua elemen berbagi ruang sama rata */
     padding: .5rem 1rem;
     background-color: #f8f8f8;
     color: var(--color-success);
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .payment-section .form-group label {
@@ -2659,8 +2662,8 @@ body.sidebar-collapsed .sidebar .nav-link {
     }
 
     .table-container {
-        margin: 0 calc(-1 * var(--spacing-lg));
-        padding: 0;
+        /* margin: 0 calc(-1 * var(--spacing-xs)); */
+        padding: var(--spacing-lg);
     }
 
     .data-table {
@@ -2703,6 +2706,7 @@ body.sidebar-open .sidebar-backdrop {
         padding: var(--spacing-lg);
         flex-direction: column;
         text-align: center;
+        align-items: center;
     }
 
     .stat-icon {
@@ -2893,7 +2897,8 @@ textarea:focus-visible {
     }
 
     .actions-pagination-bar {
-        justify-content: space-between;
+        justify-content: center;
+        margin-top: var(--spacing-lg);
     }
 
     .page-actions-group {
@@ -2901,6 +2906,7 @@ textarea:focus-visible {
         /* Move buttons below on mobile */
         flex-basis: 100%;
         margin-top: var(--spacing-md);
+        flex-direction: column;
     }
 
     .actions-pagination-bar .page-info {
@@ -2915,4 +2921,19 @@ textarea:focus-visible {
     .actions-pagination-bar>.btn:last-child {
         order: 0;
     }
+    .filterDiv {
+        flex-direction: column;
+    }
+    .report-container{
+        overflow: scroll;
+    }
+    .closing-form, .closing-history {
+        overflow: scroll;
+    }
+}
+
+.filterDiv {
+    display: flex;
+    gap: var(--spacing-md);
+
 }
