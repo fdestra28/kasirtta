@@ -70,13 +70,7 @@
                         <ion-icon name="cash-outline"></ion-icon>
                         <span class="nav-text">Kasir</span>
                     </a>
-                </li>
-                <li>
-                    <a href="#" data-page="history" class="nav-link">
-                        <ion-icon name="time-outline"></ion-icon>
-                        <span class="nav-text">Riwayat Transaksi</span>
-                    </a>
-                </li>
+                </li>                
                 <li id="productMenu" style="display:none;">
                     <a href="#" data-page="products" class="nav-link">
                         <ion-icon name="cube-outline"></ion-icon>
@@ -93,6 +87,12 @@
                     <a href="#" data-page="expenses" class="nav-link">
                         <ion-icon name="wallet-outline"></ion-icon>
                         <span class="nav-text">Pengeluaran</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-page="history" class="nav-link">
+                        <ion-icon name="time-outline"></ion-icon>
+                        <span class="nav-text">Riwayat Transaksi</span>
                     </a>
                 </li>
                 <li id="ownerMenu" style="display:none;">
@@ -274,59 +274,6 @@
                         </div>
                     </div>
 
-                </div>
-            </div>
-
-            <!-- Transaction History Page -->
-            <div id="historyPage" class="page">
-                <div class="page-header">
-                    <h2 class="page-title">Riwayat Transaksi</h2>
-                    <p class="page-subtitle">Daftar semua transaksi yang telah diproses</p>
-                </div>
-
-                <div class="report-filters glass-card">
-                    <div class="filterDiv">
-                        <div class="filter-group">
-                            <label>Dari Tanggal:</label>
-                            <input type="date" id="historyStartDate" class="form-input">
-                        </div>
-                        <div class="filter-group">
-                            <label>Sampai Tanggal:</label>
-                            <input type="date" id="historyEndDate" class="form-input">
-                        </div>
-                    </div>
-                    <button id="filterHistoryBtn" class="btn btn-primary">
-                        <ion-icon name="funnel-outline"></ion-icon>
-                        Filter
-                    </button>
-                </div>
-
-                <div class="table-container glass-card">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>No. Transaksi</th>
-                                <th>Tanggal</th>
-                                <th>Kasir</th>
-                                <th>Total</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="historyList"></tbody>
-                    </table>
-                </div>
-
-                <!-- [RESTRUCTURED] Pagination Bar -->
-                <div class="actions-pagination-bar">
-                    <button id="historyPrevBtn" class="btn btn-secondary" disabled>
-                        <ion-icon name="chevron-back-outline"></ion-icon>
-                        Sebelumnya
-                    </button>
-                    <span id="historyPageInfo" class="page-info">Halaman 1</span>
-                    <button id="historyNextBtn" class="btn btn-secondary">
-                        Selanjutnya
-                        <ion-icon name="chevron-forward-outline"></ion-icon>
-                    </button>
                 </div>
             </div>
 
@@ -515,6 +462,59 @@
                 </div>
 
                 <div id="expenseTotal" class="expense-total glass-card"></div>
+            </div>
+
+            <!-- Transaction History Page -->
+            <div id="historyPage" class="page">
+                <div class="page-header">
+                    <h2 class="page-title">Riwayat Transaksi</h2>
+                    <p class="page-subtitle">Daftar semua transaksi yang telah diproses</p>
+                </div>
+
+                <div class="report-filters glass-card">
+                    <div class="filterDiv">
+                        <div class="filter-group">
+                            <label>Dari Tanggal:</label>
+                            <input type="date" id="historyStartDate" class="form-input">
+                        </div>
+                        <div class="filter-group">
+                            <label>Sampai Tanggal:</label>
+                            <input type="date" id="historyEndDate" class="form-input">
+                        </div>
+                    </div>
+                    <button id="filterHistoryBtn" class="btn btn-primary">
+                        <ion-icon name="funnel-outline"></ion-icon>
+                        Filter
+                    </button>
+                </div>
+
+                <div class="table-container glass-card">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>No. Transaksi</th>
+                                <th>Tanggal</th>
+                                <th>Kasir</th>
+                                <th>Total</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyList"></tbody>
+                    </table>
+                </div>
+
+                <!-- [RESTRUCTURED] Pagination Bar -->
+                <div class="actions-pagination-bar">
+                    <button id="historyPrevBtn" class="btn btn-secondary" disabled>
+                        <ion-icon name="chevron-back-outline"></ion-icon>
+                        Sebelumnya
+                    </button>
+                    <span id="historyPageInfo" class="page-info">Halaman 1</span>
+                    <button id="historyNextBtn" class="btn btn-secondary">
+                        Selanjutnya
+                        <ion-icon name="chevron-forward-outline"></ion-icon>
+                    </button>
+                </div>
             </div>
 
             <!-- Reports Page (Owner Only) -->

@@ -11,14 +11,19 @@ const expenseLimit = 10; // 10 item per halaman
  * Initializes the expenses page, sets default dates, and loads initial data.
  */
 async function initExpenses() {
-    // Set default date filters to the current month
+    // 1. Tentukan tanggal hari ini
     const today = new Date();
-    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    
+    // 2. Tentukan tanggal 30 hari yang lalu
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(today.getDate() - 30);
 
-    document.getElementById('expenseFilterDateStart').valueAsDate = firstDay;
-    document.getElementById('expenseFilterDateEnd').valueAsDate = lastDay;
+    // 3. Atur nilai input tanggal menggunakan format YYYY-MM-DD
+    // Menggunakan toISOString().slice(0, 10) adalah cara yang paling andal
+    document.getElementById('expenseFilterDateStart').value = thirtyDaysAgo.toISOString().slice(0, 10);
+    document.getElementById('expenseFilterDateEnd').value = today.toISOString().slice(0, 10);
 
+    // 4. Lanjutkan sisa fungsi seperti biasa
     expenseCurrentPage = 1;
 
     if (!expenseEventListenersInitialized) {
@@ -26,7 +31,8 @@ async function initExpenses() {
     }
 
     await loadExpenseCategories();
-    await loadExpenses();
+    // loadExpenses() akan otomatis mengambil nilai dari input yang sudah kita atur
+    await loadExpenses(); 
 }
 
 /**

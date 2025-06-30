@@ -436,27 +436,36 @@ const importProducts = async (req, res) => {
                 const newProductId = result.insertId;
                 console.log(`Backend log: Inserted product ${product.item_name} with ID ${newProductId}`);
 
+                // --- BLOK YANG DIPERBAIKI DIMULAI DI SINI ---
                 // Logika tambahan untuk stok awal dan expense jika produk adalah 'barang'
-                if (product.item_type === 'barang') {
-                    if (product.current_stock > 0) {
-                         if (product.purchase_price > 0) {
-                            const totalPurchaseCost = product.current_stock * product.purchase_price;
-                            const [categories] = await connection.query(`SELECT category_id FROM expense_categories WHERE category_name = 'Pembelian Barang' LIMIT 1`);
-                            if (categories.length > 0) {
-                                await connection.query(
-                                    `INSERT INTO expenses (expense_date, category_id, description, amount, payment_method, notes, created_by) VALUES (NOW(), ?, ?, ?, 'cash', ?, ?)`,
-                                    [categories[0].category_id, `Pembelian dari import: ${product.item_name}`, totalPurchaseCost, `Stok awal dari import produk #${newProductId}`, req.user.user_id]
-                                );
-                                console.log(`Backend log: Created expense record for initial stock of ${product.item_name}`);
-                            }
+                if (product.item_type === 'barang' && product.current_stock > 0) {
+                    
+                    // 1. Cek apakah ada harga beli untuk dicatat sebagai pengeluaran
+                    if (product.purchase_price > 0) {
+                        const totalPurchaseCost = product.current_stock * product.purchase_price;
+                        
+                        // 2. Cari ID kategori 'Pembelian Barang'
+                        const [categories] = await connection.query(`SELECT category_id FROM expense_categories WHERE category_name = 'Pembelian Barang' LIMIT 1`);
+                        
+                        // 3. Jika kategori ditemukan, catat pengeluarannya
+                        if (categories.length > 0) {
+                            await connection.query(
+                                `INSERT INTO expenses (expense_date, category_id, description, amount, payment_method, notes, created_by) VALUES (NOW(), ?, ?, ?, 'cash', ?, ?)`,
+                                [categories[0].category_id, `Pembelian dari import: ${product.item_name}`, totalPurchaseCost, `Stok awal dari import produk #${newProductId}`, req.user.user_id]
+                            );
+                            console.log(`Backend log: Created expense record for initial stock of ${product.item_name}`);
                         }
-                        await connection.query(
-                            `INSERT INTO stock_movements (product_id, movement_type, quantity, reference_type, notes, user_id) VALUES (?, 'in', ?, 'initial', 'Stok awal dari import', ?)`,
-                            [newProductId, product.current_stock, req.user.user_id]
-                        );
-                        console.log(`Backend log: Created stock_movement record for ${product.item_name}`);
                     }
+
+                    // 4. Catat pergerakan stok (ini sudah benar sebelumnya)
+                    await connection.query(
+                        `INSERT INTO stock_movements (product_id, movement_type, quantity, reference_type, notes, user_id) VALUES (?, 'in', ?, 'initial', 'Stok awal dari import', ?)`,
+                        [newProductId, product.current_stock, req.user.user_id]
+                    );
+                    console.log(`Backend log: Created stock_movement record for ${product.item_name}`);
                 }
+                // --- AKHIR BLOK YANG DIPERBAIKI ---
+
                 importedCount++;
             } catch (dbError) {
                 console.error(`Backend log: DB error during import for product "${product.item_name}":`, dbError);
