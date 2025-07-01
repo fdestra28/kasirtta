@@ -749,6 +749,45 @@
 
     <!-- ========= MODALS AREA ========= -->
 
+     <!-- [BARU] Product Preview Modal -->
+    <div id="productPreviewModal" class="modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h3 id="previewProductName">Detail Produk</h3>
+                <button class="close" aria-label="Close">
+                    <ion-icon name="close-outline"></ion-icon>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="transaction-detail">
+                     <div class="info-row">
+                        <span class="info-label">Kode:</span>
+                        <span class="info-value" id="previewProductCode">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Jenis:</span>
+                        <span class="info-value" id="previewProductType">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Harga Jual:</span>
+                        <span class="info-value text-success" id="previewSellingPrice">Rp 0</span>
+                    </div>
+                    <div class="info-row" id="previewStockInfo">
+                        <span class="info-label">Stok Tersedia:</span>
+                        <span class="info-value" id="previewCurrentStock">0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('productPreviewModal')">
+                    <ion-icon name="close-outline"></ion-icon>
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+    
     <!-- Product Modal -->
     <div id="productModal" class="modal">
         <div class="modal-backdrop"></div>

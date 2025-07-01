@@ -2937,3 +2937,11 @@ textarea:focus-visible {
     gap: var(--spacing-md);
 
 }
+
+.receipt-logo {
+    display: block;
+    max-width: 150px;  /* Lebar maksimal logo di preview */
+    max-height: 80px;  /* Tinggi maksimal logo di preview */
+    object-fit: contain; /* Agar logo tidak gepeng */
+    margin: 0 auto var(--spacing-sm) auto; /* Pusatkan logo dan beri jarak bawah */
+}

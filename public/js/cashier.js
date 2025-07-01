@@ -240,7 +240,44 @@ function showReceiptPreview(transaction) {
     const contentDiv = document.getElementById('receiptPreviewContent');
     const storeName = appSettings.store_name || 'KASIRTTA';
     const storeAddress = appSettings.store_address || '';
-    const receiptHtml = `<div class="receipt-preview"><h3>${storeName}</h3><p>${storeAddress}</p><div class="receipt-info"><div><span>No:</span><span>${transaction.transaction_code}</span></div><div><span>Tgl:</span><span>${formatDate(transaction.transaction_date)}</span></div><div><span>Kasir:</span><span>${currentUser.full_name}</span></div></div><div class="receipt-items"><div class="item-line item-header"><span>Nama Item</span><span>Total</span></div>${transaction.items.map(item => `<div><div class="item-line"><span>${item.product_name}</span><span>${formatCurrency(item.subtotal)}</span></div><div class="item-details">${item.quantity} x ${formatCurrency(item.unit_price)}</div></div>`).join('')}</div><div class="receipt-total"><div><span>Total</span><span>${formatCurrency(transaction.total_amount)}</span></div><div><span>Bayar</span><span>${formatCurrency(transaction.payment_received)}</span></div><div><span>Kembali</span><span>${formatCurrency(transaction.change_amount)}</span></div></div><div class="receipt-footer"><p>Terima kasih!</p></div></div>`;
+    
+    // [BARU] Logika untuk menampilkan logo jika ada
+    const logoHtml = appSettings.store_logo_favicon 
+        ? `<img src="${appSettings.store_logo_favicon}" alt="Logo Toko" class="receipt-logo">`
+        : '';
+
+    // [DIUBAH] Sisipkan logoHtml ke dalam template
+    const receiptHtml = `
+        <div class="receipt-preview">
+            ${logoHtml}
+            <h3>${storeName}</h3>
+            <p>${storeAddress}</p>
+            <div class="receipt-info">
+                <div><span>No:</span><span>${transaction.transaction_code}</span></div>
+                <div><span>Tgl:</span><span>${formatDate(transaction.transaction_date)}</span></div>
+                <div><span>Kasir:</span><span>${currentUser.full_name}</span></div>
+            </div>
+            <div class="receipt-items">
+                <div class="item-line item-header"><span>Nama Item</span><span>Total</span></div>
+                ${transaction.items.map(item => `
+                    <div>
+                        <div class="item-line">
+                            <span>${item.product_name}</span>
+                            <span>${formatCurrency(item.subtotal)}</span>
+                        </div>
+                        <div class="item-details">${item.quantity} x ${formatCurrency(item.unit_price)}</div>
+                    </div>`).join('')}
+            </div>
+            <div class="receipt-total">
+                <div><span>Total</span><span>${formatCurrency(transaction.total_amount)}</span></div>
+                <div><span>Bayar</span><span>${formatCurrency(transaction.payment_received)}</span></div>
+                <div><span>Kembali</span><span>${formatCurrency(transaction.change_amount)}</span></div>
+            </div>
+            <div class="receipt-footer">
+                <p>Terima kasih!</p>
+            </div>
+        </div>`;
+        
     contentDiv.innerHTML = receiptHtml;
     document.getElementById('receiptPrintBtn').onclick = () => printReceipt(transaction);
     openModal('receiptPreviewModal');
@@ -250,30 +287,136 @@ function handleKeyboardNavigation(e) {
     const productGrid = document.getElementById('productListKasir');
     const products = productGrid.querySelectorAll('.product-card:not(.out-of-stock)');
     if (products.length === 0) return;
+
     const gridStyle = window.getComputedStyle(productGrid);
     const gridTemplateColumns = gridStyle.getPropertyValue('grid-template-columns');
     const columnCount = gridTemplateColumns.split(' ').length;
     let nextIndex = selectedProductIndex;
+    
+    // Gunakan e.key untuk karakter dan navigasi
     switch (e.key) {
-        case 'ArrowRight': e.preventDefault(); nextIndex = (selectedProductIndex < products.length - 1) ? selectedProductIndex + 1 : selectedProductIndex; break;
-        case 'ArrowLeft': e.preventDefault(); nextIndex = (selectedProductIndex > 0) ? selectedProductIndex - 1 : 0; break;
-        case 'ArrowDown': e.preventDefault(); nextIndex = (selectedProductIndex === -1) ? 0 : Math.min(selectedProductIndex + columnCount, products.length - 1); break;
-        case 'ArrowUp': e.preventDefault(); if (e.target.id === 'productSearch' && selectedProductIndex === -1) return; nextIndex = (selectedProductIndex >= columnCount) ? selectedProductIndex - columnCount : selectedProductIndex; break;
-        case 'Enter': e.preventDefault(); if (selectedProductIndex !== -1 && products[selectedProductIndex]) { products[selectedProductIndex].click(); } return;
-        case 'Escape': e.preventDefault(); if (selectedProductIndex !== -1) { products[selectedProductIndex].classList.remove('selected'); selectedProductIndex = -1; } document.getElementById('productSearch').focus(); return;
+        case 'ArrowRight':
+            e.preventDefault();
+            nextIndex = (selectedProductIndex < products.length - 1) ? selectedProductIndex + 1 : selectedProductIndex;
+            break;
+        case 'ArrowLeft':
+            e.preventDefault();
+            nextIndex = (selectedProductIndex > 0) ? selectedProductIndex - 1 : 0;
+            break;
+        case 'ArrowDown':
+            e.preventDefault();
+            nextIndex = (selectedProductIndex === -1) ? 0 : Math.min(selectedProductIndex + columnCount, products.length - 1);
+            break;
+        case 'ArrowUp':
+            e.preventDefault();
+            if (e.target.id === 'productSearch' && selectedProductIndex === -1) return;
+            nextIndex = (selectedProductIndex >= columnCount) ? selectedProductIndex - columnCount : selectedProductIndex;
+            break;
+        case 'Enter':
+            e.preventDefault();
+            if (selectedProductIndex !== -1 && products[selectedProductIndex]) {
+                products[selectedProductIndex].click(); // Menambahkan produk ke keranjang
+            }
+            return;
+        case ' ': // 'Space' key
+            e.preventDefault();
+            if (selectedProductIndex !== -1 && products[selectedProductIndex]) {
+                const productId = products[selectedProductIndex].dataset.productId;
+                showProductPreview(parseInt(productId)); // Tampilkan preview detail
+            }
+            return;
+        case 'PageDown':
+            e.preventDefault();
+            productGrid.scrollTop += productGrid.clientHeight * 0.9; // Scroll 90% dari tinggi terlihat
+            break;
+        case 'PageUp':
+            e.preventDefault();
+            productGrid.scrollTop -= productGrid.clientHeight * 0.9;
+            break;
+        case 'Escape':
+            e.preventDefault();
+            if (selectedProductIndex !== -1) {
+                products[selectedProductIndex].classList.remove('selected');
+                selectedProductIndex = -1;
+            }
+            document.getElementById('productSearch').focus(); // Kembali ke pencarian
+            return;
     }
+
     if (nextIndex !== selectedProductIndex) {
         if (selectedProductIndex !== -1 && products[selectedProductIndex]) {
             products[selectedProductIndex].classList.remove('selected');
         }
         if (products[nextIndex]) {
             products[nextIndex].classList.add('selected');
-            products[nextIndex].focus();
-            products[nextIndex].scrollIntoView({ block: 'nearest', inline: 'nearest' });
+            products[nextIndex].focus({ preventScroll: true });
+            products[nextIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
         }
         selectedProductIndex = nextIndex;
     }
 }
+
+/**
+ * Shows a modal with product details.
+ * @param {number} productId 
+ */
+function showProductPreview(productId) {
+    const product = allProducts.find(p => p.product_id === productId);
+    if (!product) return;
+
+    const modal = document.getElementById('productPreviewModal');
+    document.getElementById('previewProductName').textContent = product.item_name;
+    document.getElementById('previewProductCode').textContent = product.item_code || '-';
+    document.getElementById('previewProductType').textContent = product.item_type;
+    document.getElementById('previewSellingPrice').textContent = formatCurrency(product.selling_price);
+    
+    const stockInfo = document.getElementById('previewStockInfo');
+    if (product.item_type === 'barang') {
+        stockInfo.style.display = 'block';
+        document.getElementById('previewCurrentStock').textContent = `${product.current_stock} unit`;
+    } else {
+        stockInfo.style.display = 'none';
+    }
+
+    openModal('productPreviewModal');
+}
+
+/**
+ * Shows a modal with product details.
+ * @param {number} productId 
+ */
+function showProductPreview(productId) {
+    const product = allProducts.find(p => p.product_id === productId);
+    if (!product) return;
+
+    const modal = document.getElementById('productPreviewModal');
+    document.getElementById('previewProductName').textContent = product.item_name;
+    document.getElementById('previewProductCode').textContent = product.item_code || '-';
+    document.getElementById('previewProductType').textContent = product.item_type;
+    document.getElementById('previewSellingPrice').textContent = formatCurrency(product.selling_price);
+    
+    const stockInfo = document.getElementById('previewStockInfo');
+    if (product.item_type === 'barang') {
+        stockInfo.style.display = 'block';
+        document.getElementById('previewCurrentStock').textContent = `${product.current_stock} unit`;
+    } else {
+        stockInfo.style.display = 'none';
+    }
+
+    openModal('productPreviewModal');
+}
+
+function removeLastCartItem() {
+    if (cart.length > 0) {
+        const removedItem = cart.pop(); // Hapus item terakhir dari array
+        showNotification(`Item "${removedItem.item_name}" dihapus dari keranjang.`, 'info');
+        renderCart(); // Render ulang keranjang
+    }
+}
+
+// Expose functions to be called by global shortcuts
+window.clearCartAction = clearCartAction;
+window.removeLastCartItem = removeLastCartItem;
 window.quickAddToCart = quickAddToCart;
 window.addToCart = addToCart;
 window.updateQuantity = updateQuantity;

@@ -360,6 +360,7 @@ function navigateToPage(pageName) {
 // ===== EVENT LISTENERS SETUP =====
 function setupEventListeners() {
     // Navigation links
+    document.addEventListener('keydown', handleGlobalShortcuts);
     document.querySelectorAll('.nav-link').forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
@@ -396,6 +397,8 @@ function setupEventListeners() {
             }
         }, 250);
     });
+    
+
 }
 
 // ===== GLOBAL SETTINGS =====
@@ -1204,54 +1207,33 @@ function printReceipt(transaction) {
     const receiptWindow = window.open('', 'Receipt', 'width=300,height=600');
     const cashierName = transaction.cashier_name || currentUser.full_name;
 
+    // [BARU] Logika untuk menampilkan logo (sama seperti di cashier.js)
+    const logoHtml = appSettings.store_logo_favicon
+        ? `<img src="${appSettings.store_logo_favicon}" alt="Logo Toko" class="receipt-logo">`
+        : '';
+        
+    // [DIUBAH] Template HTML untuk jendela cetak, disisipkan logoHtml dan CSS-nya
     const receiptHTML = `
         <!DOCTYPE html>
         <html>
         <head>
             <title>Struk</title>
             <style>
-                body { 
-                    font-family: 'Courier New', monospace; 
-                    font-size: 12px; 
-                    margin: 0; 
-                    padding: 10px; 
-                    width: 280px; 
-                }
-                .header { 
-                    text-align: center; 
-                    margin-bottom: 10px; 
-                    border-bottom: 1px dashed #000; 
-                    padding-bottom: 5px; 
-                }
-                h2 { 
-                    margin: 0; 
-                    font-size: 16px; 
-                }
-                .info, .items, .total { 
-                    margin-bottom: 10px; 
-                }
-                .item { 
-                    display: flex; 
-                    justify-content: space-between; 
-                    margin-bottom: 3px; 
-                }
-                .total { 
-                    font-weight: bold; 
-                    border-top: 1px dashed #000; 
-                    padding-top: 5px; 
-                }
-                .footer { 
-                    text-align: center; 
-                    margin-top: 15px; 
-                    font-size: 10px; 
-                }
-                @media print { 
-                    body { margin: 0; } 
-                }
+                body { font-family: 'Courier New', monospace; font-size: 12px; margin: 0; padding: 10px; width: 280px; }
+                .header { text-align: center; margin-bottom: 10px; border-bottom: 1px dashed #000; padding-bottom: 5px; }
+                .receipt-logo { display: block; max-width: 120px; max-height: 60px; object-fit: contain; margin: 0 auto 5px auto; }
+                h2 { margin: 0; font-size: 16px; }
+                p { margin: 2px 0; }
+                .info, .items, .total { margin-bottom: 10px; }
+                .item { display: flex; justify-content: space-between; margin-bottom: 3px; }
+                .total { font-weight: bold; border-top: 1px dashed #000; padding-top: 5px; }
+                .footer { text-align: center; margin-top: 15px; font-size: 10px; }
+                @media print { body { margin: 0; } }
             </style>
         </head>
         <body>
             <div class="header">
+                ${logoHtml}
                 <h2>${appSettings.store_name || 'Kasirtta'}</h2>
                 <p>${appSettings.store_address || ''}<br>${appSettings.store_phone || ''}</p>
             </div>
@@ -1481,3 +1463,150 @@ function printReportElement(elementId) {
 }
 
 window.printReportElement = printReportElement; // Ekspos fungsi ke global scope
+
+/**
+ * Handles all global keyboard shortcuts for the application.
+ * REVISED VERSION 2 (F10 & Print Fix)
+ * @param {KeyboardEvent} e - The keyboard event object.
+ */
+function handleGlobalShortcuts(e) {
+    const activeEl = document.activeElement;
+    const isTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'SELECT');
+
+    // [FIX] Perbaikan untuk F-Keys: Izinkan F-keys lolos walaupun sedang mengetik.
+    // Aturan baru: Abaikan shortcut jika sedang mengetik, KECUALI untuk 'Escape' dan F-Keys.
+    if (isTyping && e.key !== 'Escape' && !e.key.startsWith('F')) {
+        return;
+    }
+
+    // --- Shortcut Navigasi Halaman (Alt + Key) ---
+    if (e.altKey) {
+        e.preventDefault();
+        switch (e.key.toLowerCase()) {
+            case 'd': navigateToPage('dashboard'); break;
+            case 'k': navigateToPage('cashier'); break;
+            case 's': navigateToPage('stock'); break;
+            case 'h': navigateToPage('history'); break;
+            case 'p': if (currentUser.role === 'owner') navigateToPage('products'); break;
+            case 'r': if (currentUser.role === 'owner') navigateToPage('reports'); break;
+            case 'u': if (currentUser.role === 'owner') navigateToPage('users'); break;
+        }
+        return; // Selesaikan setelah handle Alt
+    }
+
+    // --- Shortcut Fungsional (Ctrl, F-Keys, etc.) ---
+
+    // Ctrl + Key shortcuts
+    if (e.ctrlKey) {
+        switch (e.key.toLowerCase()) {
+            case 'f':
+                e.preventDefault();
+                const searchInput = document.querySelector('.page.active input[type="text"][placeholder*="Cari"]');
+                if (searchInput) {
+                    searchInput.focus();
+                    searchInput.select();
+                }
+                break;
+            
+            case 'a':
+                if (currentPage === 'cashier') {
+                    e.preventDefault();
+                    const firstQtyInput = document.querySelector('#cartItems input[type="number"]');
+                    if (firstQtyInput) {
+                        firstQtyInput.focus();
+                        firstQtyInput.select();
+                    }
+                }
+                break;
+
+            // [BARU] Shortcut Cetak Ulang: Ctrl + P
+            case 'p':
+                e.preventDefault(); // Mencegah dialog print default browser
+                reprintLastTransaction(); // Panggil fungsi cetak ulang
+                break;
+            
+            case 'backspace':
+                if (currentPage === 'cashier') {
+                    e.preventDefault();
+                    window.removeLastCartItem?.();
+                }
+                break;
+            
+            case 'delete':
+                if (currentPage === 'cashier') {
+                    e.preventDefault();
+                    window.clearCartAction?.();
+                }
+                break;
+        }
+        return; // Selesaikan setelah handle Ctrl
+    }
+
+    // F-Keys and other single key shortcuts
+    switch (e.key) {
+        case 'F3':
+            e.preventDefault();
+            showNotification('Shortcut F3 (Cari Berikutnya) belum diimplementasikan.', 'info');
+            break;
+
+        case 'F9':
+            e.preventDefault();
+            if (currentPage === 'cashier') {
+                document.getElementById('paymentReceived').focus();
+            }
+            break;
+
+        case 'F10':
+            e.preventDefault();
+            if (currentPage === 'cashier') {
+                const processBtn = document.getElementById('processTransaction');
+                if (!processBtn.disabled) {
+                    processBtn.click();
+                }
+            }
+            break;
+
+        // [DIHAPUS] Shortcut F11 dihapus dari sini untuk mengembalikan fungsi fullscreen browser.
+        // case 'F11': ...
+
+        case 'F12':
+            e.preventDefault();
+            showNotification('Membuka laci kasir (simulasi)...', 'success');
+            break;
+
+        case 'Escape':
+            const openModalEl = document.querySelector('.modal[style*="block"]');
+            const searchInputEl = document.querySelector('.page.active input[type="text"][placeholder*="Cari"]:focus');
+
+            if (openModalEl) {
+                e.preventDefault();
+                closeModal(openModalEl);
+            } else if (searchInputEl && searchInputEl.value !== '') {
+                e.preventDefault();
+                searchInputEl.value = '';
+                searchInputEl.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            break;
+    }
+}
+
+/**
+ * Fetches the last transaction and reprints the receipt.
+ */
+async function reprintLastTransaction() {
+    try {
+        // Ambil 1 transaksi terakhir
+        const response = await apiRequest(`/transactions?limit=1&offset=0`);
+        const data = await response.json();
+        
+        if (data.success && data.data.length > 0) {
+            const lastTransactionId = data.data[0].transaction_id;
+            await reprintReceipt(lastTransactionId); // Gunakan fungsi reprint yang sudah ada
+            showNotification(`Mencetak ulang transaksi terakhir: ${data.data[0].transaction_code}`, 'success');
+        } else {
+            showNotification('Tidak ada transaksi terakhir yang bisa dicetak ulang.', 'warning');
+        }
+    } catch (error) {
+        showNotification('Gagal mengambil data transaksi terakhir.', 'error');
+    }
+}

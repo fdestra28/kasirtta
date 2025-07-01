@@ -135,6 +135,9 @@ CREATE TABLE IF NOT EXISTS expenses (
 -- ('Marketing', 'operational', 'Biaya promosi dan marketing'),
 -- ('Lain-lain', 'other', 'Pengeluaran lainnya');
 
+-- INSERT INTO expense_categories (category_name, category_type, description) 
+-- VALUES ('Prive', 'other', 'Pengambilan dana pribadi oleh pemilik untuk keperluan non-bisnis');
+
 -- Membuat tabel untuk menyimpan semua pengaturan aplikasi
 CREATE TABLE IF NOT EXISTS settings (
     setting_key VARCHAR(50) PRIMARY KEY,
@@ -164,5 +167,5 @@ CREATE TABLE IF NOT EXISTS settings (
 -- ('store_logo_favicon', 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛒</text></svg>')
 -- ON DUPLICATE KEY UPDATE setting_key=setting_key;
 
-ALTER TABLE transaction_details
-ADD COLUMN purchase_price DECIMAL(12,2) NOT NULL DEFAULT 0.00 AFTER unit_price;
+-- ALTER TABLE transaction_details
+-- ADD COLUMN purchase_price DECIMAL(12,2) NOT NULL DEFAULT 0.00 AFTER unit_price;
