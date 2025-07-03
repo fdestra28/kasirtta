@@ -318,7 +318,7 @@ function handleKeyboardNavigation(e) {
                 products[selectedProductIndex].click(); // Menambahkan produk ke keranjang
             }
             return;
-        case ' ': // 'Space' key
+        case '`': // 'backtick' key
             e.preventDefault();
             if (selectedProductIndex !== -1 && products[selectedProductIndex]) {
                 const productId = products[selectedProductIndex].dataset.productId;
