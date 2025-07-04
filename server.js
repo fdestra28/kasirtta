@@ -4,9 +4,6 @@ const cors = require('cors');
 require('dotenv').config();
 const { testConnection } = require('./config/database');
 const path = require('path');
-const port = process.env.PORT || 3000;
-const dbHost = process.env.DB_HOST;
-
 
 // Initialize express
 const app = express();
@@ -21,7 +18,7 @@ app.use(express.static('public'));
 
 // Routes API (diletakkan SETELAH express.static)
 app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/products', require('./routes/productRoutes'));
+app.use('/api/products', require('./routes/productRoutes')); // Hanya sekali saja
 app.use('/api/transactions', require('./routes/transactionRoutes'));
 app.use('/api/closing', require('./routes/closingRoutes')); 
 app.use('/api/expenses', require('./routes/expenseRoutes'));
@@ -38,27 +35,32 @@ app.use((err, req, res, next) => {
 });
 
 console.log("Memuat rute produk dari ./routes/productRoutes ...");
-app.use('/api/products', require('./routes/productRoutes'));
+// HAPUS BARIS INI - sudah didefinisikan di atas
+// app.use('/api/products', require('./routes/productRoutes'));
 console.log("Rute produk selesai dimuat.");
 
 // Start server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000; // Konsisten dengan environment variable
+const HOST = process.env.HOST || '0.0.0.0'; // PENTING: Listen pada semua interface
 
-// --- PERBAIKAN KRITIS ---
 // Fungsi startup yang lebih aman
 const startServer = async () => {
     try {
+        console.log("Mencoba menyambungkan ke database...");
         // Test database connection saat startup
         await testConnection();
+        console.log("✅ Database terhubung!");
 
         // Jika koneksi berhasil, baru jalankan server
-        app.listen(PORT, () => {
-            console.log(`🚀 Server berjalan di http://localhost:${PORT}`);
+        // PERBAIKAN KRITIS: Listen pada 0.0.0.0, bukan localhost
+        app.listen(PORT, HOST, () => {
+            console.log(`🚀 Server berjalan di http://${HOST}:${PORT}`);
         });
     } catch (error) {
+        console.error("❌ Error koneksi database:", error.message);
         // Jika koneksi gagal saat startup, baru kita matikan proses
         console.error("Gagal memulai server karena koneksi database tidak berhasil.");
-        process.exit(1); // <-- process.exit hanya ada di sini
+        process.exit(1);
     }
 };
 

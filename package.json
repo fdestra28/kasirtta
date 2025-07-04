@@ -1,5 +1,5 @@
 {
-  "name": "tokoatk-pro",
+  "name": "Kasirtta",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
@@ -7,9 +7,9 @@
     "dev": "nodemon server.js"
   },
   "keywords": [],
-  "author": "Fajar",
+  "author": "Fajar Destrada",
   "license": "ISC",
-  "description": "Web App Kasir untuk Toko ATK",
+  "description": "Sistem kasir pintar pilihan UMKM Indonesia",
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
