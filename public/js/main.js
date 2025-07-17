@@ -125,6 +125,7 @@ function updateUserInterface() {
         document.getElementById('userMenu').style.display = 'block';
         document.getElementById('settingsMenu').style.display = 'block';
         document.getElementById('closingMenu').style.display = 'block';
+        document.getElementById('debtMenu').style.display = 'block';
     } else if (currentUser.role === 'admin') {
         document.getElementById('productMenu').style.display = 'none';
     }
@@ -354,6 +355,7 @@ function navigateToPage(pageName) {
         case 'users': initUsers(); break;
         case 'settings': initSettings(); break;
         case 'closing': initClosing(); break;
+        case 'debts': initDebts(); break;
     }
 }
 

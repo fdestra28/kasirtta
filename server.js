@@ -18,11 +18,13 @@ app.use(express.static('public'));
 
 // Routes API (diletakkan SETELAH express.static)
 app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/products', require('./routes/productRoutes')); // Hanya sekali saja
+app.use('/api/products', require('./routes/productRoutes'));
 app.use('/api/transactions', require('./routes/transactionRoutes'));
 app.use('/api/closing', require('./routes/closingRoutes')); 
 app.use('/api/expenses', require('./routes/expenseRoutes'));
 app.use('/api/settings', require('./routes/settingsRoutes'));
+app.use('/api/customers', require('./routes/customerRoutes'));
+app.use('/api/debts', require('./routes/debtRoutes'));
 
 // Error handling middleware
 app.use((err, req, res, next) => {

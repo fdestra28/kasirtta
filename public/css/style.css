@@ -2945,3 +2945,27 @@ textarea:focus-visible {
     object-fit: contain; /* Agar logo tidak gepeng */
     margin: 0 auto var(--spacing-sm) auto; /* Pusatkan logo dan beri jarak bawah */
 }
+
+/* Tambahkan ini di akhir file style.css */
+
+.search-results-list {
+    max-height: 150px;
+    overflow-y: auto;
+    border: 1px solid var(--color-border-solid);
+    border-radius: var(--radius-md);
+    margin-top: var(--spacing-sm);
+}
+
+.search-result-item {
+    padding: var(--spacing-md);
+    cursor: pointer;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.search-result-item:hover {
+    background-color: var(--color-primary-alpha);
+}

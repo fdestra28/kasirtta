@@ -1,228 +1,259 @@
 <!DOCTYPE html>
 <html lang="id">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Nama Toko - By Kasirtta</title>
 
     <!-- Favicon -->
-    <link id="favicon" rel="icon" type="image/svg+xml"
-        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛒</text></svg>">
+    <link
+      id="favicon"
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛒</text></svg>"
+    />
 
     <!-- Google Fonts - Poppins -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
     <!-- Ionicons -->
-    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <script
+      type="module"
+      src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"
+    ></script>
+    <script
+      nomodule
+      src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"
+    ></script>
 
     <!-- Main Stylesheet -->
-    <link rel="stylesheet" href="css/style.css">
-</head>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
 
-<body>
+  <body>
     <!-- Glass Background Effect -->
     <div class="glass-background"></div>
 
     <!-- Main Header -->
     <header class="main-header">
-        <div class="header-content">
-            <div class="header-left">
-                <button id="sidebarToggle" class="sidebar-toggle">
-                    <ion-icon name="menu-outline"></ion-icon>
-                </button>
-                <h1 class="header-title">Kasirtta</h1>
-            </div>
-            <div class="header-right">
-                <div class="header-info">
-                    <div class="user-info">
-                        <ion-icon name="person-circle-outline"></ion-icon>
-                        <span id="userInfo"></span>
-                    </div>
-                    <button id="logoutBtn" class="btn btn-secondary btn-sm">
-                        <ion-icon name="log-out-outline"></ion-icon>
-                        Logout
-                    </button>
-                </div>
-            </div>
+      <div class="header-content">
+        <div class="header-left">
+          <button id="sidebarToggle" class="sidebar-toggle">
+            <ion-icon name="menu-outline"></ion-icon>
+          </button>
+          <h1 class="header-title">Kasirtta</h1>
         </div>
+        <div class="header-right">
+          <div class="header-info">
+            <div class="user-info">
+              <ion-icon name="person-circle-outline"></ion-icon>
+              <span id="userInfo"></span>
+            </div>
+            <button id="logoutBtn" class="btn btn-secondary btn-sm">
+              <ion-icon name="log-out-outline"></ion-icon>
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
     </header>
 
     <div class="sidebar-backdrop"></div>
 
     <!-- Main Container -->
     <div class="main-container">
-        <!-- Sidebar Navigation -->
-        <nav class="sidebar" id="sidebar">
-            <ul class="nav-menu">
-                <li>
-                    <a href="#" data-page="dashboard" class="nav-link active">
-                        <ion-icon name="grid-outline"></ion-icon>
-                        <span class="nav-text">Dashboard</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" data-page="cashier" class="nav-link">
-                        <ion-icon name="cash-outline"></ion-icon>
-                        <span class="nav-text">Kasir</span>
-                    </a>
-                </li>                
-                <li id="productMenu" style="display:none;">
-                    <a href="#" data-page="products" class="nav-link">
-                        <ion-icon name="cube-outline"></ion-icon>
-                        <span class="nav-text">Produk & Jasa</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" data-page="stock" class="nav-link">
-                        <ion-icon name="layers-outline"></ion-icon>
-                        <span class="nav-text">Manajemen Stok</span>
-                    </a>
-                </li>
-                <li id="expenseMenu">
-                    <a href="#" data-page="expenses" class="nav-link">
-                        <ion-icon name="wallet-outline"></ion-icon>
-                        <span class="nav-text">Pengeluaran</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" data-page="history" class="nav-link">
-                        <ion-icon name="time-outline"></ion-icon>
-                        <span class="nav-text">Riwayat Transaksi</span>
-                    </a>
-                </li>
-                <li id="ownerMenu" style="display:none;">
-                    <a href="#" data-page="reports" class="nav-link">
-                        <ion-icon name="bar-chart-outline"></ion-icon>
-                        <span class="nav-text">Laporan</span>
-                    </a>
-                </li>
-                <li id="userMenu" style="display:none;">
-                    <a href="#" data-page="users" class="nav-link">
-                        <ion-icon name="people-outline"></ion-icon>
-                        <span class="nav-text">Manajemen User</span>
-                    </a>
-                </li>
-                <li id="settingsMenu" style="display:none;">
-                    <a href="#" data-page="settings" class="nav-link">
-                        <ion-icon name="settings-outline"></ion-icon>
-                        <span class="nav-text">Pengaturan</span>
-                    </a>
-                </li>
-                <li id="closingMenu" style="display:none;">
-                    <a href="#" data-page="closing" class="nav-link">
-                        <ion-icon name="book-outline"></ion-icon>
-                        <span class="nav-text">Tutup Buku</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
+      <!-- Sidebar Navigation -->
+      <nav class="sidebar" id="sidebar">
+        <ul class="nav-menu">
+          <li>
+            <a href="#" data-page="dashboard" class="nav-link active">
+              <ion-icon name="grid-outline"></ion-icon>
+              <span class="nav-text">Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" data-page="cashier" class="nav-link">
+              <ion-icon name="cash-outline"></ion-icon>
+              <span class="nav-text">Kasir</span>
+            </a>
+          </li>
+          <li id="productMenu" style="display: none">
+            <a href="#" data-page="products" class="nav-link">
+              <ion-icon name="cube-outline"></ion-icon>
+              <span class="nav-text">Produk & Jasa</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" data-page="stock" class="nav-link">
+              <ion-icon name="layers-outline"></ion-icon>
+              <span class="nav-text">Manajemen Stok</span>
+            </a>
+          </li>
+          <li id="expenseMenu">
+            <a href="#" data-page="expenses" class="nav-link">
+              <ion-icon name="wallet-outline"></ion-icon>
+              <span class="nav-text">Pengeluaran</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" data-page="history" class="nav-link">
+              <ion-icon name="time-outline"></ion-icon>
+              <span class="nav-text">Riwayat Transaksi</span>
+            </a>
+          </li>
+          <li id="debtMenu" style="display: none">
+            <a href="#" data-page="debts" class="nav-link">
+              <ion-icon name="document-text-outline"></ion-icon>
+              <span class="nav-text">Manajemen Piutang</span>
+            </a>
+          </li>
+          <li id="ownerMenu" style="display: none">
+            <a href="#" data-page="reports" class="nav-link">
+              <ion-icon name="bar-chart-outline"></ion-icon>
+              <span class="nav-text">Laporan</span>
+            </a>
+          </li>
+          <li id="userMenu" style="display: none">
+            <a href="#" data-page="users" class="nav-link">
+              <ion-icon name="people-outline"></ion-icon>
+              <span class="nav-text">Manajemen User</span>
+            </a>
+          </li>
+          <li id="settingsMenu" style="display: none">
+            <a href="#" data-page="settings" class="nav-link">
+              <ion-icon name="settings-outline"></ion-icon>
+              <span class="nav-text">Pengaturan</span>
+            </a>
+          </li>
+          <li id="closingMenu" style="display: none">
+            <a href="#" data-page="closing" class="nav-link">
+              <ion-icon name="book-outline"></ion-icon>
+              <span class="nav-text">Tutup Buku</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
 
-        <!-- Content Area -->
-        <main class="content" id="content">
-            <!-- Dashboard Page -->
-            <div id="dashboardPage" class="page active">
-                <div class="page-header">
-                    <h2 class="page-title">Dashboard</h2>
-                    <p class="page-subtitle">Ringkasan aktivitas toko hari ini</p>
-                </div>
+      <!-- Content Area -->
+      <main class="content" id="content">
+        <!-- Dashboard Page -->
+        <div id="dashboardPage" class="page active">
+          <div class="page-header">
+            <h2 class="page-title">Dashboard</h2>
+            <p class="page-subtitle">Ringkasan aktivitas toko hari ini</p>
+          </div>
 
-                <div class="dashboard-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <ion-icon name="cart-outline"></ion-icon>
-                        </div>
-                        <div class="stat-content">
-                            <h3>Transaksi Hari Ini</h3>
-                            <p class="stat-number" id="todayTransactions">0</p>
-                        </div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-icon text-success">
-                            <ion-icon name="cash-outline"></ion-icon>
-                        </div>
-                        <div class="stat-content">
-                            <h3>Pendapatan Hari Ini</h3>
-                            <p class="stat-number text-success" id="todayRevenue">Rp 0</p>
-                        </div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-icon text-accent">
-                            <ion-icon name="trending-up-outline"></ion-icon>
-                        </div>
-                        <div class="stat-content">
-                            <h3>Produk Terlaris</h3>
-                            <div id="topProducts" class="stat-list"></div>
-                        </div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-icon text-danger">
-                            <ion-icon name="alert-circle-outline"></ion-icon>
-                        </div>
-                        <div class="stat-content">
-                            <h3>Stok Menipis</h3>
-                            <div id="lowStock" class="stat-list"></div>
-                        </div>
-                    </div>
-                </div>
+          <div class="dashboard-grid">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <ion-icon name="cart-outline"></ion-icon>
+              </div>
+              <div class="stat-content">
+                <h3>Transaksi Hari Ini</h3>
+                <p class="stat-number" id="todayTransactions">0</p>
+              </div>
             </div>
 
-            <!-- Cashier Page -->
-            <div id="cashierPage" class="page">
-                <!-- <div class="page-header">
+            <div class="stat-card">
+              <div class="stat-icon text-success">
+                <ion-icon name="cash-outline"></ion-icon>
+              </div>
+              <div class="stat-content">
+                <h3>Pendapatan Hari Ini</h3>
+                <p class="stat-number text-success" id="todayRevenue">Rp 0</p>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon text-accent">
+                <ion-icon name="trending-up-outline"></ion-icon>
+              </div>
+              <div class="stat-content">
+                <h3>Produk Terlaris</h3>
+                <div id="topProducts" class="stat-list"></div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon text-danger">
+                <ion-icon name="alert-circle-outline"></ion-icon>
+              </div>
+              <div class="stat-content">
+                <h3>Stok Menipis</h3>
+                <div id="lowStock" class="stat-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cashier Page -->
+        <div id="cashierPage" class="page">
+          <!-- <div class="page-header">
                     <h2 class="page-title">Kasir</h2>
                     <p class="page-subtitle">Proses transaksi penjualan</p>
                 </div> -->
 
-                <div class="cashier-layout">
+          <div class="cashier-layout">
+            <!-- Kolom 1: Product Search & List -->
+            <div class="search-section glass-card cashier-column-search">
+              <div class="page-header">
+                <h2 class="page-title" style="color: var(--color-primary-dark)">
+                  Kasir
+                </h2>
+                <p
+                  class="page-subtitle"
+                  style="color: var(--color-primary-dark)"
+                >
+                  Proses transaksi penjualan
+                </p>
+              </div>
+              <div class="search-header">
+                <div class="search-input-wrapper">
+                  <ion-icon
+                    name="search-outline"
+                    class="search-icon"
+                  ></ion-icon>
+                  <input
+                    type="text"
+                    id="productSearch"
+                    placeholder="Cari produk atau jasa..."
+                    class="search-input"
+                  />
+                </div>
+              </div>
 
-                    <!-- Kolom 1: Product Search & List -->
-                    <div class="search-section glass-card cashier-column-search">
-                        <div class="page-header">
-                            <h2 class="page-title" style="color: var(--color-primary-dark)">Kasir</h2>
-                            <p class="page-subtitle" style="color: var(--color-primary-dark)">Proses transaksi penjualan
-                            </p>
-                        </div>
-                        <div class="search-header">
-                            <div class="search-input-wrapper">
-                                <ion-icon name="search-outline" class="search-icon"></ion-icon>
-                                <input type="text" id="productSearch" placeholder="Cari produk atau jasa..."
-                                    class="search-input">
-                            </div>
-                        </div>
+              <div class="product-list-section">
+                <div class="product-tabs">
+                  <button class="tab-btn active" data-tab="all">Semua</button>
+                  <button class="tab-btn" data-tab="barang">Barang</button>
+                  <button class="tab-btn" data-tab="jasa">Jasa</button>
+                  <button class="tab-btn" data-tab="popular">
+                    <ion-icon name="star-outline"></ion-icon>
+                    Populer
+                  </button>
+                </div>
+                <div id="productListKasir" class="product-grid"></div>
+              </div>
+            </div>
 
-                        <div class="product-list-section">
-                            <div class="product-tabs">
-                                <button class="tab-btn active" data-tab="all">Semua</button>
-                                <button class="tab-btn" data-tab="barang">Barang</button>
-                                <button class="tab-btn" data-tab="jasa">Jasa</button>
-                                <button class="tab-btn" data-tab="popular">
-                                    <ion-icon name="star-outline"></ion-icon>
-                                    Populer
-                                </button>
-                            </div>
-                            <div id="productListKasir" class="product-grid"></div>
-                        </div>
-                    </div>
-
-                    <!-- Kolom 2: Cart Items -->
-                    <div class="cashier-column-cart-items glass-card">
-                        <div class="cart-header-custom"> <!-- Header baru untuk kolom keranjang -->
-                            <h3>
-                                <ion-icon name="basket-outline"></ion-icon>
-                                Keranjang Belanja
-                            </h3>
-                        </div>
-                        <div class="cart-content"> <!-- Konten asli dipindahkan ke sini -->
-                            <table class="cart-table">
-                                <!-- <thead>
+            <!-- Kolom 2: Cart Items -->
+            <div class="cashier-column-cart-items glass-card">
+              <div class="cart-header-custom">
+                <!-- Header baru untuk kolom keranjang -->
+                <h3>
+                  <ion-icon name="basket-outline"></ion-icon>
+                  Keranjang Belanja
+                </h3>
+              </div>
+              <div class="cart-content">
+                <!-- Konten asli dipindahkan ke sini -->
+                <table class="cart-table">
+                  <!-- <thead>
                                     <tr>
                                         <th>Nama Item</th>
                                         <th>Qty</th>
@@ -231,893 +262,1282 @@
                                         <th>Aksi</th>
                                     </tr>
                                 </thead> -->
-                                <tbody id="cartItems"></tbody>
-                            </table>
-                        </div>
-                        <div class="cart-summary">
-                            <div id="flex-harga">
-                                <div class="total-display">
-                                    <span>Total:</span>
-                                    <span id="totalAmount">Rp 0</span>
-                                </div>
-                                <div class="total-display" style="color: var(--color-text)">
-                                    <span>Kembalian:</span>
-                                    <span id="changeAmount">Rp 0</span>
-                                </div>
-                            </div>
-                            <div class="payment-section">
-                                <div class="form-group">
-                                    <label>Metode Pembayaran:</label>
-                                    <select id="paymentMethod" class="form-select">
-                                        <option value="cash">Tunai</option>
-                                        <option value="transfer">Transfer</option>
-                                    </select>
-                                </div>
-
-                                <div class="form-group" id="cashPaymentGroup">
-                                    <label>Bayar:</label>
-                                    <input type="number" id="paymentReceived" class="form-input" min="0">
-
-                                </div>
-
-                                <div class="action-buttons">
-                                    <button id="clearCart" class="btn btn-secondary btn-lg btn-block">
-                                        <ion-icon name="trash-outline"></ion-icon>
-                                        Batal
-                                    </button>
-                                    <button id="processTransaction" class="btn btn-primary btn-lg btn-block">
-                                        <ion-icon name="checkmark-circle-outline"></ion-icon>
-                                        Proses Transaksi
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+                  <tbody id="cartItems"></tbody>
+                </table>
+              </div>
+              <div class="cart-summary">
+                <div id="flex-harga">
+                  <div class="total-display">
+                    <span>Total:</span>
+                    <span id="totalAmount">Rp 0</span>
+                  </div>
+                  <div class="total-display" style="color: var(--color-text)">
+                    <span>Kembalian:</span>
+                    <span id="changeAmount">Rp 0</span>
+                  </div>
                 </div>
+                <div class="payment-section">
+                  <div class="form-group">
+                    <label>Metode Pembayaran:</label>
+                    <select id="paymentMethod" class="form-select">
+                      <option value="cash">Tunai</option>
+                      <option value="transfer">Transfer</option>
+                      <option value="hutang">Hutang</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group" id="cashPaymentGroup">
+                    <label>Bayar:</label>
+                    <input
+                      type="number"
+                      id="paymentReceived"
+                      class="form-input"
+                      min="0"
+                    />
+                  </div>
+
+                  <div class="action-buttons">
+                    <button
+                      id="clearCart"
+                      class="btn btn-secondary btn-lg btn-block"
+                    >
+                      <ion-icon name="trash-outline"></ion-icon>
+                      Batal
+                    </button>
+                    <button
+                      id="processTransaction"
+                      class="btn btn-primary btn-lg btn-block"
+                    >
+                      <ion-icon name="checkmark-circle-outline"></ion-icon>
+                      Proses Transaksi
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Products Page -->
+        <div id="productsPage" class="page">
+          <div class="page-header">
+            <h2 class="page-title">Manajemen Produk & Jasa</h2>
+            <p class="page-subtitle">
+              Kelola semua produk dan jasa yang dijual
+            </p>
+          </div>
+
+          <!-- [RESTRUCTURED] Filter Bar -->
+          <div class="filter-bar glass-card">
+            <div class="filter-tabs-group">
+              <button class="filter-tab active" data-filter="all">Semua</button>
+              <button class="filter-tab" data-filter="barang">Barang</button>
+              <button class="filter-tab" data-filter="jasa">Jasa</button>
+            </div>
+            <div class="search-wrapper">
+              <ion-icon name="search-outline"></ion-icon>
+              <input
+                type="text"
+                id="productFilter"
+                placeholder="Cari produk..."
+                class="form-input"
+              />
+            </div>
+            <button id="addProductBtn" class="btn btn-primary">
+              <ion-icon name="add-circle-outline"></ion-icon>
+              Tambah Produk/Jasa
+            </button>
+          </div>
+
+          <input
+            type="file"
+            id="importFile"
+            accept=".csv,.xlsx,.xls"
+            style="display: none"
+          />
+
+          <div class="table-container glass-card">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Kode</th>
+                  <th>Nama</th>
+                  <th>Jenis</th>
+                  <th>Harga Jual</th>
+                  <th>Harga Beli</th>
+                  <th>Stok</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="productList"></tbody>
+            </table>
+          </div>
+
+          <!-- [MOVED & RESTRUCTURED] Actions & Pagination Bar -->
+          <div class="actions-pagination-bar">
+            <button id="productPrevBtn" class="btn btn-secondary" disabled>
+              <ion-icon name="chevron-back-outline"></ion-icon>
+              Sebelumnya
+            </button>
+            <div class="page-actions-group">
+              <button id="exportProductBtn" class="btn btn-success">
+                <ion-icon name="download-outline"></ion-icon>
+                Export
+              </button>
+              <button id="importProductBtn" class="btn btn-accent">
+                <ion-icon name="cloud-upload-outline"></ion-icon>
+                Import
+              </button>
+              <button onclick="downloadTemplate()" class="btn btn-secondary">
+                <ion-icon name="document-outline"></ion-icon>
+                Template
+              </button>
+            </div>
+            <span id="productPageInfo" class="page-info">Halaman 1</span>
+            <button id="productNextBtn" class="btn btn-secondary">
+              Selanjutnya
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- Stock Page -->
+        <div id="stockPage" class="page">
+          <div class="page-header">
+            <h2 class="page-title">Manajemen Stok</h2>
+            <p class="page-subtitle">Monitor dan kelola stok barang</p>
+          </div>
+
+          <!-- [BARU] Filter Bar -->
+          <div class="filter-bar glass-card">
+            <div id="stockFilterTabs" class="filter-tabs-group">
+              <button class="filter-tab active" data-filter="all">Semua</button>
+              <button class="filter-tab" data-filter="menipis">
+                Stok Menipis
+              </button>
+              <button class="filter-tab" data-filter="aman">Stok Aman</button>
+            </div>
+            <div class="search-wrapper">
+              <ion-icon name="search-outline"></ion-icon>
+              <input
+                type="text"
+                id="stockFilterSearch"
+                placeholder="Cari nama atau kode barang..."
+                class="form-input"
+              />
+            </div>
+          </div>
+
+          <!-- [LAMA] Table Container (Tetap sama) -->
+          <div class="table-container glass-card">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Kode</th>
+                  <th>Nama Barang</th>
+                  <th>Stok Saat Ini</th>
+                  <th>Stok Minimal</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="stockList"></tbody>
+            </table>
+          </div>
+
+          <!-- [BARU] Pagination Controls -->
+          <div class="actions-pagination-bar">
+            <button id="stockPrevBtn" class="btn btn-secondary" disabled>
+              <ion-icon name="chevron-back-outline"></ion-icon>
+              Sebelumnya
+            </button>
+            <span id="stockPageInfo" class="page-info">Halaman 1</span>
+            <button id="stockNextBtn" class="btn btn-secondary">
+              Selanjutnya
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- Expenses Page -->
+        <div id="expensesPage" class="page">
+          <div class="page-header">
+            <h2 class="page-title">Manajemen Pengeluaran</h2>
+            <p class="page-subtitle">Catat dan monitor semua pengeluaran</p>
+          </div>
+
+          <div class="page-actions glass-card">
+            <!-- Kelompokkan filter di dalam satu div -->
+            <div
+              style="
+                display: flex;
+                align-items: flex-end;
+                gap: var(--spacing-md);
+                flex-wrap: wrap;
+              "
+            >
+              <div class="filter-group">
+                <label for="expenseFilterDateStart">Dari:</label>
+                <input
+                  type="date"
+                  id="expenseFilterDateStart"
+                  class="form-input"
+                />
+              </div>
+              <div class="filter-group">
+                <label for="expenseFilterDateEnd">Sampai:</label>
+                <input
+                  type="date"
+                  id="expenseFilterDateEnd"
+                  class="form-input"
+                />
+              </div>
+              <button id="filterExpenseBtn" class="btn btn-secondary">
+                <ion-icon name="funnel-outline"></ion-icon>
+                Filter
+              </button>
             </div>
 
-            <!-- Products Page -->
-            <div id="productsPage" class="page">
-                <div class="page-header">
-                    <h2 class="page-title">Manajemen Produk & Jasa</h2>
-                    <p class="page-subtitle">Kelola semua produk dan jasa yang dijual</p>
-                </div>
+            <!-- Tombol ini sekarang akan otomatis didorong ke kanan -->
+            <button id="addExpenseBtn" class="btn btn-primary">
+              <ion-icon name="add-circle-outline"></ion-icon>
+              Tambah Pengeluaran
+            </button>
+          </div>
 
-                <!-- [RESTRUCTURED] Filter Bar -->
-                <div class="filter-bar glass-card">
-                    <div class="filter-tabs-group">
-                        <button class="filter-tab active" data-filter="all">Semua</button>
-                        <button class="filter-tab" data-filter="barang">Barang</button>
-                        <button class="filter-tab" data-filter="jasa">Jasa</button>
-                    </div>
-                    <div class="search-wrapper">
-                        <ion-icon name="search-outline"></ion-icon>
-                        <input type="text" id="productFilter" placeholder="Cari produk..." class="form-input">
-                    </div>
-                    <button id="addProductBtn" class="btn btn-primary">
-                        <ion-icon name="add-circle-outline"></ion-icon>
-                        Tambah Produk/Jasa
-                    </button>
-                </div>
+          <div class="table-container glass-card">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Tanggal</th>
+                  <th>Kategori</th>
+                  <th>Deskripsi</th>
+                  <th>Jumlah</th>
+                  <th>Metode Bayar</th>
+                  <th>Dicatat Oleh</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="expenseList"></tbody>
+            </table>
+          </div>
 
-                <input type="file" id="importFile" accept=".csv,.xlsx,.xls" style="display: none;">
+          <!-- [BARU] Pagination Controls -->
+          <div class="actions-pagination-bar">
+            <button id="expensePrevBtn" class="btn btn-secondary" disabled>
+              <ion-icon name="chevron-back-outline"></ion-icon>
+              Sebelumnya
+            </button>
+            <span id="expensePageInfo" class="page-info">Halaman 1</span>
+            <button id="expenseNextBtn" class="btn btn-secondary">
+              Selanjutnya
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+            </button>
+          </div>
 
-                <div class="table-container glass-card">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Kode</th>
-                                <th>Nama</th>
-                                <th>Jenis</th>
-                                <th>Harga Jual</th>
-                                <th>Harga Beli</th>
-                                <th>Stok</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="productList"></tbody>
-                    </table>
-                </div>
+          <div id="expenseTotal" class="expense-total glass-card"></div>
+        </div>
 
-                <!-- [MOVED & RESTRUCTURED] Actions & Pagination Bar -->
-                <div class="actions-pagination-bar">
-                    <button id="productPrevBtn" class="btn btn-secondary" disabled>
-                        <ion-icon name="chevron-back-outline"></ion-icon>
-                        Sebelumnya
-                    </button>
-                    <div class="page-actions-group">
-                        <button id="exportProductBtn" class="btn btn-success">
-                            <ion-icon name="download-outline"></ion-icon>
-                            Export
-                        </button>
-                        <button id="importProductBtn" class="btn btn-accent">
-                            <ion-icon name="cloud-upload-outline"></ion-icon>
-                            Import
-                        </button>
-                        <button onclick="downloadTemplate()" class="btn btn-secondary">
-                            <ion-icon name="document-outline"></ion-icon>
-                            Template
-                        </button>
-                    </div>
-                    <span id="productPageInfo" class="page-info">Halaman 1</span>
-                    <button id="productNextBtn" class="btn btn-secondary">
-                        Selanjutnya
-                        <ion-icon name="chevron-forward-outline"></ion-icon>
-                    </button>
-                </div>
+        <!-- Transaction History Page -->
+        <div id="historyPage" class="page">
+          <div class="page-header">
+            <h2 class="page-title">Riwayat Transaksi</h2>
+            <p class="page-subtitle">
+              Daftar semua transaksi yang telah diproses
+            </p>
+          </div>
+
+          <div class="report-filters glass-card">
+            <div class="filterDiv">
+              <div class="filter-group">
+                <label>Dari Tanggal:</label>
+                <input type="date" id="historyStartDate" class="form-input" />
+              </div>
+              <div class="filter-group">
+                <label>Sampai Tanggal:</label>
+                <input type="date" id="historyEndDate" class="form-input" />
+              </div>
+            </div>
+            <button id="filterHistoryBtn" class="btn btn-primary">
+              <ion-icon name="funnel-outline"></ion-icon>
+              Filter
+            </button>
+          </div>
+
+          <div class="table-container glass-card">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>No. Transaksi</th>
+                  <th>Tanggal</th>
+                  <th>Kasir</th>
+                  <th>Total</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="historyList"></tbody>
+            </table>
+          </div>
+
+          <!-- [RESTRUCTURED] Pagination Bar -->
+          <div class="actions-pagination-bar">
+            <button id="historyPrevBtn" class="btn btn-secondary" disabled>
+              <ion-icon name="chevron-back-outline"></ion-icon>
+              Sebelumnya
+            </button>
+            <span id="historyPageInfo" class="page-info">Halaman 1</span>
+            <button id="historyNextBtn" class="btn btn-secondary">
+              Selanjutnya
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- Debts Page (Owner Only) -->
+        <div id="debtsPage" class="page">
+          <div class="page-header">
+            <h2 class="page-title">Manajemen Piutang</h2>
+            <p class="page-subtitle">
+              Kelola dan catat pembayaran hutang pelanggan
+            </p>
+          </div>
+
+          <div class="filter-bar glass-card">
+            <div class="search-wrapper">
+              <ion-icon name="search-outline"></ion-icon>
+              <input
+                type="text"
+                id="debtFilter"
+                placeholder="Cari nama, no. telp, atau kode transaksi..."
+                class="form-input"
+              />
+            </div>
+          </div>
+
+          <div class="table-container glass-card">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Pelanggan</th>
+                  <th>No. Transaksi</th>
+                  <th>Total Hutang</th>
+                  <th>Dibayar</th>
+                  <th>Sisa</th>
+                  <th>Jatuh Tempo</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="debtList"></tbody>
+            </table>
+          </div>
+          <div id="debtTotal" class="expense-total glass-card" style="margin-top: -1px;">
+           Total Piutang Aktif: Rp 0
+          </div>
+        </div>
+
+        <!-- Reports Page (Owner Only) -->
+        <div id="reportsPage" class="page">
+          <div class="page-header">
+            <h2 class="page-title">Laporan</h2>
+            <p class="page-subtitle">Analisis performa bisnis</p>
+          </div>
+
+          <div class="report-filters glass-card">
+            <div class="filterDiv">
+              <div class="filter-group">
+                <label>Dari Tanggal:</label>
+                <input type="date" id="startDate" class="form-input" />
+              </div>
+
+              <div class="filter-group">
+                <label>Sampai Tanggal:</label>
+                <input type="date" id="endDate" class="form-input" />
+              </div>
             </div>
 
-            <!-- Stock Page -->
-            <div id="stockPage" class="page">
-                <div class="page-header">
-                    <h2 class="page-title">Manajemen Stok</h2>
-                    <p class="page-subtitle">Monitor dan kelola stok barang</p>
-                </div>
+            <button id="generateReport" class="btn btn-primary">
+              <ion-icon name="analytics-outline"></ion-icon>
+              Generate Laporan
+            </button>
+          </div>
 
-                <!-- [BARU] Filter Bar -->
-                <div class="filter-bar glass-card">
-                    <div id="stockFilterTabs" class="filter-tabs-group">
-                        <button class="filter-tab active" data-filter="all">Semua</button>
-                        <button class="filter-tab" data-filter="menipis">Stok Menipis</button>
-                        <button class="filter-tab" data-filter="aman">Stok Aman</button>
-                    </div>
-                    <div class="search-wrapper">
-                        <ion-icon name="search-outline"></ion-icon>
-                        <input type="text" id="stockFilterSearch" placeholder="Cari nama atau kode barang..."
-                            class="form-input">
-                    </div>
-                </div>
+          <div id="reportChartsContainer"></div>
+          <div id="reportContent"></div>
+        </div>
 
-                <!-- [LAMA] Table Container (Tetap sama) -->
-                <div class="table-container glass-card">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Kode</th>
-                                <th>Nama Barang</th>
-                                <th>Stok Saat Ini</th>
-                                <th>Stok Minimal</th>
-                                <th>Status</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="stockList"></tbody>
-                    </table>
-                </div>
+        <!-- Users Page (Owner Only) -->
+        <div id="usersPage" class="page">
+          <!-- TAMBAHKAN KELAS 'header-with-actions' DI SINI -->
+          <div class="page-header header-with-actions">
+            <div>
+              <h2 class="page-title">Manajemen User</h2>
+              <p class="page-subtitle">Kelola akses pengguna sistem</p>
+            </div>
+            <div>
+              <button id="addUserBtn" class="btn btn-primary">
+                <ion-icon name="person-add-outline"></ion-icon>
+                Tambah Admin
+              </button>
+            </div>
+          </div>
 
-                <!-- [BARU] Pagination Controls -->
-                <div class="actions-pagination-bar">
-                    <button id="stockPrevBtn" class="btn btn-secondary" disabled>
-                        <ion-icon name="chevron-back-outline"></ion-icon>
-                        Sebelumnya
-                    </button>
-                    <span id="stockPageInfo" class="page-info">Halaman 1</span>
-                    <button id="stockNextBtn" class="btn btn-secondary">
-                        Selanjutnya
-                        <ion-icon name="chevron-forward-outline"></ion-icon>
-                    </button>
+          <div class="table-container glass-card">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Username</th>
+                  <th>Nama Lengkap</th>
+                  <th>Role</th>
+                  <th>Dibuat Tanggal</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="userList"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Settings Page (Owner Only) -->
+        <div id="settingsPage" class="page">
+          <div class="page-header">
+            <h2 class="page-title">Pengaturan Toko</h2>
+            <p class="page-subtitle">Kustomisasi informasi dan tampilan toko</p>
+          </div>
+
+          <!-- [BARU] Grid Container untuk Layout Dua Kolom -->
+          <div class="settings-grid-container">
+            <!-- Kolom Kiri: Form Utama -->
+            <div class="settings-form-main glass-card">
+              <form id="settingsForm">
+                <div class="form-section">
+                  <h3>Informasi Toko</h3>
+                  <div class="form-group">
+                    <label for="storeName">
+                      <ion-icon name="business-outline"></ion-icon>
+                      Nama Toko
+                    </label>
+                    <input
+                      type="text"
+                      id="storeName"
+                      name="store_name"
+                      class="form-input"
+                      required
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="storeAddress">
+                      <ion-icon name="location-outline"></ion-icon>
+                      Alamat Toko
+                    </label>
+                    <textarea
+                      id="storeAddress"
+                      name="store_address"
+                      class="form-input"
+                      rows="3"
+                    ></textarea>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="storePhone">
+                      <ion-icon name="call-outline"></ion-icon>
+                      Nomor Telepon
+                    </label>
+                    <input
+                      type="tel"
+                      id="storePhone"
+                      name="store_phone"
+                      class="form-input"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="storeEmail">
+                      <ion-icon name="mail-outline"></ion-icon>
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      id="storeEmail"
+                      name="store_email"
+                      class="form-input"
+                    />
+                  </div>
                 </div>
+                <!-- Tombol simpan akan dipindahkan ke kolom kanan -->
+              </form>
             </div>
 
-            <!-- Expenses Page -->
-            <div id="expensesPage" class="page">
-                <div class="page-header">
-                    <h2 class="page-title">Manajemen Pengeluaran</h2>
-                    <p class="page-subtitle">Catat dan monitor semua pengeluaran</p>
+            <!-- Kolom Kanan: Branding & Aksi -->
+            <div class="settings-branding-sidebar">
+              <div class="glass-card">
+                <h3>Logo & Branding</h3>
+                <div class="form-group">
+                  <label for="storeLogo">
+                    <ion-icon name="image-outline"></ion-icon>
+                    Logo Toko
+                  </label>
+                  <!-- Lampirkan input file ke form utama menggunakan atribut 'form' -->
+                  <input
+                    type="file"
+                    id="storeLogo"
+                    name="store_logo_favicon"
+                    class="form-input"
+                    accept="image/png, image/jpeg, image/svg+xml, image/x-icon"
+                    form="settingsForm"
+                  />
+                  <div class="logo-preview-large">
+                    <span>Preview:</span>
+                    <img
+                      id="logoPreview"
+                      src=""
+                      alt="Logo Preview"
+                      class="logo-placeholder"
+                    />
+                  </div>
+                  <small class="form-hint"
+                    >Rekomendasi: file .png transparan, ukuran 128x128
+                    pixel</small
+                  >
                 </div>
+              </div>
 
-                <div class="page-actions glass-card">
-                    <!-- Kelompokkan filter di dalam satu div -->
-                    <div style="display: flex; align-items: flex-end; gap: var(--spacing-md); flex-wrap: wrap; ">
-                        <div class="filter-group">
-                            <label for="expenseFilterDateStart">Dari:</label>
-                            <input type="date" id="expenseFilterDateStart" class="form-input">
-                        </div>
-                        <div class="filter-group">
-                            <label for="expenseFilterDateEnd">Sampai:</label>
-                            <input type="date" id="expenseFilterDateEnd" class="form-input">
-                        </div>
-                        <button id="filterExpenseBtn" class="btn btn-secondary">
-                            <ion-icon name="funnel-outline"></ion-icon>
-                            Filter
-                        </button>
-                    </div>
-
-                    <!-- Tombol ini sekarang akan otomatis didorong ke kanan -->
-                    <button id="addExpenseBtn" class="btn btn-primary">
-                        <ion-icon name="add-circle-outline"></ion-icon>
-                        Tambah Pengeluaran
-                    </button>
-                </div>
-
-                <div class="table-container glass-card">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Tanggal</th>
-                                <th>Kategori</th>
-                                <th>Deskripsi</th>
-                                <th>Jumlah</th>
-                                <th>Metode Bayar</th>
-                                <th>Dicatat Oleh</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="expenseList"></tbody>
-                    </table>
-                </div>
-
-                <!-- [BARU] Pagination Controls -->
-                <div class="actions-pagination-bar">
-                    <button id="expensePrevBtn" class="btn btn-secondary" disabled>
-                        <ion-icon name="chevron-back-outline"></ion-icon>
-                        Sebelumnya
-                    </button>
-                    <span id="expensePageInfo" class="page-info">Halaman 1</span>
-                    <button id="expenseNextBtn" class="btn btn-secondary">
-                        Selanjutnya
-                        <ion-icon name="chevron-forward-outline"></ion-icon>
-                    </button>
-                </div>
-
-                <div id="expenseTotal" class="expense-total glass-card"></div>
+              <div class="form-actions-sticky">
+                <button
+                  type="submit"
+                  id="saveSettingsBtn"
+                  class="btn btn-primary btn-lg btn-block"
+                  form="settingsForm"
+                >
+                  <ion-icon name="save-outline"></ion-icon>
+                  Simpan Pengaturan
+                </button>
+              </div>
             </div>
+          </div>
+        </div>
 
-            <!-- Transaction History Page -->
-            <div id="historyPage" class="page">
-                <div class="page-header">
-                    <h2 class="page-title">Riwayat Transaksi</h2>
-                    <p class="page-subtitle">Daftar semua transaksi yang telah diproses</p>
-                </div>
+        <!-- Book Closing Page (Owner Only) -->
+        <div id="closingPage" class="page">
+          <div class="page-header">
+            <h2 class="page-title">Tutup Buku Periode</h2>
+            <p class="page-subtitle">
+              Finalisasi periode akuntansi dan mulai periode baru
+            </p>
+          </div>
 
-                <div class="report-filters glass-card">
-                    <div class="filterDiv">
-                        <div class="filter-group">
-                            <label>Dari Tanggal:</label>
-                            <input type="date" id="historyStartDate" class="form-input">
-                        </div>
-                        <div class="filter-group">
-                            <label>Sampai Tanggal:</label>
-                            <input type="date" id="historyEndDate" class="form-input">
-                        </div>
-                    </div>
-                    <button id="filterHistoryBtn" class="btn btn-primary">
-                        <ion-icon name="funnel-outline"></ion-icon>
-                        Filter
-                    </button>
-                </div>
-
-                <div class="table-container glass-card">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>No. Transaksi</th>
-                                <th>Tanggal</th>
-                                <th>Kasir</th>
-                                <th>Total</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="historyList"></tbody>
-                    </table>
-                </div>
-
-                <!-- [RESTRUCTURED] Pagination Bar -->
-                <div class="actions-pagination-bar">
-                    <button id="historyPrevBtn" class="btn btn-secondary" disabled>
-                        <ion-icon name="chevron-back-outline"></ion-icon>
-                        Sebelumnya
-                    </button>
-                    <span id="historyPageInfo" class="page-info">Halaman 1</span>
-                    <button id="historyNextBtn" class="btn btn-secondary">
-                        Selanjutnya
-                        <ion-icon name="chevron-forward-outline"></ion-icon>
-                    </button>
-                </div>
+          <div class="closing-warning glass-card">
+            <div class="warning-header">
+              <ion-icon name="warning-outline"></ion-icon>
+              <h3>Perhatian!</h3>
             </div>
+            <p>Fitur Tutup Buku akan:</p>
+            <ul>
+              <li>Membuat backup lengkap database</li>
+              <li>Generate laporan keuangan periode</li>
+              <li>Mereset data transaksi untuk periode baru</li>
+              <li>Data master (produk, user) TIDAK akan dihapus</li>
+            </ul>
+            <p class="warning-text">
+              <strong>Proses ini tidak dapat dibatalkan!</strong>
+            </p>
+          </div>
 
-            <!-- Reports Page (Owner Only) -->
-            <div id="reportsPage" class="page">
-                <div class="page-header">
-                    <h2 class="page-title">Laporan</h2>
-                    <p class="page-subtitle">Analisis performa bisnis</p>
-                </div>
-
-                <div class="report-filters glass-card">
-                    <div class="filterDiv">
-                        <div class="filter-group">
-                            <label>Dari Tanggal:</label>
-                            <input type="date" id="startDate" class="form-input">
-                        </div>
-
-                        <div class="filter-group">
-                            <label>Sampai Tanggal:</label>
-                            <input type="date" id="endDate" class="form-input">
-                        </div>
-                    </div>
-
-                    <button id="generateReport" class="btn btn-primary">
-                        <ion-icon name="analytics-outline"></ion-icon>
-                        Generate Laporan
-                    </button>
-                </div>
-
-                <div id="reportChartsContainer"></div>
-                <div id="reportContent"></div>
+          <div class="closing-form glass-card">
+            <h3>Informasi Periode</h3>
+            <div class="form-group">
+              <label>Nama Periode</label>
+              <input
+                type="text"
+                id="periodName"
+                class="form-input"
+                placeholder="Contoh: Tahun 2024, Q1 2024"
+              />
             </div>
-
-            <!-- Users Page (Owner Only) -->
-            <div id="usersPage" class="page">
-                <!-- TAMBAHKAN KELAS 'header-with-actions' DI SINI -->
-                <div class="page-header header-with-actions">
-                    <div>
-                        <h2 class="page-title">Manajemen User</h2>
-                        <p class="page-subtitle">Kelola akses pengguna sistem</p>
-                    </div>
-                    <div>
-                        <button id="addUserBtn" class="btn btn-primary">
-                            <ion-icon name="person-add-outline"></ion-icon>
-                            Tambah Admin
-                        </button>
-                    </div>
-                </div>
-
-                <div class="table-container glass-card">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Username</th>
-                                <th>Nama Lengkap</th>
-                                <th>Role</th>
-                                <th>Dibuat Tanggal</th>
-                                <th>Status</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="userList"></tbody>
-                    </table>
-                </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Tanggal Mulai Periode</label>
+                <input
+                  type="date"
+                  id="periodStartDate"
+                  class="form-input"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label>Tanggal Akhir Periode</label>
+                <input
+                  type="date"
+                  id="periodEndDate"
+                  class="form-input"
+                  required
+                />
+              </div>
             </div>
-
-            <!-- Settings Page (Owner Only) -->
-            <div id="settingsPage" class="page">
-                <div class="page-header">
-                    <h2 class="page-title">Pengaturan Toko</h2>
-                    <p class="page-subtitle">Kustomisasi informasi dan tampilan toko</p>
-                </div>
-
-                <!-- [BARU] Grid Container untuk Layout Dua Kolom -->
-                <div class="settings-grid-container">
-                    <!-- Kolom Kiri: Form Utama -->
-                    <div class="settings-form-main glass-card">
-                        <form id="settingsForm">
-                            <div class="form-section">
-                                <h3>Informasi Toko</h3>
-                                <div class="form-group">
-                                    <label for="storeName">
-                                        <ion-icon name="business-outline"></ion-icon>
-                                        Nama Toko
-                                    </label>
-                                    <input type="text" id="storeName" name="store_name" class="form-input" required>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="storeAddress">
-                                        <ion-icon name="location-outline"></ion-icon>
-                                        Alamat Toko
-                                    </label>
-                                    <textarea id="storeAddress" name="store_address" class="form-input"
-                                        rows="3"></textarea>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="storePhone">
-                                        <ion-icon name="call-outline"></ion-icon>
-                                        Nomor Telepon
-                                    </label>
-                                    <input type="tel" id="storePhone" name="store_phone" class="form-input">
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="storeEmail">
-                                        <ion-icon name="mail-outline"></ion-icon>
-                                        Email
-                                    </label>
-                                    <input type="email" id="storeEmail" name="store_email" class="form-input">
-                                </div>
-                            </div>
-                            <!-- Tombol simpan akan dipindahkan ke kolom kanan -->
-                        </form>
-                    </div>
-
-                    <!-- Kolom Kanan: Branding & Aksi -->
-                    <div class="settings-branding-sidebar">
-                        <div class="glass-card">
-                            <h3>Logo & Branding</h3>
-                            <div class="form-group">
-                                <label for="storeLogo">
-                                    <ion-icon name="image-outline"></ion-icon>
-                                    Logo Toko
-                                </label>
-                                <!-- Lampirkan input file ke form utama menggunakan atribut 'form' -->
-                                <input type="file" id="storeLogo" name="store_logo_favicon" class="form-input"
-                                    accept="image/png, image/jpeg, image/svg+xml, image/x-icon" form="settingsForm">
-                                <div class="logo-preview-large">
-                                    <span>Preview:</span>
-                                    <img id="logoPreview" src="" alt="Logo Preview" class="logo-placeholder">
-                                </div>
-                                <small class="form-hint">Rekomendasi: file .png transparan, ukuran 128x128 pixel</small>
-                            </div>
-                        </div>
-
-                        <div class="form-actions-sticky">
-                            <button type="submit" id="saveSettingsBtn" class="btn btn-primary btn-lg btn-block"
-                                form="settingsForm">
-                                <ion-icon name="save-outline"></ion-icon>
-                                Simpan Pengaturan
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            <div class="form-group">
+              <label>Catatan Periode (Opsional)</label>
+              <textarea
+                id="periodNotes"
+                class="form-input"
+                rows="3"
+                placeholder="Catatan khusus untuk periode ini..."
+              ></textarea>
             </div>
+            <button id="previewClosingBtn" class="btn btn-primary btn-lg">
+              <ion-icon name="eye-outline"></ion-icon>
+              Preview Laporan
+            </button>
+          </div>
 
-            <!-- Book Closing Page (Owner Only) -->
-            <div id="closingPage" class="page">
-                <div class="page-header">
-                    <h2 class="page-title">Tutup Buku Periode</h2>
-                    <p class="page-subtitle">Finalisasi periode akuntansi dan mulai periode baru</p>
-                </div>
-
-                <div class="closing-warning glass-card">
-                    <div class="warning-header">
-                        <ion-icon name="warning-outline"></ion-icon>
-                        <h3>Perhatian!</h3>
-                    </div>
-                    <p>Fitur Tutup Buku akan:</p>
-                    <ul>
-                        <li>Membuat backup lengkap database</li>
-                        <li>Generate laporan keuangan periode</li>
-                        <li>Mereset data transaksi untuk periode baru</li>
-                        <li>Data master (produk, user) TIDAK akan dihapus</li>
-                    </ul>
-                    <p class="warning-text"><strong>Proses ini tidak dapat dibatalkan!</strong></p>
-                </div>
-
-                <div class="closing-form glass-card">
-                    <h3>Informasi Periode</h3>
-                    <div class="form-group">
-                        <label>Nama Periode</label>
-                        <input type="text" id="periodName" class="form-input" placeholder="Contoh: Tahun 2024, Q1 2024">
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Tanggal Mulai Periode</label>
-                            <input type="date" id="periodStartDate" class="form-input" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Tanggal Akhir Periode</label>
-                            <input type="date" id="periodEndDate" class="form-input" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Catatan Periode (Opsional)</label>
-                        <textarea id="periodNotes" class="form-input" rows="3"
-                            placeholder="Catatan khusus untuk periode ini..."></textarea>
-                    </div>
-                    <button id="previewClosingBtn" class="btn btn-primary btn-lg">
-                        <ion-icon name="eye-outline"></ion-icon>
-                        Preview Laporan
-                    </button>
-                </div>
-
-                <div id="closingPreview" class="glass-card" style="display: none;">
-                    <h3>Preview Laporan Periode</h3>
-                    <div id="closingReportPreview"></div>
-                    <div class="closing-actions">
-                        <button id="confirmClosingBtn" class="btn btn-danger btn-lg">
-                            <ion-icon name="checkmark-done-outline"></ion-icon>
-                            Konfirmasi Tutup Buku
-                        </button>
-                        <button id="cancelClosingBtn" class="btn btn-secondary btn-lg">
-                            <ion-icon name="close-outline"></ion-icon>
-                            Batal
-                        </button>
-                    </div>
-                </div>
-
-                <div class="closing-history glass-card">
-                    <h3>Riwayat Tutup Buku</h3>
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Periode</th>
-                                <th>Tanggal</th>
-                                <th>Dilakukan Oleh</th>
-                                <th>File Backup</th>
-                                <th>Laporan</th>
-                            </tr>
-                        </thead>
-                        <tbody id="closingHistory"></tbody>
-                    </table>
-                </div>
+          <div id="closingPreview" class="glass-card" style="display: none">
+            <h3>Preview Laporan Periode</h3>
+            <div id="closingReportPreview"></div>
+            <div class="closing-actions">
+              <button id="confirmClosingBtn" class="btn btn-danger btn-lg">
+                <ion-icon name="checkmark-done-outline"></ion-icon>
+                Konfirmasi Tutup Buku
+              </button>
+              <button id="cancelClosingBtn" class="btn btn-secondary btn-lg">
+                <ion-icon name="close-outline"></ion-icon>
+                Batal
+              </button>
             </div>
+          </div>
 
-        </main>
+          <div class="closing-history glass-card">
+            <h3>Riwayat Tutup Buku</h3>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Periode</th>
+                  <th>Tanggal</th>
+                  <th>Dilakukan Oleh</th>
+                  <th>File Backup</th>
+                  <th>Laporan</th>
+                </tr>
+              </thead>
+              <tbody id="closingHistory"></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
     </div>
 
     <!-- ========= MODALS AREA ========= -->
 
-     <!-- [BARU] Product Preview Modal -->
+    <!-- [BARU] Product Preview Modal -->
     <div id="productPreviewModal" class="modal">
-        <div class="modal-backdrop"></div>
-        <div class="modal-content modal-sm">
-            <div class="modal-header">
-                <h3 id="previewProductName">Detail Produk</h3>
-                <button class="close" aria-label="Close">
-                    <ion-icon name="close-outline"></ion-icon>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="transaction-detail">
-                     <div class="info-row">
-                        <span class="info-label">Kode:</span>
-                        <span class="info-value" id="previewProductCode">-</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Jenis:</span>
-                        <span class="info-value" id="previewProductType">-</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Harga Jual:</span>
-                        <span class="info-value text-success" id="previewSellingPrice">Rp 0</span>
-                    </div>
-                    <div class="info-row" id="previewStockInfo">
-                        <span class="info-label">Stok Tersedia:</span>
-                        <span class="info-value" id="previewCurrentStock">0</span>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-actions">
-                <button type="button" class="btn btn-secondary" onclick="closeModal('productPreviewModal')">
-                    <ion-icon name="close-outline"></ion-icon>
-                    Tutup
-                </button>
-            </div>
+      <div class="modal-backdrop"></div>
+      <div class="modal-content modal-sm">
+        <div class="modal-header">
+          <h3 id="previewProductName">Detail Produk</h3>
+          <button class="close" aria-label="Close">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
         </div>
+        <div class="modal-body">
+          <div class="transaction-detail">
+            <div class="info-row">
+              <span class="info-label">Kode:</span>
+              <span class="info-value" id="previewProductCode">-</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Jenis:</span>
+              <span class="info-value" id="previewProductType">-</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Harga Jual:</span>
+              <span class="info-value text-success" id="previewSellingPrice"
+                >Rp 0</span
+              >
+            </div>
+            <div class="info-row" id="previewStockInfo">
+              <span class="info-label">Stok Tersedia:</span>
+              <span class="info-value" id="previewCurrentStock">0</span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            onclick="closeModal('productPreviewModal')"
+          >
+            <ion-icon name="close-outline"></ion-icon>
+            Tutup
+          </button>
+        </div>
+      </div>
     </div>
-    
+
     <!-- Product Modal -->
     <div id="productModal" class="modal">
-        <div class="modal-backdrop"></div>
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="productModalTitle">Tambah Produk/Jasa</h3>
-                <button class="close" aria-label="Close">
-                    <ion-icon name="close-outline"></ion-icon>
-                </button>
-            </div>
-            <form id="productForm">
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label>Nama Item</label>
-                        <input type="text" id="itemName" class="form-input" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Jenis</label>
-                        <select id="itemType" class="form-select" required>
-                            <option value="barang">Barang</option>
-                            <option value="jasa">Jasa</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Harga Jual</label>
-                        <input type="number" id="sellingPrice" class="form-input" min="0" required>
-                    </div>
-                    <div class="form-group" id="purchasePriceGroup">
-                        <label>Harga Beli</label>
-                        <input type="number" id="purchasePrice" class="form-input" min="0">
-                        <small class="form-hint">Untuk perhitungan laba</small>
-                    </div>
-                    <div class="form-group" id="stockGroup">
-                        <label>Stok Awal</label>
-                        <input type="number" id="currentStock" class="form-input" min="0" value="0">
-                    </div>
-                    <div class="form-group" id="minStockGroup">
-                        <label>Stok Minimal</label>
-                        <input type="number" id="minStock" class="form-input" min="0" value="10">
-                    </div>
-                </div>
-                <div class="modal-actions">
-                    <button type="submit" class="btn btn-primary">
-                        <ion-icon name="save-outline"></ion-icon>
-                        Simpan
-                    </button>
-                    <button type="button" class="btn btn-secondary" id="cancelProductModal">
-                        <ion-icon name="close-outline"></ion-icon>
-                        Batal
-                    </button>
-                </div>
-            </form>
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="productModalTitle">Tambah Produk/Jasa</h3>
+          <button class="close" aria-label="Close">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
         </div>
+        <form id="productForm">
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Nama Item</label>
+              <input type="text" id="itemName" class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label>Jenis</label>
+              <select id="itemType" class="form-select" required>
+                <option value="barang">Barang</option>
+                <option value="jasa">Jasa</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Harga Jual</label>
+              <input
+                type="number"
+                id="sellingPrice"
+                class="form-input"
+                min="0"
+                required
+              />
+            </div>
+            <div class="form-group" id="purchasePriceGroup">
+              <label>Harga Beli</label>
+              <input
+                type="number"
+                id="purchasePrice"
+                class="form-input"
+                min="0"
+              />
+              <small class="form-hint">Untuk perhitungan laba</small>
+            </div>
+            <div class="form-group" id="stockGroup">
+              <label>Stok Awal</label>
+              <input
+                type="number"
+                id="currentStock"
+                class="form-input"
+                min="0"
+                value="0"
+              />
+            </div>
+            <div class="form-group" id="minStockGroup">
+              <label>Stok Minimal</label>
+              <input
+                type="number"
+                id="minStock"
+                class="form-input"
+                min="0"
+                value="10"
+              />
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button type="submit" class="btn btn-primary">
+              <ion-icon name="save-outline"></ion-icon>
+              Simpan
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              id="cancelProductModal"
+            >
+              <ion-icon name="close-outline"></ion-icon>
+              Batal
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <!-- Stock Update Modal -->
     <div id="stockModal" class="modal">
-        <div class="modal-backdrop"></div>
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Update Stok</h3>
-                <button class="close" aria-label="Close">
-                    <ion-icon name="close-outline"></ion-icon>
-                </button>
-            </div>
-            <form id="stockForm">
-                <div class="modal-body">
-                    <input type="hidden" id="stockProductId">
-                    <div class="form-group">
-                        <label>Tipe Perubahan</label>
-                        <select id="movementType" class="form-select" required>
-                            <option value="in">Masuk</option>
-                            <option value="out">Keluar</option>
-                            <option value="adjustment">Penyesuaian</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Jumlah</label>
-                        <input type="number" id="stockQuantity" class="form-input" min="1" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Catatan</label>
-                        <textarea id="stockNotes" class="form-input" rows="3"></textarea>
-                    </div>
-                </div>
-                <div class="modal-actions">
-                    <button type="submit" class="btn btn-primary">
-                        <ion-icon name="checkmark-outline"></ion-icon>
-                        Update
-                    </button>
-                    <button type="button" class="btn btn-secondary" id="cancelStockModal">
-                        <ion-icon name="close-outline"></ion-icon>
-                        Batal
-                    </button>
-                </div>
-            </form>
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Update Stok</h3>
+          <button class="close" aria-label="Close">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
         </div>
+        <form id="stockForm">
+          <div class="modal-body">
+            <input type="hidden" id="stockProductId" />
+            <div class="form-group">
+              <label>Tipe Perubahan</label>
+              <select id="movementType" class="form-select" required>
+                <option value="in">Masuk</option>
+                <option value="out">Keluar</option>
+                <option value="adjustment">Penyesuaian</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Jumlah</label>
+              <input
+                type="number"
+                id="stockQuantity"
+                class="form-input"
+                min="1"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label>Catatan</label>
+              <textarea id="stockNotes" class="form-input" rows="3"></textarea>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button type="submit" class="btn btn-primary">
+              <ion-icon name="checkmark-outline"></ion-icon>
+              Update
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              id="cancelStockModal"
+            >
+              <ion-icon name="close-outline"></ion-icon>
+              Batal
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <!-- User Modal -->
     <div id="userModal" class="modal">
-        <div class="modal-backdrop"></div>
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="userModalTitle">Tambah Admin</h3>
-                <button class="close" aria-label="Close">
-                    <ion-icon name="close-outline"></ion-icon>
-                </button>
-            </div>
-            <form id="userForm">
-                <div class="modal-body">
-                    <input type="hidden" id="editingUserId">
-                    <div class="form-group">
-                        <label>Username</label>
-                        <input type="text" id="userUsername" class="form-input" required pattern="[a-zA-Z0-9_]{3,20}"
-                            title="Username harus 3-20 karakter, hanya huruf, angka, dan underscore">
-                    </div>
-                    <div class="form-group">
-                        <label>Nama Lengkap</label>
-                        <input type="text" id="userFullName" class="form-input" required>
-                    </div>
-                    <div class="form-group" id="passwordGroup">
-                        <label>Password <span id="passwordHint" class="form-hint" style="display:none;">(Kosongkan jika
-                                tidak ingin mengubah)</span></label>
-                        <input type="password" id="userPassword" class="form-input" minlength="6">
-                        <small class="form-hint">Minimal 6 karakter</small>
-                    </div>
-                    <div class="form-group" id="passwordConfirmGroup">
-                        <label>Konfirmasi Password</label>
-                        <input type="password" id="userPasswordConfirm" class="form-input">
-                    </div>
-                </div>
-                <div class="modal-actions">
-                    <button type="submit" class="btn btn-primary">
-                        <ion-icon name="save-outline"></ion-icon>
-                        Simpan
-                    </button>
-                    <button type="button" class="btn btn-secondary" id="cancelUserModal">
-                        <ion-icon name="close-outline"></ion-icon>
-                        Batal
-                    </button>
-                </div>
-            </form>
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="userModalTitle">Tambah Admin</h3>
+          <button class="close" aria-label="Close">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
         </div>
+        <form id="userForm">
+          <div class="modal-body">
+            <input type="hidden" id="editingUserId" />
+            <div class="form-group">
+              <label>Username</label>
+              <input
+                type="text"
+                id="userUsername"
+                class="form-input"
+                required
+                pattern="[a-zA-Z0-9_]{3,20}"
+                title="Username harus 3-20 karakter, hanya huruf, angka, dan underscore"
+              />
+            </div>
+            <div class="form-group">
+              <label>Nama Lengkap</label>
+              <input
+                type="text"
+                id="userFullName"
+                class="form-input"
+                required
+              />
+            </div>
+            <div class="form-group" id="passwordGroup">
+              <label
+                >Password
+                <span id="passwordHint" class="form-hint" style="display: none"
+                  >(Kosongkan jika tidak ingin mengubah)</span
+                ></label
+              >
+              <input
+                type="password"
+                id="userPassword"
+                class="form-input"
+                minlength="6"
+              />
+              <small class="form-hint">Minimal 6 karakter</small>
+            </div>
+            <div class="form-group" id="passwordConfirmGroup">
+              <label>Konfirmasi Password</label>
+              <input
+                type="password"
+                id="userPasswordConfirm"
+                class="form-input"
+              />
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button type="submit" class="btn btn-primary">
+              <ion-icon name="save-outline"></ion-icon>
+              Simpan
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              id="cancelUserModal"
+            >
+              <ion-icon name="close-outline"></ion-icon>
+              Batal
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <!-- Expense Modal -->
     <div id="expenseModal" class="modal">
-        <div class="modal-backdrop"></div>
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="expenseModalTitle">Tambah Pengeluaran</h3>
-                <button class="close" aria-label="Close">
-                    <ion-icon name="close-outline"></ion-icon>
-                </button>
-            </div>
-            <form id="expenseForm">
-                <div class="modal-body">
-                    <input type="hidden" id="expenseId">
-                    <div class="form-group">
-                        <label>Tanggal</label>
-                        <input type="datetime-local" id="expenseDate" class="form-input" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Kategori</label>
-                        <select id="expenseCategory" class="form-select" required></select>
-                    </div>
-                    <div class="form-group">
-                        <label>Deskripsi</label>
-                        <input type="text" id="expenseDescription" class="form-input" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Jumlah</label>
-                        <input type="number" id="expenseAmount" class="form-input" min="0" step="100" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Metode Pembayaran</label>
-                        <select id="expensePaymentMethod" class="form-select">
-                            <option value="cash">Tunai</option>
-                            <option value="transfer">Transfer</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>No. Kwitansi (Opsional)</label>
-                        <input type="text" id="expenseReceipt" class="form-input">
-                    </div>
-                    <div class="form-group">
-                        <label>Catatan</label>
-                        <textarea id="expenseNotes" class="form-input" rows="3"></textarea>
-                    </div>
-                </div>
-                <div class="modal-actions">
-                    <button type="submit" class="btn btn-primary">
-                        <ion-icon name="save-outline"></ion-icon>
-                        Simpan
-                    </button>
-                    <button type="button" class="btn btn-secondary" id="cancelExpenseModal">
-                        <ion-icon name="close-outline"></ion-icon>
-                        Batal
-                    </button>
-                </div>
-            </form>
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="expenseModalTitle">Tambah Pengeluaran</h3>
+          <button class="close" aria-label="Close">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
         </div>
+        <form id="expenseForm">
+          <div class="modal-body">
+            <input type="hidden" id="expenseId" />
+            <div class="form-group">
+              <label>Tanggal</label>
+              <input
+                type="datetime-local"
+                id="expenseDate"
+                class="form-input"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label>Kategori</label>
+              <select
+                id="expenseCategory"
+                class="form-select"
+                required
+              ></select>
+            </div>
+            <div class="form-group">
+              <label>Deskripsi</label>
+              <input
+                type="text"
+                id="expenseDescription"
+                class="form-input"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label>Jumlah</label>
+              <input
+                type="number"
+                id="expenseAmount"
+                class="form-input"
+                min="0"
+                step="100"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label>Metode Pembayaran</label>
+              <select id="expensePaymentMethod" class="form-select">
+                <option value="cash">Tunai</option>
+                <option value="transfer">Transfer</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>No. Kwitansi (Opsional)</label>
+              <input type="text" id="expenseReceipt" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>Catatan</label>
+              <textarea
+                id="expenseNotes"
+                class="form-input"
+                rows="3"
+              ></textarea>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button type="submit" class="btn btn-primary">
+              <ion-icon name="save-outline"></ion-icon>
+              Simpan
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              id="cancelExpenseModal"
+            >
+              <ion-icon name="close-outline"></ion-icon>
+              Batal
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <!-- Import Preview Modal -->
     <div id="importModal" class="modal">
-        <div class="modal-backdrop"></div>
-        <div class="modal-content modal-lg">
-            <div class="modal-header">
-                <h3>Preview Import Data</h3>
-                <button class="close" aria-label="Close">
-                    <ion-icon name="close-outline"></ion-icon>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div id="importPreview"></div>
-            </div>
-            <div class="modal-actions">
-                <button id="confirmImport" class="btn btn-primary">
-                    <ion-icon name="cloud-upload-outline"></ion-icon>
-                    Import Data
-                </button>
-                <button id="cancelImport" class="btn btn-secondary">
-                    <ion-icon name="close-outline"></ion-icon>
-                    Batal
-                </button>
-            </div>
+      <div class="modal-backdrop"></div>
+      <div class="modal-content modal-lg">
+        <div class="modal-header">
+          <h3>Preview Import Data</h3>
+          <button class="close" aria-label="Close">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
         </div>
+        <div class="modal-body">
+          <div id="importPreview"></div>
+        </div>
+        <div class="modal-actions">
+          <button id="confirmImport" class="btn btn-primary">
+            <ion-icon name="cloud-upload-outline"></ion-icon>
+            Import Data
+          </button>
+          <button id="cancelImport" class="btn btn-secondary">
+            <ion-icon name="close-outline"></ion-icon>
+            Batal
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Closing Confirmation Modal -->
     <div id="closingModal" class="modal">
-        <div class="modal-backdrop"></div>
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Konfirmasi Tutup Buku</h3>
-                <button class="close" id="cancelClosingModalBtn" aria-label="Close">
-                    <ion-icon name="close-outline"></ion-icon>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>Anda akan melakukan tutup buku untuk periode:</p>
-                <div id="closingConfirmDetails" class="confirm-details"></div>
-                <div class="form-group">
-                    <label>Masukkan password untuk konfirmasi:</label>
-                    <input type="password" id="closingPassword" class="form-input" required>
-                </div>
-                <div class="checkbox-group">
-                    <label>
-                        <input type="checkbox" id="confirmBackup">
-                        <span>Saya sudah memahami bahwa data transaksi akan direset</span>
-                    </label>
-                </div>
-            </div>
-            <div class="modal-actions">
-                <button id="executeClosingBtn" class="btn btn-danger" disabled>
-                    <ion-icon name="lock-closed-outline"></ion-icon>
-                    Tutup Buku Sekarang
-                </button>
-            </div>
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Konfirmasi Tutup Buku</h3>
+          <button class="close" id="cancelClosingModalBtn" aria-label="Close">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
         </div>
+        <div class="modal-body">
+          <p>Anda akan melakukan tutup buku untuk periode:</p>
+          <div id="closingConfirmDetails" class="confirm-details"></div>
+          <div class="form-group">
+            <label>Masukkan password untuk konfirmasi:</label>
+            <input
+              type="password"
+              id="closingPassword"
+              class="form-input"
+              required
+            />
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" id="confirmBackup" />
+              <span>Saya sudah memahami bahwa data transaksi akan direset</span>
+            </label>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button id="executeClosingBtn" class="btn btn-danger" disabled>
+            <ion-icon name="lock-closed-outline"></ion-icon>
+            Tutup Buku Sekarang
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Historical Report Modal -->
     <div id="historicalReportModal" class="modal">
-        <div class="modal-backdrop"></div>
-        <div class="modal-content modal-lg">
-            <div class="modal-header">
-                <h3 id="historicalReportTitle">Laporan Keuangan Historis</h3>
-                <button class="close" aria-label="Close">
-                    <ion-icon name="close-outline"></ion-icon>
-                </button>
-            </div>
-            <div class="modal-body" id="historicalReportContent"></div>
-            <div class="modal-actions">
-                <button id="closeHistoricalReportModalBtn" class="btn btn-secondary">
-                    <ion-icon name="close-outline"></ion-icon>
-                    Tutup
-                </button>
-            </div>
+      <div class="modal-backdrop"></div>
+      <div class="modal-content modal-lg">
+        <div class="modal-header">
+          <h3 id="historicalReportTitle">Laporan Keuangan Historis</h3>
+          <button class="close" aria-label="Close">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
         </div>
+        <div class="modal-body" id="historicalReportContent"></div>
+        <div class="modal-actions">
+          <button id="closeHistoricalReportModalBtn" class="btn btn-secondary">
+            <ion-icon name="close-outline"></ion-icon>
+            Tutup
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Transaction Detail Modal -->
     <div id="historyDetailModal" class="modal">
-        <div class="modal-backdrop"></div>
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="historyDetailTitle">Detail Transaksi</h3>
-                <button class="close" aria-label="Close">
-                    <ion-icon name="close-outline"></ion-icon>
-                </button>
-            </div>
-            <div class="modal-body" id="historyDetailContent"></div>
-            <div class="modal-actions">
-                <button id="historyReprintBtn" class="btn btn-primary">
-                    <ion-icon name="print-outline"></ion-icon>
-                    Cetak Struk
-                </button>
-                <button id="historyCloseDetailBtn" class="btn btn-secondary">
-                    <ion-icon name="close-outline"></ion-icon>
-                    Tutup
-                </button>
-            </div>
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="historyDetailTitle">Detail Transaksi</h3>
+          <button class="close" aria-label="Close">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
         </div>
+        <div class="modal-body" id="historyDetailContent"></div>
+        <div class="modal-actions">
+          <button id="historyReprintBtn" class="btn btn-primary">
+            <ion-icon name="print-outline"></ion-icon>
+            Cetak Struk
+          </button>
+          <button id="historyCloseDetailBtn" class="btn btn-secondary">
+            <ion-icon name="close-outline"></ion-icon>
+            Tutup
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Receipt Preview Modal -->
     <div id="receiptPreviewModal" class="modal">
-        <div class="modal-backdrop"></div>
-        <div class="modal-content modal-sm">
-            <div class="modal-header">
-                <h3>Transaksi Berhasil</h3>
-                <button class="close" aria-label="Close">
-                    <ion-icon name="close-outline"></ion-icon>
-                </button>
-            </div>
-            <div class="modal-body" id="receiptPreviewContent"></div>
-            <div class="modal-actions">
-                <button id="receiptPrintBtn" class="btn btn-primary">
-                    <ion-icon name="print-outline"></ion-icon>
-                    Cetak Struk
-                </button>
-                <button id="receiptCloseBtn" class="btn btn-secondary">
-                    <ion-icon name="add-outline"></ion-icon>
-                    Transaksi Baru
-                </button>
-            </div>
+      <div class="modal-backdrop"></div>
+      <div class="modal-content modal-sm">
+        <div class="modal-header">
+          <h3>Transaksi Berhasil</h3>
+          <button class="close" aria-label="Close">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
         </div>
+        <div class="modal-body" id="receiptPreviewContent"></div>
+        <div class="modal-actions">
+          <button id="receiptPrintBtn" class="btn btn-primary">
+            <ion-icon name="print-outline"></ion-icon>
+            Cetak Struk
+          </button>
+          <button id="receiptCloseBtn" class="btn btn-secondary">
+            <ion-icon name="add-outline"></ion-icon>
+            Transaksi Baru
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Debt Customer Modal -->
+    <div id="debtCustomerModal" class="modal">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Data Pelanggan & Hutang</h3>
+          <button class="close" aria-label="Close">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+        </div>
+        <form id="debtCustomerForm">
+          <div class="modal-body">
+            <input type="hidden" id="selectedCustomerId" />
+
+            <div class="form-section">
+              <h4>1. Pilih Pelanggan</h4>
+              <div class="form-group">
+                <label for="debtCustomerSearch"
+                  >Cari Pelanggan (Nama/Telepon)</label
+                >
+                <input
+                  type="text"
+                  id="debtCustomerSearch"
+                  class="form-input"
+                  placeholder="Ketik untuk mencari..."
+                />
+                <div
+                  id="debtCustomerSearchResults"
+                  class="search-results-list"
+                ></div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h4>2. Detail Pelanggan (Isi jika pelanggan baru)</h4>
+              <div class="form-group">
+                <label for="debtCustomerName">Nama Lengkap</label>
+                <input
+                  type="text"
+                  id="debtCustomerName"
+                  class="form-input"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="debtCustomerPhone">No. Telepon (Opsional)</label>
+                <input type="tel" id="debtCustomerPhone" class="form-input" />
+              </div>
+              <div class="form-group">
+                <label for="debtCustomerAddress">Alamat (Opsional)</label>
+                <textarea
+                  id="debtCustomerAddress"
+                  class="form-input"
+                  rows="2"
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h4>3. Detail Hutang</h4>
+              <div class="form-group">
+                <label for="debtDueDate">Tanggal Jatuh Tempo (Opsional)</label>
+                <input type="date" id="debtDueDate" class="form-input" />
+              </div>
+              <div class="form-group">
+                <label for="debtNotes">Catatan (Opsional)</label>
+                <textarea
+                  id="debtNotes"
+                  class="form-input"
+                  rows="2"
+                  placeholder="Contoh: Titipan Ibu Ani"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button type="submit" class="btn btn-primary">
+              <ion-icon name="save-outline"></ion-icon>
+              Simpan & Proses Transaksi
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              id="cancelDebtModal"
+            >
+              <ion-icon name="close-outline"></ion-icon>
+              Batal
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Debt Payment Modal -->
+    <div id="debtPaymentModal" class="modal">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content modal-sm">
+        <div class="modal-header">
+          <h3 id="debtPaymentModalTitle">Catat Pembayaran</h3>
+          <button class="close" aria-label="Close">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+        </div>
+        <form id="debtPaymentForm">
+          <div class="modal-body">
+            <input type="hidden" id="paymentDebtId" />
+            <div
+              id="debtPaymentInfo"
+              class="confirm-details"
+              style="margin-top: 0"
+            ></div>
+            <div class="form-group">
+              <label for="paymentAmount">Jumlah Pembayaran</label>
+              <input
+                type="number"
+                id="paymentAmount"
+                class="form-input"
+                required
+                min="1"
+              />
+            </div>
+            <div class="form-group">
+              <label for="paymentDate">Tanggal Pembayaran</label>
+              <input type="date" id="paymentDate" class="form-input" required />
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button type="submit" class="btn btn-primary">
+              <ion-icon name="checkmark-circle-outline"></ion-icon>
+              Simpan Pembayaran
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <!-- Notification Container -->
@@ -1133,11 +1553,14 @@
     <script src="js/closing.js"></script>
     <script src="js/expenses.js"></script>
     <script src="js/settings.js"></script>
+    <script src="js/debts.js"></script>
 
-</body>
-<!-- Footer -->
-<footer class="main-footer-copyright">
-    <p>&copy; 2025 Kasirtta - Dibuat Oleh <ion-icon name="heart"></ion-icon> DevCraft AI</p>
-</footer>
-
+  </body>
+  <!-- Footer -->
+  <footer class="main-footer-copyright">
+    <p>
+      &copy; 2025 Kasirtta - Dibuat Oleh
+      <ion-icon name="heart"></ion-icon> DevCraft AI
+    </p>
+  </footer>
 </html>

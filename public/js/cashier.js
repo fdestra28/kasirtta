@@ -9,6 +9,7 @@ let debounceTimer; // <-- TAMBAHKAN VARIABEL UNTUK DEBOUNCING
 let currentTab = 'all';
 let selectedProductIndex = -1;
 let cashierEventListenersInitialized = false;
+let pendingTransactionData = null;
 
 // ===== INITIALIZATION =====
 async function initCashier() {
@@ -28,9 +29,11 @@ async function initCashier() {
 }
 
 function setupCashierEventListeners() {
+    if (cashierEventListenersInitialized) return; // Mencegah duplikasi listener
+
     const productSearchInput = document.getElementById('productSearch');
     const productListDiv = document.getElementById('productListKasir');
-
+    
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             productSearchInput.value = '';
@@ -51,23 +54,28 @@ function setupCashierEventListeners() {
     productSearchInput.addEventListener('keydown', handleKeyboardNavigation);
     productListDiv.addEventListener('keydown', handleKeyboardNavigation);
     document.getElementById('paymentMethod').addEventListener('change', handlePaymentMethodChange);
-    
-    // --- PERBAIKAN PERFORMA (DEBOUNCING) ---
-    // Ganti event listener input yang lama dengan yang baru ini.
     document.getElementById('paymentReceived').addEventListener('input', () => {
-        clearTimeout(debounceTimer); // Hapus timer yang ada
-        // Set timer baru. Fungsi calculateChange hanya akan jalan setelah 300ms tidak ada ketikan baru.
-        debounceTimer = setTimeout(() => {
-            calculateChange();
-        }, 300); 
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(calculateChange, 300);
     });
-    // --- AKHIR PERBAIKAN ---
-
     document.getElementById('processTransaction').addEventListener('click', processTransaction);
     document.getElementById('clearCart').addEventListener('click', clearCartAction);
     document.getElementById('receiptCloseBtn').addEventListener('click', () => closeModal('receiptPreviewModal'));
     document.querySelector('#receiptPreviewModal .close').addEventListener('click', () => closeModal('receiptPreviewModal'));
 
+    // --- LISTENER BARU UNTUK FITUR HUTANG ---
+    document.getElementById('debtCustomerForm').addEventListener('submit', handleDebtFormSubmit);
+    document.getElementById('cancelDebtModal').addEventListener('click', () => closeModal('debtCustomerModal'));
+    document.querySelector('#debtCustomerModal .close').addEventListener('click', () => closeModal('debtCustomerModal'));
+    
+    let searchCustomerTimeout;
+    document.getElementById('debtCustomerSearch').addEventListener('input', (e) => {
+        clearTimeout(searchCustomerTimeout);
+        searchCustomerTimeout = setTimeout(() => {
+            searchCustomers(e.target.value);
+        }, 350);
+    });
+    
     cashierEventListenersInitialized = true;
 }
 
@@ -186,17 +194,38 @@ function renderCart() {
 
 function calculateChange() {
     const totalAmount = cart.reduce((sum, item) => sum + (item.selling_price * item.quantity), 0);
-    const paymentReceived = parseFloat(document.getElementById('paymentReceived').value) || 0;
-    const change = paymentReceived - totalAmount;
+    const paymentReceivedInput = document.getElementById('paymentReceived');
+    const paymentReceived = parseFloat(paymentReceivedInput.value) || 0;
+    
+    // Hitung kembalian hanya jika metode pembayaran 'cash'
+    const paymentMethod = document.getElementById('paymentMethod').value;
+    const change = (paymentMethod === 'cash' && paymentReceived > 0) ? paymentReceived - totalAmount : 0;
+
     document.getElementById('totalAmount').textContent = formatCurrency(totalAmount);
     document.getElementById('changeAmount').textContent = formatCurrency(Math.max(0, change));
+
     const processBtn = document.getElementById('processTransaction');
-    const paymentMethod = document.getElementById('paymentMethod').value;
-    processBtn.disabled = !(cart.length > 0 && (paymentMethod === 'transfer' || paymentReceived >= totalAmount));
+    
+    // --- INI ADALAH LOGIKA YANG DIPERBAIKI ---
+    const isCartNotEmpty = cart.length > 0;
+    
+    const isPaymentValid = 
+        (paymentMethod === 'cash' && paymentReceived >= totalAmount) || // Kondisi untuk tunai
+        paymentMethod === 'transfer' ||                                 // Kondisi untuk transfer
+        paymentMethod === 'hutang';                                     // Kondisi untuk hutang (BARU)
+
+    processBtn.disabled = !(isCartNotEmpty && isPaymentValid);
 }
 
 function handlePaymentMethodChange(e) {
-    document.getElementById('cashPaymentGroup').style.display = e.target.value === 'cash' ? 'block' : 'none';
+    const isCash = e.target.value === 'cash';
+    document.getElementById('cashPaymentGroup').style.display = isCash ? 'block' : 'none';
+    
+    // Reset input bayar jika bukan cash
+    if (!isCash) {
+        document.getElementById('paymentReceived').value = '';
+    }
+    
     calculateChange();
 }
 
@@ -211,28 +240,22 @@ function clearCartAction() {
 async function processTransaction() {
     const processBtn = document.getElementById('processTransaction');
     if (processBtn.disabled) return;
-    const transactionData = { items: cart.map(item => ({ product_id: item.product_id, quantity: item.quantity })), payment_method: document.getElementById('paymentMethod').value, payment_received: document.getElementById('paymentMethod').value === 'cash' ? parseFloat(document.getElementById('paymentReceived').value) : cart.reduce((s, i) => s + (i.selling_price * i.quantity), 0) };
-    processBtn.disabled = true;
-    processBtn.innerHTML = '<span class="spinner-sm"></span> Memproses...';
-    try {
-        const response = await apiRequest('/transactions', { method: 'POST', body: JSON.stringify(transactionData) });
-        const data = await response.json();
-        if (data.success) {
-            showReceiptPreview(data.data);
-            cart = [];
-            document.getElementById('productSearch').value = '';
-            document.getElementById('paymentReceived').value = '';
-            renderCart();
-            await loadCashierData();
-            renderProductList();
-        } else {
-            showNotification(data.message || 'Transaksi gagal!', 'error');
-        }
-    } catch (error) {
-        showNotification('Terjadi kesalahan saat memproses transaksi', 'error');
-    } finally {
-        processBtn.innerHTML = '<ion-icon name="checkmark-circle-outline"></ion-icon> Proses Transaksi';
-        calculateChange();
+
+    const paymentMethod = document.getElementById('paymentMethod').value;
+    
+    // Kumpulkan data transaksi
+    const transactionData = {
+        items: cart.map(item => ({ product_id: item.product_id, quantity: item.quantity })),
+        payment_method: paymentMethod,
+        payment_received: paymentMethod === 'cash' ? parseFloat(document.getElementById('paymentReceived').value) : cart.reduce((s, i) => s + (i.selling_price * i.quantity), 0)
+    };
+
+    // Jika metode adalah hutang, buka modal. Jika tidak, proses seperti biasa.
+    if (paymentMethod === 'hutang') {
+        pendingTransactionData = transactionData; // Simpan data transaksi untuk nanti
+        openDebtCustomerModal();
+    } else {
+        await finalizeTransaction(transactionData); // Proses transaksi langsung
     }
 }
 
@@ -411,6 +434,166 @@ function removeLastCartItem() {
         const removedItem = cart.pop(); // Hapus item terakhir dari array
         showNotification(`Item "${removedItem.item_name}" dihapus dari keranjang.`, 'info');
         renderCart(); // Render ulang keranjang
+    }
+}
+
+// --- KUMPULAN FUNGSI BARU UNTUK MANAJEMEN HUTANG ---
+
+/**
+ * Membuka dan mereset modal pelanggan hutang.
+ */
+
+function openDebtCustomerModal() {
+    document.getElementById('debtCustomerForm').reset();
+    document.getElementById('selectedCustomerId').value = '';
+    document.getElementById('debtCustomerSearchResults').innerHTML = '';
+
+    // --- BLOK BARU UNTUK TANGGAL JATUH TEMPO DEFAULT ---
+    const today = new Date();
+    // Tambahkan 7 hari ke tanggal hari ini
+    const oneWeekFromNow = new Date(today.setDate(today.getDate() + 7));
+    
+    // Format tanggal ke dalam format YYYY-MM-DD yang diterima oleh input type="date"
+    const formattedDate = oneWeekFromNow.toISOString().slice(0, 10);
+    
+    // Atur nilai default input
+    document.getElementById('debtDueDate').value = formattedDate;
+    // --- AKHIR BLOK BARU ---
+
+    openModal('debtCustomerModal');
+}
+
+/**
+ * Mencari pelanggan di server dan menampilkan hasilnya.
+ * @param {string} query - Kata kunci pencarian.
+ */
+async function searchCustomers(query) {
+    const resultsDiv = document.getElementById('debtCustomerSearchResults');
+    if (!query || query.length < 2) {
+        resultsDiv.innerHTML = '';
+        return;
+    }
+
+    try {
+        const response = await apiRequest(`/customers/search?query=${query}`);
+        const data = await response.json();
+        if (data.success && data.data.length > 0) {
+            resultsDiv.innerHTML = data.data.map(cust => 
+                `<div class="search-result-item" data-id="${cust.customer_id}" data-name="${cust.full_name}" data-phone="${cust.phone_number || ''}" data-address="${cust.address || ''}">
+                    <strong>${cust.full_name}</strong> (${cust.phone_number || 'No. HP tidak ada'})
+                </div>`
+            ).join('');
+            
+            // Tambahkan event listener untuk setiap hasil
+            document.querySelectorAll('.search-result-item').forEach(item => {
+                item.addEventListener('click', selectCustomer);
+            });
+        } else {
+            resultsDiv.innerHTML = '<p class="text-muted">Pelanggan tidak ditemukan. Isi form di bawah untuk membuat baru.</p>';
+        }
+    } catch (error) {
+        console.error("Error searching customers:", error);
+        resultsDiv.innerHTML = '<p class="text-danger">Gagal mencari pelanggan.</p>';
+    }
+}
+
+/**
+ * Dipanggil saat pelanggan dari hasil pencarian diklik.
+ * @param {Event} e - Event klik.
+ */
+function selectCustomer(e) {
+    const item = e.currentTarget;
+    document.getElementById('selectedCustomerId').value = item.dataset.id;
+    document.getElementById('debtCustomerName').value = item.dataset.name;
+    document.getElementById('debtCustomerPhone').value = item.dataset.phone;
+    document.getElementById('debtCustomerAddress').value = item.dataset.address;
+    document.getElementById('debtCustomerSearch').value = item.dataset.name;
+    document.getElementById('debtCustomerSearchResults').innerHTML = '';
+}
+
+/**
+ * Menangani submit form data pelanggan dan hutang.
+ * @param {Event} e - Event submit form.
+ */
+async function handleDebtFormSubmit(e) {
+    e.preventDefault();
+    let customerId = document.getElementById('selectedCustomerId').value;
+
+    // Jika tidak ada customer yg dipilih, buat baru
+    if (!customerId) {
+        const newCustomerData = {
+            full_name: document.getElementById('debtCustomerName').value,
+            phone_number: document.getElementById('debtCustomerPhone').value,
+            address: document.getElementById('debtCustomerAddress').value,
+        };
+
+        try {
+            const response = await apiRequest('/customers', {
+                method: 'POST',
+                body: JSON.stringify(newCustomerData)
+            });
+            const data = await response.json();
+            if (!data.success) {
+                showNotification(data.message || 'Gagal membuat pelanggan baru.', 'error');
+                return;
+            }
+            customerId = data.data.customer_id;
+        } catch (error) {
+            showNotification('Error saat membuat pelanggan baru.', 'error');
+            return;
+        }
+    }
+
+    // Tambahkan detail hutang ke data transaksi yang tertunda
+    pendingTransactionData.debt_details = {
+        customer_id: customerId,
+        due_date: document.getElementById('debtDueDate').value,
+        notes: document.getElementById('debtNotes').value
+    };
+    
+    closeModal('debtCustomerModal');
+    await finalizeTransaction(pendingTransactionData);
+}
+
+/**
+ * Fungsi final yang mengirim data transaksi ke API.
+ * Bisa menangani transaksi biasa maupun hutang.
+ * @param {object} transactionData - Objek data transaksi lengkap.
+ */
+async function finalizeTransaction(transactionData) {
+    const processBtn = document.getElementById('processTransaction');
+    processBtn.disabled = true;
+    processBtn.innerHTML = '<span class="spinner-sm"></span> Memproses...';
+
+    try {
+        const response = await apiRequest('/transactions', {
+            method: 'POST',
+            body: JSON.stringify(transactionData)
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            // Jika transaksi hutang, jangan tampilkan struk, cukup notifikasi.
+            if (transactionData.payment_method === 'hutang') {
+                showNotification('Transaksi hutang berhasil dicatat!', 'success');
+                // Reset kasir
+                cart = [];
+                document.getElementById('productSearch').value = '';
+                renderCart();
+                await loadCashierData();
+                renderProductList();
+            } else {
+                showReceiptPreview(data.data); // Tampilkan struk untuk non-hutang
+            }
+        } else {
+            showNotification(data.message || 'Transaksi gagal!', 'error');
+        }
+    } catch (error) {
+        showNotification('Terjadi kesalahan saat memproses transaksi', 'error');
+    } finally {
+        processBtn.innerHTML = '<ion-icon name="checkmark-circle-outline"></ion-icon> Proses Transaksi';
+        calculateChange();
+        pendingTransactionData = null; // Bersihkan data tertunda
     }
 }
 

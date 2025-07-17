@@ -33,12 +33,22 @@ const createTransaction = async (req, res) => {
     const connection = await db.getConnection();
 
     try {
-        const { items, payment_method, payment_received } = req.body;
+        // --- DATA BARU UNTUK HUTANG ---
+        const { items, payment_method, payment_received, debt_details } = req.body;
+        // debt_details akan berisi: { customer_id, due_date, notes }
 
         if (!items || !Array.isArray(items) || items.length === 0) {
             return res.status(400).json({
                 success: false,
                 message: 'Item transaksi tidak boleh kosong!'
+            });
+        }
+        
+        // --- VALIDASI KHUSUS UNTUK HUTANG ---
+        if (payment_method === 'hutang' && (!debt_details || !debt_details.customer_id)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Data pelanggan harus ada untuk transaksi hutang!'
             });
         }
 
@@ -53,7 +63,6 @@ const createTransaction = async (req, res) => {
             }
 
             const [products] = await connection.query(
-                // Ambil juga purchase_price di sini
                 'SELECT product_id, item_name, item_type, selling_price, purchase_price, current_stock, is_active FROM products WHERE product_id = ? AND is_active = true FOR UPDATE',
                 [item.product_id]
             );
@@ -75,7 +84,7 @@ const createTransaction = async (req, res) => {
                 product_id: product.product_id,
                 quantity: item.quantity,
                 unit_price: parseFloat(product.selling_price),
-                purchase_price: parseFloat(product.purchase_price), // <-- SIMPAN HARGA BELI HISTORIS
+                purchase_price: parseFloat(product.purchase_price),
                 subtotal: subtotal,
                 item_type: product.item_type,
                 item_name: product.item_name
@@ -86,19 +95,31 @@ const createTransaction = async (req, res) => {
             throw new Error('Jumlah pembayaran tunai kurang!');
         }
 
-        const change_amount = payment_method === 'cash' ? payment_received - server_calculated_total : 0;
+        // --- PENYESUAIAN LOGIKA PEMBAYARAN ---
+        let final_payment_received = 0;
+        let change_amount = 0;
+
+        if (payment_method === 'cash') {
+            final_payment_received = payment_received;
+            change_amount = payment_received - server_calculated_total;
+        } else if (payment_method === 'transfer') {
+            final_payment_received = server_calculated_total;
+            change_amount = 0;
+        }
+        // Jika 'hutang', payment_received dan change_amount adalah 0, yang sudah benar secara default.
+
         const transaction_code = await generateTransactionCode();
 
         const [transResult] = await connection.query(
             `INSERT INTO transactions (transaction_code, admin_id, total_amount, payment_method, payment_received, change_amount)
              VALUES (?, ?, ?, ?, ?, ?)`,
-            [transaction_code, req.user.user_id, server_calculated_total, payment_method || 'cash', payment_received || server_calculated_total, change_amount]
+            [transaction_code, req.user.user_id, server_calculated_total, payment_method, final_payment_received, change_amount]
         );
 
         const transaction_id = transResult.insertId;
 
+        // Proses detail transaksi (tetap sama)
         for (const detail of verified_item_details) {
-            // Masukkan purchase_price ke query
             await connection.query(
                 `INSERT INTO transaction_details (transaction_id, product_id, quantity, unit_price, purchase_price, subtotal)
                  VALUES (?, ?, ?, ?, ?, ?)`,
@@ -118,18 +139,34 @@ const createTransaction = async (req, res) => {
                 );
             }
         }
+        
+        // --- BLOK BARU: CATAT KE TABEL HUTANG JIKA PERLU ---
+        if (payment_method === 'hutang') {
+            await connection.query(
+                `INSERT INTO debts (transaction_id, customer_id, amount_due, due_date, notes, status)
+                 VALUES (?, ?, ?, ?, ?, 'unpaid')`,
+                [
+                    transaction_id, 
+                    debt_details.customer_id,
+                    server_calculated_total,
+                    debt_details.due_date || null, // Tanggal jatuh tempo bisa jadi opsional
+                    debt_details.notes || null
+                ]
+            );
+        }
 
         await connection.commit();
 
+        // Kirim response yang sama seperti sebelumnya, agar frontend bisa menanganinya
         res.status(201).json({
             success: true,
             message: 'Transaksi berhasil!',
             data: {
                 transaction_id,
                 transaction_code,
-                transaction_date: new Date(), // Untuk struk
+                transaction_date: new Date(),
                 total_amount: server_calculated_total,
-                payment_received: payment_received || server_calculated_total,
+                payment_received: final_payment_received,
                 change_amount,
                 items: verified_item_details.map(d => ({
                     product_name: d.item_name,
