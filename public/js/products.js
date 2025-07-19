@@ -350,32 +350,36 @@ function toggleStockFields() {
 
 // ... (Fungsi import/export tetap sama, tidak perlu diubah)
 function exportProducts() {
-  if (allProductsList.length === 0) {
-    showNotification("Tidak ada data untuk di-export", "error");
-    return;
-  }
-  let csvContent =
-    "Kode,Nama Produk,Jenis,Harga Jual,Harga Beli,Stok Saat Ini,Stok Minimal,Status\n";
-  allProductsList.forEach((p) => {
-    csvContent += `"${p.item_code}","${p.item_name}","${p.item_type}",${
-      p.selling_price
-    },${p.item_type === "barang" ? p.purchase_price : 0},${
-      p.item_type === "barang" ? p.current_stock : 0
-    },${p.item_type === "barang" ? p.min_stock : 0},"${
-      p.is_active ? "Aktif" : "Nonaktif"
-    }"\n`;
-  });
-  const BOM = "\uFEFF";
-  const blob = new Blob([BOM + csvContent], {
-    type: "text/csv;charset=utf-8;",
-  });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = `Produk_KASIRTTA_${new Date()
-    .toISOString()
-    .slice(0, 10)}.csv`;
-  link.click();
-  showNotification("Data produk berhasil di-export!", "success");
+    if (allProductsList.length === 0) {
+        showNotification('Tidak ada data untuk di-export', 'error');
+        return;
+    }
+
+    let csvContent = 'item_name,item_type,variant_name,selling_price,purchase_price,current_stock,min_stock\n';
+
+    allProductsList.forEach(p => {
+        if (p.has_variants) {
+            // Baris untuk Produk Induk
+            csvContent += `"${p.item_name}","${p.item_type}","","",,,"${p.min_stock}"\n`;
+            // Baris untuk setiap Varian
+            if (p.variants && p.variants.length > 0) {
+                p.variants.forEach(v => {
+                    csvContent += `,"${p.item_type}","${v.variant_name}","${v.selling_price}","${v.purchase_price}","${v.current_stock}","${v.min_stock}"\n`;
+                });
+            }
+        } else {
+            // Baris untuk Produk Tunggal
+            csvContent += `"${p.item_name}","${p.item_type}","","${p.selling_price}","${p.purchase_price}","${p.current_stock}","${p.min_stock}"\n`;
+        }
+    });
+
+    const BOM = '\uFEFF';
+    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `Produk_KASIRTTA_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    showNotification('Data produk berhasil di-export!', 'success');
 }
 
 // function handleImportFile(e) { /* Logika tidak berubah */ }
@@ -632,20 +636,28 @@ async function confirmImport() {
 window.confirmImport = confirmImport;
 
 function downloadTemplate() {
-  const csvContent =
-    'Nama Produk,Jenis,Harga Jual,Harga Beli,Stok Saat Ini,Stok Minimal\n"Pulpen Pilot G2","barang",25000,18000,144,24\n"Jasa Jilid Spiral","jasa",15000,0,0,0\n';
-  const BOM = "\uFEFF";
-  const blob = new Blob([BOM + csvContent], {
-    type: "text/csv;charset=utf-8;",
-  });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "Template_Import_Produk.csv";
-  link.click();
+    // Header baru mencakup kolom untuk varian
+    let csvContent = 'item_name,item_type,variant_name,selling_price,purchase_price,current_stock,min_stock\n';
+    
+    // Contoh untuk produk dengan varian
+    csvContent += '"Kertas Sukun","barang","","",,,"10"\n'; // Produk Induk
+    csvContent += ',"barang","Merah","2000","1000","50","10"\n'; // Varian 1
+    csvContent += ',"barang","Kuning","2000","1000","50","10"\n'; // Varian 2
+    
+    // Contoh untuk produk tunggal
+    csvContent += '"Buku Tulis","barang","","4000","3000","100","20"\n';
+    
+    // Contoh untuk jasa
+    csvContent += '"Jasa Jilid Spiral","jasa","","15000","0","0","0"\n';
+
+    const BOM = '\uFEFF';
+    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'Template_Import_Produk_Varian.csv';
+    link.click();
 }
 window.downloadTemplate = downloadTemplate;
-
-// Tambahkan 4 fungsi ini di dalam products.js
 
 /**
  * Menangani logika show/hide saat toggle varian diaktifkan/dinonaktifkan.
