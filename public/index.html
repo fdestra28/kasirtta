@@ -631,8 +631,12 @@
               <tbody id="debtList"></tbody>
             </table>
           </div>
-          <div id="debtTotal" class="expense-total glass-card" style="margin-top: -1px;">
-           Total Piutang Aktif: Rp 0
+          <div
+            id="debtTotal"
+            class="expense-total glass-card"
+            style="margin-top: -1px"
+          >
+            Total Piutang Aktif: Rp 0
           </div>
         </div>
 
@@ -985,6 +989,7 @@
         </div>
         <form id="productForm">
           <div class="modal-body">
+            <!-- Data Produk Induk -->
             <div class="form-group">
               <label>Nama Item</label>
               <input type="text" id="itemName" class="form-input" required />
@@ -996,62 +1001,149 @@
                 <option value="jasa">Jasa</option>
               </select>
             </div>
-            <div class="form-group">
-              <label>Harga Jual</label>
-              <input
-                type="number"
-                id="sellingPrice"
-                class="form-input"
-                min="0"
-                required
-              />
+
+            <!-- [BARU] Toggle Switch untuk Varian -->
+            <div class="form-group variant-toggle-container">
+              <label for="hasVariantsToggle">Aktifkan Varian Produk</label>
+              <label class="switch">
+                <input type="checkbox" id="hasVariantsToggle" />
+                <span class="slider round"></span>
+              </label>
             </div>
-            <div class="form-group" id="purchasePriceGroup">
-              <label>Harga Beli</label>
-              <input
-                type="number"
-                id="purchasePrice"
-                class="form-input"
-                min="0"
-              />
-              <small class="form-hint">Untuk perhitungan laba</small>
+
+            <!-- Field untuk Produk Tunggal (bisa disembunyikan) -->
+            <div id="singleProductFields">
+              <div class="form-group">
+                <label>Harga Jual</label>
+                <input
+                  type="number"
+                  id="sellingPrice"
+                  class="form-input"
+                  min="0"
+                  required
+                />
+              </div>
+              <div class="form-group" id="purchasePriceGroup">
+                <label>Harga Beli</label>
+                <input
+                  type="number"
+                  id="purchasePrice"
+                  class="form-input"
+                  min="0"
+                />
+              </div>
+              <div class="form-group" id="stockGroup">
+                <label>Stok Awal</label>
+                <input
+                  type="number"
+                  id="currentStock"
+                  class="form-input"
+                  min="0"
+                  value="0"
+                />
+              </div>
+              <div class="form-group" id="minStockGroup">
+                <label>Stok Minimal</label>
+                <input
+                  type="number"
+                  id="minStock"
+                  class="form-input"
+                  min="0"
+                  value="10"
+                />
+              </div>
             </div>
-            <div class="form-group" id="stockGroup">
-              <label>Stok Awal</label>
-              <input
-                type="number"
-                id="currentStock"
-                class="form-input"
-                min="0"
-                value="0"
-              />
-            </div>
-            <div class="form-group" id="minStockGroup">
-              <label>Stok Minimal</label>
-              <input
-                type="number"
-                id="minStock"
-                class="form-input"
-                min="0"
-                value="10"
-              />
+
+            <!-- [BARU] Area Manajemen Varian (sembunyi by default) -->
+            <div id="variantSection" style="display: none">
+              <div class="form-section">
+                <h4>Tambah Varian Baru</h4>
+                <div class="form-row">
+                  <input type="hidden" id="editingVariantIndex" />
+                  <div class="form-group">
+                    <label>Nama Varian (e.g., Merah, XL)</label
+                    ><input type="text" id="variantName" class="form-input" />
+                  </div>
+                  <div class="form-group">
+                    <label>Harga Jual</label
+                    ><input
+                      type="number"
+                      id="variantSellingPrice"
+                      class="form-input"
+                      min="0"
+                    />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Harga Beli</label
+                    ><input
+                      type="number"
+                      id="variantPurchasePrice"
+                      class="form-input"
+                      min="0"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Stok</label
+                    ><input
+                      type="number"
+                      id="variantStock"
+                      class="form-input"
+                      min="0"
+                    />
+                  </div>
+                </div>
+                <div class="form-row">
+                             <div class="form-group"><label>Stok Minimal</label><input type="number" id="variantMinStock" class="form-input" min="0" value="10"></div>
+                </div>
+                <button
+                  type="button"
+                  id="addVariantBtn"
+                  class="btn btn-primary"
+                >
+                  <ion-icon name="add-outline"></ion-icon> Tambah Varian
+                </button>
+              </div>
+              <div class="form-section">
+                <h4>Daftar Varian</h4>
+                <div id="variantList" class="variant-list-container">
+                  <!-- Varian akan dirender di sini oleh JavaScript -->
+                </div>
+              </div>
             </div>
           </div>
           <div class="modal-actions">
             <button type="submit" class="btn btn-primary">
-              <ion-icon name="save-outline"></ion-icon>
-              Simpan
+              <ion-icon name="save-outline"></ion-icon> Simpan
             </button>
             <button
               type="button"
               class="btn btn-secondary"
               id="cancelProductModal"
             >
-              <ion-icon name="close-outline"></ion-icon>
-              Batal
+              <ion-icon name="close-outline"></ion-icon> Batal
             </button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <!-- Variant Selector Modal -->
+    <div id="variantSelectorModal" class="modal">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content modal-sm">
+        <div class="modal-header">
+          <h3 id="variantModalTitle">Pilih Varian</h3>
+          <button class="close" aria-label="Close">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div id="variantModalList" class="variant-selector-list">
+            <!-- Varian akan dirender di sini oleh JavaScript -->
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1554,7 +1646,6 @@
     <script src="js/expenses.js"></script>
     <script src="js/settings.js"></script>
     <script src="js/debts.js"></script>
-
   </body>
   <!-- Footer -->
   <footer class="main-footer-copyright">

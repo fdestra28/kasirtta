@@ -15,6 +15,8 @@ router.use(verifyToken);
 // Owner & Admin routes (read-only for admin)
 router.get('/', adminOrOwner, productController.getAllProducts);
 router.get('/low-stock', adminOrOwner, productController.getLowStock);
+router.get('/low-stock-variants', adminOrOwner, productController.getLowStockVariants);
+router.get('/:id/with-variants', adminOrOwner, productController.getProductWithVariantsById);
 router.get('/:id', adminOrOwner, productController.getProductById);
 
 // Owner only routes (create, update, delete)

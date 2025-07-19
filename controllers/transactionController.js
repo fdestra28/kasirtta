@@ -33,23 +33,14 @@ const createTransaction = async (req, res) => {
     const connection = await db.getConnection();
 
     try {
-        // --- DATA BARU UNTUK HUTANG ---
         const { items, payment_method, payment_received, debt_details } = req.body;
-        // debt_details akan berisi: { customer_id, due_date, notes }
 
         if (!items || !Array.isArray(items) || items.length === 0) {
-            return res.status(400).json({
-                success: false,
-                message: 'Item transaksi tidak boleh kosong!'
-            });
+            return res.status(400).json({ success: false, message: 'Item transaksi tidak boleh kosong!' });
         }
         
-        // --- VALIDASI KHUSUS UNTUK HUTANG ---
         if (payment_method === 'hutang' && (!debt_details || !debt_details.customer_id)) {
-            return res.status(400).json({
-                success: false,
-                message: 'Data pelanggan harus ada untuk transaksi hutang!'
-            });
+            return res.status(400).json({ success: false, message: 'Data pelanggan harus ada untuk transaksi hutang!' });
         }
 
         await connection.beginTransaction();
@@ -62,40 +53,84 @@ const createTransaction = async (req, res) => {
                 throw new Error('Data item dalam keranjang tidak valid!');
             }
 
-            const [products] = await connection.query(
-                'SELECT product_id, item_name, item_type, selling_price, purchase_price, current_stock, is_active FROM products WHERE product_id = ? AND is_active = true FOR UPDATE',
-                [item.product_id]
-            );
+            // --- LOGIKA BARU UNTUK MEMBEDAKAN PRODUK & VARIAN ---
+            if (item.variant_id) {
+                // Skenario 1: Item yang dijual adalah sebuah VARIAN
+                const [variants] = await connection.query(
+                    `SELECT 
+                        v.variant_id, v.variant_name, v.selling_price, v.purchase_price, v.current_stock,
+                        p.product_id, p.item_name, p.item_type, p.is_active
+                     FROM product_variants v
+                     JOIN products p ON v.product_id = p.product_id
+                     WHERE v.variant_id = ? AND v.is_active = true AND p.is_active = true FOR UPDATE`,
+                    [item.variant_id]
+                );
 
-            if (products.length === 0) {
-                throw new Error(`Produk dengan ID ${item.product_id} tidak ditemukan atau tidak aktif!`);
+                if (variants.length === 0) {
+                    throw new Error(`Varian produk dengan ID ${item.variant_id} tidak ditemukan atau tidak aktif!`);
+                }
+                const variant = variants[0];
+
+                if (variant.item_type === 'barang' && variant.current_stock < item.quantity) {
+                    throw new Error(`Stok untuk "${variant.item_name} - ${variant.variant_name}" tidak cukup! Sisa: ${variant.current_stock}`);
+                }
+
+                const subtotal = parseFloat(variant.selling_price) * item.quantity;
+                server_calculated_total += subtotal;
+
+                verified_item_details.push({
+                    product_id: variant.product_id,
+                    variant_id: variant.variant_id, // Menyimpan ID varian
+                    quantity: item.quantity,
+                    unit_price: parseFloat(variant.selling_price),
+                    purchase_price: parseFloat(variant.purchase_price),
+                    subtotal: subtotal,
+                    item_type: variant.item_type,
+                    item_name: `${variant.item_name} (${variant.variant_name})` // Gabungkan nama untuk struk
+                });
+
+            } else {
+                // Skenario 2: Item yang dijual adalah PRODUK TUNGGAL (logika lama yang disempurnakan)
+                const [products] = await connection.query(
+                    'SELECT product_id, item_name, item_type, selling_price, purchase_price, current_stock, has_variants, is_active FROM products WHERE product_id = ? AND is_active = true FOR UPDATE',
+                    [item.product_id]
+                );
+
+                if (products.length === 0) {
+                    throw new Error(`Produk dengan ID ${item.product_id} tidak ditemukan atau tidak aktif!`);
+                }
+                const product = products[0];
+
+                // Pengaman: Jangan izinkan produk induk yang punya varian dijual langsung
+                if (product.has_variants) {
+                    throw new Error(`Produk "${product.item_name}" memiliki varian. Silakan pilih salah satu varian.`);
+                }
+                
+                if (product.item_type === 'barang' && product.current_stock < item.quantity) {
+                    throw new Error(`Stok untuk "${product.item_name}" tidak cukup! Sisa: ${product.current_stock}`);
+                }
+
+                const subtotal = parseFloat(product.selling_price) * item.quantity;
+                server_calculated_total += subtotal;
+
+                verified_item_details.push({
+                    product_id: product.product_id,
+                    variant_id: null, // ID varian adalah NULL untuk produk tunggal
+                    quantity: item.quantity,
+                    unit_price: parseFloat(product.selling_price),
+                    purchase_price: parseFloat(product.purchase_price),
+                    subtotal: subtotal,
+                    item_type: product.item_type,
+                    item_name: product.item_name
+                });
             }
-
-            const product = products[0];
-
-            if (product.item_type === 'barang' && product.current_stock < item.quantity) {
-                throw new Error(`Stok untuk "${product.item_name}" tidak cukup! Sisa: ${product.current_stock}`);
-            }
-
-            const subtotal = parseFloat(product.selling_price) * item.quantity;
-            server_calculated_total += subtotal;
-
-            verified_item_details.push({
-                product_id: product.product_id,
-                quantity: item.quantity,
-                unit_price: parseFloat(product.selling_price),
-                purchase_price: parseFloat(product.purchase_price),
-                subtotal: subtotal,
-                item_type: product.item_type,
-                item_name: product.item_name
-            });
+            // --- AKHIR LOGIKA BARU ---
         }
 
         if (payment_method === 'cash' && payment_received < server_calculated_total) {
             throw new Error('Jumlah pembayaran tunai kurang!');
         }
 
-        // --- PENYESUAIAN LOGIKA PEMBAYARAN ---
         let final_payment_received = 0;
         let change_amount = 0;
 
@@ -106,7 +141,6 @@ const createTransaction = async (req, res) => {
             final_payment_received = server_calculated_total;
             change_amount = 0;
         }
-        // Jika 'hutang', payment_received dan change_amount adalah 0, yang sudah benar secara default.
 
         const transaction_code = await generateTransactionCode();
 
@@ -118,46 +152,49 @@ const createTransaction = async (req, res) => {
 
         const transaction_id = transResult.insertId;
 
-        // Proses detail transaksi (tetap sama)
         for (const detail of verified_item_details) {
+            // MODIFIKASI: Menyimpan variant_id ke dalam tabel transaction_details
             await connection.query(
-                `INSERT INTO transaction_details (transaction_id, product_id, quantity, unit_price, purchase_price, subtotal)
-                 VALUES (?, ?, ?, ?, ?, ?)`,
-                [transaction_id, detail.product_id, detail.quantity, detail.unit_price, detail.purchase_price, detail.subtotal]
+                `INSERT INTO transaction_details (transaction_id, product_id, variant_id, quantity, unit_price, purchase_price, subtotal)
+                 VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                [transaction_id, detail.product_id, detail.variant_id, detail.quantity, detail.unit_price, detail.purchase_price, detail.subtotal]
             );
 
             if (detail.item_type === 'barang') {
-                await connection.query(
-                    'UPDATE products SET current_stock = current_stock - ? WHERE product_id = ?',
-                    [detail.quantity, detail.product_id]
-                );
+                // MODIFIKASI: Update stok di tabel yang benar
+                if (detail.variant_id) {
+                    // Update stok di tabel product_variants
+                    await connection.query(
+                        'UPDATE product_variants SET current_stock = current_stock - ? WHERE variant_id = ?',
+                        [detail.quantity, detail.variant_id]
+                    );
+                } else {
+                    // Update stok di tabel products (untuk produk tunggal)
+                    await connection.query(
+                        'UPDATE products SET current_stock = current_stock - ? WHERE product_id = ?',
+                        [detail.quantity, detail.product_id]
+                    );
+                }
 
+                // MODIFIKASI: Mencatat variant_id di stock_movements
                 await connection.query(
-                    `INSERT INTO stock_movements (product_id, movement_type, quantity, reference_type, reference_id, user_id)
-                     VALUES (?, 'out', ?, 'transaction', ?, ?)`,
-                    [detail.product_id, detail.quantity, transaction_id, req.user.user_id]
+                    `INSERT INTO stock_movements (product_id, variant_id, movement_type, quantity, reference_type, reference_id, user_id)
+                     VALUES (?, ?, 'out', ?, 'transaction', ?, ?)`,
+                    [detail.product_id, detail.variant_id, detail.quantity, transaction_id, req.user.user_id]
                 );
             }
         }
         
-        // --- BLOK BARU: CATAT KE TABEL HUTANG JIKA PERLU ---
         if (payment_method === 'hutang') {
             await connection.query(
                 `INSERT INTO debts (transaction_id, customer_id, amount_due, due_date, notes, status)
                  VALUES (?, ?, ?, ?, ?, 'unpaid')`,
-                [
-                    transaction_id, 
-                    debt_details.customer_id,
-                    server_calculated_total,
-                    debt_details.due_date || null, // Tanggal jatuh tempo bisa jadi opsional
-                    debt_details.notes || null
-                ]
+                [transaction_id, debt_details.customer_id, server_calculated_total, debt_details.due_date || null, debt_details.notes || null]
             );
         }
 
         await connection.commit();
 
-        // Kirim response yang sama seperti sebelumnya, agar frontend bisa menanganinya
         res.status(201).json({
             success: true,
             message: 'Transaksi berhasil!',

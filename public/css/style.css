@@ -2969,3 +2969,145 @@ textarea:focus-visible {
 .search-result-item:hover {
     background-color: var(--color-primary-alpha);
 }
+
+/* Variant Toggle Switch */
+.variant-toggle-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--color-bg-secondary);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--spacing-lg);
+}
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+}
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+}
+input:checked + .slider {
+    background-color: var(--color-primary);
+}
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+.slider.round {
+    border-radius: 34px;
+}
+.slider.round:before {
+    border-radius: 50%;
+}
+
+/* Variant List Styling */
+.variant-list-container {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--color-border-solid);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm);
+}
+.variant-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--color-border);
+    gap: var(--spacing-sm);
+}
+.variant-item:last-child {
+    border-bottom: none;
+}
+.variant-item-details {
+    flex-grow: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-md);
+    font-size: var(--font-size-sm);
+}
+.variant-item-details span {
+    display: block;
+}
+.variant-item-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+/* Indikator Varian di Kartu Produk Kasir */
+.product-card .variant-indicator {
+    position: absolute;
+    bottom: 4px;
+    left: 4px;
+    color: var(--color-accent-dark);
+    font-size: 1rem;
+}
+
+/* Modal Pemilih Varian */
+.variant-selector-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.variant-selector-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md);
+    border: 1px solid var(--color-border-solid);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.variant-selector-item:hover {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary-alpha);
+    transform: translateX(4px);
+}
+
+.variant-selector-item.out-of-stock {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: var(--color-bg-secondary);
+    border-color: var(--color-border);
+}
+
+.variant-selector-item.out-of-stock:hover {
+    transform: none;
+}
+
+.variant-selector-item div:first-child strong {
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.variant-selector-item div:first-child small {
+    display: block;
+    color: var(--color-text-secondary);
+}

@@ -226,3 +226,47 @@ CREATE TABLE IF NOT EXISTS debts (
 
 ALTER TABLE transactions
 MODIFY COLUMN payment_method ENUM('cash', 'transfer', 'hutang') DEFAULT 'cash';
+
+-- FILE: feature_variants_db_update.sql
+-- Deskripsi: Menambahkan struktur tabel untuk mendukung fitur varian produk.
+
+USE tokoatk_db;
+
+-- Langkah 1: Modifikasi tabel `products`
+-- Menambahkan kolom 'has_variants' untuk menandai produk induk.
+-- Kolom ini akan menjadi FALSE untuk semua produk yang sudah ada, sehingga aman.
+ALTER TABLE products
+ADD COLUMN has_variants BOOLEAN NOT NULL DEFAULT FALSE AFTER item_type;
+
+-- Langkah 2: Buat tabel baru `product_variants`
+-- Tabel ini akan menyimpan semua data varian yang terhubung ke produk induk.
+CREATE TABLE IF NOT EXISTS product_variants (
+    variant_id INT PRIMARY KEY AUTO_INCREMENT,
+    product_id INT NOT NULL,
+    variant_name VARCHAR(100) NOT NULL,
+    item_code VARCHAR(20) UNIQUE,
+    selling_price DECIMAL(12,2) NOT NULL,
+    purchase_price DECIMAL(12,2) DEFAULT 0,
+    current_stock INT DEFAULT 0,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    -- Menambahkan constraint foreign key ke tabel products.
+    -- ON DELETE CASCADE berarti jika produk induk dihapus, semua variannya akan ikut terhapus.
+    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
+);
+
+-- Langkah 3: Modifikasi tabel `transaction_details`
+-- Menambahkan kolom 'variant_id' untuk mencatat varian mana yang terjual.
+-- Dibuat NULLABLE karena produk tanpa varian tidak akan memiliki variant_id.
+ALTER TABLE transaction_details
+ADD COLUMN variant_id INT NULL DEFAULT NULL AFTER product_id,
+ADD FOREIGN KEY (variant_id) REFERENCES product_variants(variant_id);
+
+-- Langkah 4: Modifikasi tabel `stock_movements`
+-- Menambahkan kolom 'variant_id' untuk melacak pergerakan stok per varian.
+-- Dibuat NULLABLE karena penyesuaian stok produk lama (tanpa varian) tidak memiliki variant_id.
+ALTER TABLE stock_movements
+ADD COLUMN variant_id INT NULL DEFAULT NULL AFTER product_id,
+ADD FOREIGN KEY (variant_id) REFERENCES product_variants(variant_id);

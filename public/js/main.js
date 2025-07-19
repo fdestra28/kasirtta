@@ -498,19 +498,22 @@ async function loadDashboard() {
             }, index * 100);
         });
 
-        // Load dashboard data
-        const response = await apiRequest('/transactions/summary/daily');
-        const data = await response.json();
+        // --- PERUBAHAN DIMULAI DI SINI ---
 
-        if (data.success) {
-            const summary = data.data.summary;
+        // Panggil semua data yang dibutuhkan secara paralel untuk efisiensi
+        const [summaryRes, lowStockRes, lowStockVariantsRes] = await Promise.all([
+            apiRequest('/transactions/summary/daily'),
+            apiRequest('/products/low-stock'),
+            apiRequest('/products/low-stock-variants')
+        ]);
 
-            // Animate number changes
+        // 1. Proses data summary (sama seperti sebelumnya)
+        const summaryData = await summaryRes.json();
+        if (summaryData.success) {
+            const summary = summaryData.data.summary;
             animateNumber('todayTransactions', 0, summary.total_transactions, 1000);
             animateNumber('todayRevenue', 0, summary.total_revenue, 1000, true);
-
-            // Top products with animation
-            const topProductsHtml = data.data.top_products.slice(0, 5).map((p, index) => `
+            const topProductsHtml = summaryData.data.top_products.slice(0, 5).map((p, index) => `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; opacity: 0; transform: translateX(-20px); animation: slideInFromLeft 0.5s ease ${index * 0.1}s forwards;">
                     <span>${p.item_name}</span>
                     <span class="badge badge-primary">${p.total_quantity}x</span>
@@ -519,19 +522,48 @@ async function loadDashboard() {
             document.getElementById('topProducts').innerHTML = topProductsHtml || '<p class="text-muted">Belum ada data</p>';
         }
 
-        // Load low stock data
-        const stockResponse = await apiRequest('/products/low-stock');
-        const stockData = await stockResponse.json();
+        // 2. Proses data stok menipis (produk tunggal DAN varian)
+        const lowStockData = await lowStockRes.json();
+        const lowStockVariantsData = await lowStockVariantsRes.json();
+        
+        let allLowStockItems = [];
 
-        if (stockData.success) {
-            const lowStockHtml = stockData.data.slice(0, 5).map((p, index) => `
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; opacity: 0; transform: translateX(-20px); animation: slideInFromLeft 0.5s ease ${index * 0.1}s forwards;">
-                    <span>${p.item_name}</span>
-                    <span class="badge badge-danger">${p.current_stock} unit</span>
-                </div>
-            `).join('');
-            document.getElementById('lowStock').innerHTML = lowStockHtml || '<p class="text-muted">Stok aman</p>';
+        // Tambahkan produk tunggal yang stoknya rendah
+        if (lowStockData.success && lowStockData.data) {
+            const singleProducts = lowStockData.data
+                // Filter PENTING: Hanya ambil produk yang TIDAK punya varian
+                .filter(p => !p.has_variants) 
+                .map(p => ({
+                    name: p.item_name,
+                    stock: p.current_stock
+                }));
+            allLowStockItems.push(...singleProducts);
         }
+
+        // Tambahkan varian produk yang stoknya rendah
+        if (lowStockVariantsData.success && lowStockVariantsData.data) {
+            const variantProducts = lowStockVariantsData.data.map(v => ({
+                name: `${v.item_name} (${v.variant_name})`, // Gabungkan nama
+                stock: v.current_stock
+            }));
+            allLowStockItems.push(...variantProducts);
+        }
+
+        // Urutkan semua item berdasarkan stok terendah
+        allLowStockItems.sort((a, b) => a.stock - b.stock);
+
+        // Render ke HTML
+        const lowStockHtml = allLowStockItems.slice(0, 5).map((item, index) => `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; opacity: 0; transform: translateX(-20px); animation: slideInFromLeft 0.5s ease ${index * 0.1}s forwards;">
+                <span>${item.name}</span>
+                <span class="badge badge-danger">${item.stock} unit</span>
+            </div>
+        `).join('');
+        
+        document.getElementById('lowStock').innerHTML = lowStockHtml || '<p class="text-muted">Stok aman</p>';
+        
+        // --- AKHIR PERUBAHAN ---
+
     } catch (error) {
         console.error('Dashboard error:', error);
         showNotification('Gagal memuat data dashboard', 'error');
@@ -1475,9 +1507,9 @@ function handleGlobalShortcuts(e) {
     const activeEl = document.activeElement;
     const isTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'SELECT');
 
-    // [FIX] Perbaikan untuk F-Keys: Izinkan F-keys lolos walaupun sedang mengetik.
-    // Aturan baru: Abaikan shortcut jika sedang mengetik, KECUALI untuk 'Escape' dan F-Keys.
-    if (isTyping && e.key !== 'Escape' && !e.key.startsWith('F')) {
+    // --- BLOK YANG DIPERBAIKI ---
+    // Tambahkan pengecekan `e.key` untuk memastikan tidak undefined
+    if (isTyping && e.key && e.key !== 'Escape' && !e.key.startsWith('F')) {
         return;
     }
 
