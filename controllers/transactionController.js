@@ -278,7 +278,6 @@ const getTransactionById = async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Get transaction header
         const [transactions] = await db.query(
             `SELECT t.*, u.full_name as cashier_name 
              FROM transactions t
@@ -294,7 +293,6 @@ const getTransactionById = async (req, res) => {
             });
         }
 
-        // Check permission
         if (req.user.role === 'admin' && transactions[0].admin_id !== req.user.user_id) {
             return res.status(403).json({
                 success: false,
@@ -302,7 +300,6 @@ const getTransactionById = async (req, res) => {
             });
         }
 
-        // Get transaction details
         const [details] = await db.query(
             `SELECT td.*, p.item_name, p.item_code, p.item_type
              FROM transaction_details td
@@ -310,6 +307,22 @@ const getTransactionById = async (req, res) => {
              WHERE td.transaction_id = ?`,
             [id]
         );
+
+        // --- BLOK BARU UNTUK MENGGABUNGKAN NAMA VARIAN ---
+        // Kita gunakan Promise.all agar query berjalan paralel dan lebih cepat
+        await Promise.all(details.map(async (detail) => {
+            if (detail.variant_id) {
+                const [variant] = await db.query(
+                    'SELECT variant_name FROM product_variants WHERE variant_id = ?',
+                    [detail.variant_id]
+                );
+                if (variant.length > 0) {
+                    // Gabungkan nama produk induk dengan nama varian
+                    detail.item_name = `${detail.item_name} (${variant[0].variant_name})`;
+                }
+            }
+        }));
+        // --- AKHIR BLOK BARU ---
 
         res.json({
             success: true,
@@ -485,6 +498,7 @@ const getPopularProducts = async (req, res) => {
     try {
         const { days = 30 } = req.query; // Default 30 hari terakhir
 
+        // --- QUERY YANG DISEMPURNAKAN DENGAN LOGIKA VARIAN ---
         const [products] = await db.query(
             `SELECT 
                 p.product_id,
@@ -493,9 +507,49 @@ const getPopularProducts = async (req, res) => {
                 p.item_type,
                 p.selling_price,
                 p.current_stock,
-                p.is_active, -- Pastikan kita juga mengambil status aktif
+                p.has_variants, -- Ambil flag has_variants
+                p.is_active,
                 COUNT(DISTINCT t.transaction_id) as transaction_count,
-                SUM(td.quantity) as total_sold
+                SUM(td.quantity) as total_sold,
+                -- Logika Agregat untuk produk bervarian (sama seperti di getAllProducts)
+                CASE 
+                    WHEN p.has_variants = TRUE THEN (
+                        SELECT SUM(pv.current_stock) 
+                        FROM product_variants pv 
+                        WHERE pv.product_id = p.product_id AND pv.is_active = TRUE
+                    )
+                    ELSE p.current_stock
+                END AS total_stock,
+                CASE 
+                    WHEN p.has_variants = TRUE THEN (
+                        SELECT MIN(pv.selling_price) 
+                        FROM product_variants pv 
+                        WHERE pv.product_id = p.product_id AND pv.is_active = TRUE
+                    )
+                    ELSE p.selling_price
+                END AS min_price,
+                CASE 
+                    WHEN p.has_variants = TRUE THEN (
+                        SELECT MAX(pv.selling_price) 
+                        FROM product_variants pv 
+                        WHERE pv.product_id = p.product_id AND pv.is_active = TRUE
+                    )
+                    ELSE p.selling_price
+                END AS max_price,
+                CASE 
+                    WHEN p.has_variants = TRUE THEN (
+                        SELECT CONCAT('[', GROUP_CONCAT(JSON_OBJECT(
+                            'variant_id', pv.variant_id,
+                            'variant_name', pv.variant_name,
+                            'selling_price', pv.selling_price,
+                            'current_stock', pv.current_stock,
+                            'min_stock', pv.min_stock
+                        )), ']')
+                        FROM product_variants pv 
+                        WHERE pv.product_id = p.product_id AND pv.is_active = TRUE
+                    )
+                    ELSE NULL
+                END AS variants_json
              FROM products p
              JOIN transaction_details td ON p.product_id = td.product_id
              JOIN transactions t ON td.transaction_id = t.transaction_id
@@ -503,9 +557,22 @@ const getPopularProducts = async (req, res) => {
                 AND p.is_active = true
              GROUP BY p.product_id
              ORDER BY total_sold DESC
-             LIMIT 10`, // Ambil 10 produk terpopuler
+             LIMIT 10`,
             [parseInt(days)]
         );
+
+        // Proses string JSON menjadi objek array (sama seperti di getAllProducts)
+        products.forEach(p => {
+            if (p.variants_json) {
+                try {
+                    p.variants = JSON.parse(p.variants_json);
+                } catch (e) {
+                    p.variants = [];
+                }
+            }
+            delete p.variants_json;
+        });
+        // --- AKHIR PENYEMPURNAAN ---
 
         res.json({
             success: true,

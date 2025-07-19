@@ -8,7 +8,7 @@ let appSettings = {};
 let historyCurrentPage = 1;
 const historyLimit = 10;
 let sidebarCollapsed = false;
-let stockListProducts = [];
+let inventoryItems = [];
 let stockCurrentPage = 1;
 const stockLimit = 10;
 let stockCurrentFilter = 'all';
@@ -926,22 +926,22 @@ async function loadHistory(page) {
     }
 }
 
-async function loadStockData() {
+async function loadInventoryData() {
     const tbody = document.getElementById('stockList');
     tbody.innerHTML = `<tr><td colspan="6"><div class="spinner"></div></td></tr>`;
 
     try {
-        const response = await apiRequest('/products?type=barang&active=true');
+        const response = await apiRequest('/stock/inventory'); // Panggil endpoint baru
         const data = await response.json();
 
         if (data.success) {
-            stockListProducts = data.data; // Simpan data master
-            renderStockTable(); // Panggil fungsi render
+            inventoryItems = data.data; // Simpan ke variabel baru
+            renderStockTable();
         } else {
             tbody.innerHTML = `<tr><td colspan="6" class="text-danger text-center">Gagal memuat data stok.</td></tr>`;
         }
     } catch (error) {
-        console.error('Failed to load stock data:', error);
+        console.error('Failed to load inventory data:', error);
         tbody.innerHTML = `<tr><td colspan="6" class="text-danger text-center">Gagal memuat data stok.</td></tr>`;
     }
 }
@@ -1003,12 +1003,13 @@ function initStock() {
         initStock.initialized = true;
     }
 
-    loadStockData();
+    loadInventoryData();
 }
 
-function openStockModal(productId, productName) {
+function openStockModal(productId, variantId, itemName) {
     document.getElementById('stockProductId').value = productId;
-    document.querySelector('#stockModal h3').textContent = `Update Stok: ${productName}`;
+    document.getElementById('stockVariantId').value = variantId; // Simpan variantId
+    document.querySelector('#stockModal h3').textContent = `Update Stok: ${itemName}`;
     document.getElementById('stockForm').reset();
     openModal('stockModal');
 }
@@ -1017,7 +1018,15 @@ window.openStockModal = openStockModal;
 async function updateStock(e) {
     e.preventDefault();
     const productId = document.getElementById('stockProductId').value;
-    const formData = { type: document.getElementById('movementType').value, quantity: parseInt(document.getElementById('stockQuantity').value), notes: document.getElementById('stockNotes').value };
+    const variantId = document.getElementById('stockVariantId').value; // Ambil variantId
+    
+    const formData = { 
+        type: document.getElementById('movementType').value, 
+        quantity: parseInt(document.getElementById('stockQuantity').value), 
+        notes: document.getElementById('stockNotes').value,
+        variant_id: variantId !== 'null' ? variantId : null // Kirim ke backend
+    };
+
     const submitButton = e.target.querySelector('button[type="submit"]');
     submitButton.disabled = true;
     submitButton.innerHTML = '<span class="spinner-sm"></span> Mengupdate...';
@@ -1027,11 +1036,8 @@ async function updateStock(e) {
         if (data.success) {
             showNotification('Stok berhasil diupdate', 'success');
             closeModal('stockModal');
-            if (currentPage === 'stock') {
-                loadStockData();
-            } else if (currentPage === 'products') {
-                loadProducts();
-            }
+            // Muat ulang data inventaris setelah update
+            loadInventoryData();
         } else {
             showNotification(data.message || 'Gagal update stok', 'error');
         }
@@ -1044,21 +1050,17 @@ async function updateStock(e) {
     }
 }
 
-// TAMBAHKAN DUA FUNGSI BARU INI
-
 function renderStockTable() {
     const tbody = document.getElementById('stockList');
     const filterText = document.getElementById('stockFilterSearch').value.toLowerCase();
 
-    // 1. Filter berdasarkan Tab (Stok Aman/Menipis)
-    let filtered = stockListProducts;
+    let filtered = inventoryItems;
     if (stockCurrentFilter === 'menipis') {
-        filtered = stockListProducts.filter(p => p.current_stock <= p.min_stock);
+        filtered = inventoryItems.filter(p => p.current_stock <= p.min_stock);
     } else if (stockCurrentFilter === 'aman') {
-        filtered = stockListProducts.filter(p => p.current_stock > p.min_stock);
+        filtered = inventoryItems.filter(p => p.current_stock > p.min_stock);
     }
 
-    // 2. Filter berdasarkan Pencarian
     if (filterText) {
         filtered = filtered.filter(p =>
             p.item_name.toLowerCase().includes(filterText) ||
@@ -1066,28 +1068,30 @@ function renderStockTable() {
         );
     }
 
-    // 3. Paginasi
     const offset = (stockCurrentPage - 1) * stockLimit;
     const paginatedItems = filtered.slice(offset, offset + stockLimit);
 
     if (paginatedItems.length === 0) {
         tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 40px;">Tidak ada barang yang cocok dengan filter.</td></tr>`;
     } else {
-        tbody.innerHTML = paginatedItems.map((p, index) => {
-            const isLowStock = p.current_stock <= p.min_stock;
+        tbody.innerHTML = paginatedItems.map((item, index) => {
+            const isLowStock = item.current_stock <= item.min_stock;
             const statusBadge = isLowStock
                 ? `<span class="badge badge-danger">Menipis</span>`
                 : `<span class="badge badge-success">Aman</span>`;
+            
+            // Siapkan parameter untuk modal. variant_id bisa null.
+            const variantIdParam = item.variant_id ? item.variant_id : 'null';
 
             return `
                 <tr style="opacity: 0; transform: translateY(10px); animation: fadeInUp 0.3s ease ${index * 0.05}s forwards;">
-                    <td>${p.item_code}</td>
-                    <td>${p.item_name}</td>
-                    <td>${p.current_stock}</td>
-                    <td>${p.min_stock}</td>
+                    <td>${item.item_code}</td>
+                    <td>${item.item_name}</td>
+                    <td>${item.current_stock}</td>
+                    <td>${item.min_stock}</td>
                     <td>${statusBadge}</td>
                     <td>
-                        <button class="btn btn-sm" onclick="openStockModal(${p.product_id}, '${p.item_name.replace(/'/g, "\\'")}')">
+                        <button class="btn btn-sm" onclick="openStockModal(${item.product_id}, ${variantIdParam}, '${item.item_name.replace(/'/g, "\\'")}')">
                             <ion-icon name="create-outline"></ion-icon>
                             Update Stok
                         </button>

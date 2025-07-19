@@ -286,11 +286,7 @@ const updateProduct = async (req, res) => {
     try {
         await connection.beginTransaction();
         const { id } = req.params;
-        
-        // --- MODIFIKASI DIMULAI ---
-        const { item_name, is_active, variants } = req.body;
-        // Harga dan stok sekarang dikelola di level varian jika has_variants=true
-        // --- MODIFIKASI SELESAI ---
+        const { item_name, is_active, variants, selling_price, purchase_price, current_stock, min_stock } = req.body;
 
         const [products] = await connection.query('SELECT * FROM products WHERE product_id = ? FOR UPDATE', [id]);
         if (products.length === 0) {
@@ -299,39 +295,40 @@ const updateProduct = async (req, res) => {
         }
         const product = products[0];
 
-        // Update data produk induk
-        await connection.query(
-            'UPDATE products SET item_name = ?, is_active = ? WHERE product_id = ?',
-            [item_name, is_active, id]
-        );
-
-        // --- LOGIKA BARU UNTUK MENGELOLA VARIAN SAAT UPDATE ---
+        // --- INI ADALAH BLOK 'ELSE' YANG HILANG ---
         if (product.has_variants) {
+            // Logika untuk PRODUK DENGAN VARIAN (sudah benar)
+            // ... (kode dari revisi sebelumnya kita letakkan di sini)
+            await connection.query(
+                'UPDATE products SET item_name = ?, is_active = ? WHERE product_id = ?',
+                [item_name, is_active === undefined ? product.is_active : is_active, id]
+            );
+
             if (!variants || !Array.isArray(variants)) {
                 throw new Error("Data varian tidak valid atau tidak ada.");
             }
-
-            // 1. Ambil ID varian yang ada di database untuk produk ini
+            // ... (dan seterusnya, seluruh logika varian diletakkan di dalam blok if ini)
             const [existingVariantsResult] = await connection.query('SELECT variant_id FROM product_variants WHERE product_id = ?', [id]);
             const existingVariantIds = new Set(existingVariantsResult.map(v => v.variant_id));
 
-            // 2. Proses varian yang datang dari frontend
             for (const variant of variants) {
-                if (variant.variant_id) { // Jika ada ID, berarti UPDATE varian yang ada
+                if (variant.variant_id) { 
                     const variantId = parseInt(variant.variant_id);
-                    // Hapus dari Set agar kita tahu ini sudah diproses
                     existingVariantIds.delete(variantId); 
 
-                    // Ambil data lama untuk perbandingan stok
-                    const [oldVariant] = await connection.query('SELECT current_stock FROM product_variants WHERE variant_id = ?', [variantId]);
+                    const [oldVariantResult] = await connection.query('SELECT current_stock, purchase_price FROM product_variants WHERE variant_id = ?', [variantId]);
+                    
+                    if (!oldVariantResult || oldVariantResult.length === 0) {
+                        throw new Error(`Varian dengan ID ${variantId} yang coba diupdate tidak ditemukan di database.`);
+                    }
+                    const oldVariant = oldVariantResult[0];
 
                     await connection.query(
                         'UPDATE product_variants SET variant_name = ?, selling_price = ?, purchase_price = ?, current_stock = ?, min_stock = ?, is_active = ? WHERE variant_id = ?',
                         [variant.variant_name, variant.selling_price, variant.purchase_price || 0, variant.current_stock || 0, variant.min_stock || 10, variant.is_active, variantId]
                     );
 
-                    // Log pergerakan stok jika ada perubahan
-                    const stockDiff = (variant.current_stock || 0) - (oldVariant[0].current_stock || 0);
+                    const stockDiff = (variant.current_stock || 0) - (oldVariant.current_stock || 0);
                     if (stockDiff !== 0) {
                          const movementType = stockDiff > 0 ? 'in' : 'out';
                          const quantity = Math.abs(stockDiff);
@@ -340,29 +337,90 @@ const updateProduct = async (req, res) => {
                               VALUES (?, ?, ?, ?, 'adjustment', 'Update via edit varian', ?)`,
                              [id, variantId, movementType, quantity, req.user.user_id]
                          );
-                    }
 
-                } else { // Jika tidak ada ID, berarti TAMBAH varian baru
+                        if (stockDiff > 0 && (variant.purchase_price || 0) > 0) {
+                            const totalPurchaseCost = stockDiff * variant.purchase_price;
+                            const [categories] = await connection.query(`SELECT category_id FROM expense_categories WHERE category_name = 'Pembelian Barang' LIMIT 1`);
+                            if (categories.length > 0) {
+                                await connection.query(
+                                    `INSERT INTO expenses (expense_date, category_id, description, amount, payment_method, notes, created_by) 
+                                     VALUES (NOW(), ?, ?, ?, 'cash', ?, ?)`,
+                                    [categories[0].category_id, `Penambahan stok (edit): ${product.item_name} (${variant.variant_name})`, totalPurchaseCost, `Penambahan stok dari menu edit varian #${variantId}`, req.user.user_id]
+                                );
+                            }
+                        }
+                    }
+                } else { 
                      const [newVariantResult] = await connection.query(
                         `INSERT INTO product_variants (product_id, variant_name, selling_price, purchase_price, current_stock, min_stock) 
                          VALUES (?, ?, ?, ?, ?, ?)`,
                         [id, variant.variant_name, variant.selling_price, variant.purchase_price || 0, variant.current_stock || 0, variant.min_stock || 10]
                     );
                     const newVariantId = newVariantResult.insertId;
-
-                    // Generate dan update item_code untuk varian baru
                     const variant_item_code = `${product.item_code}-${newVariantId}`;
                     await connection.query('UPDATE product_variants SET item_code = ? WHERE variant_id = ?', [variant_item_code, newVariantId]);
                 }
             }
-
-            // 3. Hapus varian yang tidak ada lagi di data dari frontend
-            // Varian yang ID-nya masih tersisa di `existingVariantIds` adalah yang harus dihapus
             for (const variantIdToDelete of existingVariantIds) {
                 await connection.query('DELETE FROM product_variants WHERE variant_id = ?', [variantIdToDelete]);
             }
+        } else {
+            // Logika untuk PRODUK TUNGGAL (TANPA VARIAN)
+            let updateFields = [];
+            let params = [];
+
+            if (item_name !== undefined) {
+                updateFields.push('item_name = ?');
+                params.push(item_name);
+            }
+            if (selling_price !== undefined) {
+                if (req.user.role !== 'owner') {
+                    await connection.rollback();
+                    return res.status(403).json({ success: false, message: 'Hanya owner yang bisa mengubah harga!' });
+                }
+                updateFields.push('selling_price = ?');
+                params.push(selling_price);
+            }
+            const newPurchasePrice = parseFloat(purchase_price) || product.purchase_price;
+            if (purchase_price !== undefined) {
+                 if (req.user.role !== 'owner') {
+                    await connection.rollback();
+                    return res.status(403).json({ success: false, message: 'Hanya owner yang bisa mengubah harga!' });
+                }
+                updateFields.push('purchase_price = ?');
+                params.push(newPurchasePrice);
+            }
+            if (current_stock !== undefined && product.item_type === 'barang') {
+                const stockDiff = parseInt(current_stock) - product.current_stock;
+                if (stockDiff !== 0) {
+                    updateFields.push('current_stock = ?');
+                    params.push(current_stock);
+                    const movementType = stockDiff > 0 ? 'in' : 'out';
+                    const quantity = Math.abs(stockDiff);
+                    await connection.query(`INSERT INTO stock_movements (product_id, movement_type, quantity, reference_type, notes, user_id) VALUES (?, ?, ?, 'adjustment', 'Update via edit produk', ?)`, [id, movementType, quantity, req.user.user_id]);
+                    if (stockDiff > 0 && newPurchasePrice > 0) {
+                        const totalPurchaseCost = stockDiff * newPurchasePrice;
+                        const [categories] = await connection.query(`SELECT category_id FROM expense_categories WHERE category_name = 'Pembelian Barang' LIMIT 1`);
+                        if (categories.length > 0) {
+                            await connection.query(`INSERT INTO expenses (expense_date, category_id, description, amount, payment_method, notes, created_by) VALUES (NOW(), ?, ?, ?, 'cash', ?, ?)`, [categories[0].category_id, `Penambahan stok (edit): ${product.item_name}`, totalPurchaseCost, `Penambahan stok dari menu edit produk #${id}`, req.user.user_id]);
+                        }
+                    }
+                }
+            }
+            if (min_stock !== undefined && product.item_type === 'barang') {
+                updateFields.push('min_stock = ?');
+                params.push(min_stock);
+            }
+            if (is_active !== undefined) {
+                updateFields.push('is_active = ?');
+                params.push(is_active);
+            }
+            if (updateFields.length > 0) {
+                params.push(id);
+                await connection.query(`UPDATE products SET ${updateFields.join(', ')} WHERE product_id = ?`, params);
+            }
         }
-        // --- AKHIR LOGIKA BARU ---
+        // --- AKHIR BLOK 'ELSE' ---
         
         await connection.commit();
         res.json({ success: true, message: 'Produk berhasil diupdate!' });
@@ -379,7 +437,8 @@ const updateStock = async (req, res) => {
     const connection = await db.getConnection();
     try {
         const { id } = req.params;
-        const { quantity, type, notes } = req.body;
+        const { quantity, type, notes, variant_id } = req.body;
+        
         if (!quantity || !type || !['in', 'out', 'adjustment'].includes(type)) {
             return res.status(400).json({ success: false, message: 'Quantity dan type (in/out/adjustment) harus diisi dengan benar!' });
         }
@@ -387,37 +446,99 @@ const updateStock = async (req, res) => {
         if (isNaN(parsedQuantity) || parsedQuantity <= 0) {
             return res.status(400).json({ success: false, message: 'Quantity harus berupa angka positif.' });
         }
+        
         await connection.beginTransaction();
-        const [products] = await connection.query('SELECT product_id, item_name, current_stock, purchase_price FROM products WHERE product_id = ? AND item_type = "barang" FOR UPDATE', [id]);
-        if (products.length === 0) {
-            await connection.rollback();
-            return res.status(404).json({ success: false, message: 'Produk tidak ditemukan atau bukan barang!' });
-        }
-        const product = products[0];
-        let newStock = product.current_stock;
-        if (type === 'in') {
-            newStock += parsedQuantity;
-        } else if (type === 'out') {
-            newStock -= parsedQuantity;
-        } else {
-            newStock = parsedQuantity;
-        }
-        if (newStock < 0) {
-            await connection.rollback();
-            return res.status(400).json({ success: false, message: 'Stok tidak boleh negatif!' });
-        }
-        await connection.query('UPDATE products SET current_stock = ? WHERE product_id = ?', [newStock, id]);
-        await connection.query(`INSERT INTO stock_movements (product_id, movement_type, quantity, reference_type, notes, user_id) VALUES (?, ?, ?, 'manual', ?, ?)`, [id, type, parsedQuantity, notes || `Stok ${type} manual`, req.user.user_id]);
-        if (type === 'in' && product.purchase_price > 0) {
-            const totalPurchaseCost = parsedQuantity * product.purchase_price;
-            const [categories] = await connection.query(`SELECT category_id FROM expense_categories WHERE category_name = 'Pembelian Barang' LIMIT 1`);
-            if (categories.length > 0) {
-                const purchaseCategoryId = categories[0].category_id;
-                await connection.query(`INSERT INTO expenses (expense_date, category_id, description, amount, payment_method, notes, created_by) VALUES (NOW(), ?, ?, ?, 'cash', ?, ?)`, [purchaseCategoryId, `Penambahan stok: ${product.item_name}`, totalPurchaseCost, notes || `Penambahan stok manual produk #${id}`, req.user.user_id]);
+
+        if (variant_id) {
+            // Skenario 1: Update stok varian
+            const [variants] = await connection.query(
+                `SELECT v.variant_id, v.variant_name, v.current_stock, v.purchase_price, p.item_name 
+                 FROM product_variants v
+                 JOIN products p ON v.product_id = p.product_id
+                 WHERE v.variant_id = ? FOR UPDATE`, 
+                [variant_id]
+            );
+            if (variants.length === 0) {
+                await connection.rollback();
+                return res.status(404).json({ success: false, message: 'Varian produk tidak ditemukan!' });
             }
+            const variant = variants[0];
+            let newStock = variant.current_stock;
+
+            if (type === 'in') newStock += parsedQuantity;
+            else if (type === 'out') newStock -= parsedQuantity;
+            else newStock = parsedQuantity;
+
+            if (newStock < 0) {
+                await connection.rollback();
+                return res.status(400).json({ success: false, message: 'Stok tidak boleh negatif!' });
+            }
+
+            await connection.query('UPDATE product_variants SET current_stock = ? WHERE variant_id = ?', [newStock, variant_id]);
+            await connection.query(
+                `INSERT INTO stock_movements (product_id, variant_id, movement_type, quantity, reference_type, notes, user_id) 
+                 VALUES (?, ?, ?, ?, 'manual', ?, ?)`, 
+                [id, variant_id, type, parsedQuantity, notes || `Stok ${type} manual`, req.user.user_id]
+            );
+            
+            // --- BLOK BARU UNTUK MENCATAT PENGELUARAN ---
+            if (type === 'in' && variant.purchase_price > 0) {
+                const totalPurchaseCost = parsedQuantity * variant.purchase_price;
+                const [categories] = await connection.query(`SELECT category_id FROM expense_categories WHERE category_name = 'Pembelian Barang' LIMIT 1`);
+                if (categories.length > 0) {
+                    await connection.query(
+                        `INSERT INTO expenses (expense_date, category_id, description, amount, payment_method, notes, created_by) 
+                         VALUES (NOW(), ?, ?, ?, 'cash', ?, ?)`,
+                        [categories[0].category_id, `Penambahan stok: ${variant.item_name} (${variant.variant_name})`, totalPurchaseCost, notes || `Stok masuk manual varian #${variant_id}`, req.user.user_id]
+                    );
+                }
+            }
+            // --- AKHIR BLOK BARU ---
+
+        } else {
+            // Skenario 2: Update stok produk tunggal
+            const [products] = await connection.query('SELECT product_id, item_name, current_stock, purchase_price FROM products WHERE product_id = ? AND item_type = "barang" AND has_variants = FALSE FOR UPDATE', [id]);
+            if (products.length === 0) {
+                await connection.rollback();
+                return res.status(404).json({ success: false, message: 'Produk tunggal tidak ditemukan atau memiliki varian!' });
+            }
+            const product = products[0];
+            let newStock = product.current_stock;
+            
+            if (type === 'in') newStock += parsedQuantity;
+            else if (type === 'out') newStock -= parsedQuantity;
+            else newStock = parsedQuantity;
+
+            if (newStock < 0) {
+                await connection.rollback();
+                return res.status(400).json({ success: false, message: 'Stok tidak boleh negatif!' });
+            }
+            
+            await connection.query('UPDATE products SET current_stock = ? WHERE product_id = ?', [newStock, id]);
+            await connection.query(
+                `INSERT INTO stock_movements (product_id, movement_type, quantity, reference_type, notes, user_id) 
+                 VALUES (?, ?, ?, 'manual', ?, ?)`, 
+                [id, type, parsedQuantity, notes || `Stok ${type} manual`, req.user.user_id]
+            );
+
+            // --- BLOK BARU UNTUK MENCATAT PENGELUARAN ---
+            if (type === 'in' && product.purchase_price > 0) {
+                const totalPurchaseCost = parsedQuantity * product.purchase_price;
+                const [categories] = await connection.query(`SELECT category_id FROM expense_categories WHERE category_name = 'Pembelian Barang' LIMIT 1`);
+                if (categories.length > 0) {
+                    await connection.query(
+                        `INSERT INTO expenses (expense_date, category_id, description, amount, payment_method, notes, created_by) 
+                         VALUES (NOW(), ?, ?, ?, 'cash', ?, ?)`,
+                        [categories[0].category_id, `Penambahan stok: ${product.item_name}`, totalPurchaseCost, notes || `Stok masuk manual produk #${id}`, req.user.user_id]
+                    );
+                }
+            }
+            // --- AKHIR BLOK BARU ---
         }
+        
         await connection.commit();
-        res.json({ success: true, message: 'Stok berhasil diupdate!', data: { product_id: id, old_stock: product.current_stock, new_stock: newStock } });
+        res.json({ success: true, message: 'Stok berhasil diupdate!' });
+
     } catch (error) {
         await connection.rollback();
         console.error('Update stock error:', error);
@@ -426,6 +547,7 @@ const updateStock = async (req, res) => {
         connection.release();
     }
 };
+
 const getLowStock = async (req, res) => {
     try {
         const [products] = await db.query(`SELECT * FROM products WHERE item_type = 'barang' AND current_stock <= min_stock AND is_active = true ORDER BY current_stock ASC`);
