@@ -4,8 +4,6 @@
 let cart = [];
 let allProducts = [];
 let popularProducts = [];
-let searchTimeout;
-let debounceTimer; // <-- TAMBAHKAN VARIABEL UNTUK DEBOUNCING
 let currentTab = "all";
 let selectedProductIndex = -1;
 let cashierEventListenersInitialized = false;
@@ -46,22 +44,16 @@ function setupCashierEventListeners() {
     });
   });
 
-  productSearchInput.addEventListener("input", (e) => {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
+  productSearchInput.addEventListener("input", debounce((e) => {
       renderProductList(e.target.value.toLowerCase());
-    }, 300);
-  });
+  }, 300));
 
   productSearchInput.addEventListener("keydown", handleKeyboardNavigation);
   productListDiv.addEventListener("keydown", handleKeyboardNavigation);
   document
     .getElementById("paymentMethod")
     .addEventListener("change", handlePaymentMethodChange);
-  document.getElementById("paymentReceived").addEventListener("input", () => {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(calculateChange, 300);
-  });
+  document.getElementById("paymentReceived").addEventListener("input", debounce(calculateChange, 300));
   document
     .getElementById("processTransaction")
     .addEventListener("click", processTransaction);
@@ -90,15 +82,9 @@ function setupCashierEventListeners() {
     .querySelector("#debtCustomerModal .close")
     .addEventListener("click", () => closeModal("debtCustomerModal"));
 
-  let searchCustomerTimeout;
-  document
-    .getElementById("debtCustomerSearch")
-    .addEventListener("input", (e) => {
-      clearTimeout(searchCustomerTimeout);
-      searchCustomerTimeout = setTimeout(() => {
-        searchCustomers(e.target.value);
-      }, 350);
-    });
+  document.getElementById("debtCustomerSearch").addEventListener("input", debounce((e) => {
+      searchCustomers(e.target.value);
+  }, 350));
 
   cashierEventListenersInitialized = true;
 }

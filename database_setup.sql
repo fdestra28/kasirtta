@@ -270,3 +270,55 @@ ADD FOREIGN KEY (variant_id) REFERENCES product_variants(variant_id);
 ALTER TABLE stock_movements
 ADD COLUMN variant_id INT NULL DEFAULT NULL AFTER product_id,
 ADD FOREIGN KEY (variant_id) REFERENCES product_variants(variant_id);
+
+-- FILE: feature_variants_min_stock.sql
+-- Menambahkan kolom min_stock ke tabel product_variants
+
+USE tokoatk_db;
+
+-- Menambahkan kolom 'min_stock' dengan nilai default 10.
+-- Ini memastikan varian yang sudah ada memiliki nilai awal yang aman.
+ALTER TABLE product_variants
+ADD COLUMN min_stock INT NOT NULL DEFAULT 10 AFTER current_stock;
+
+-- FILE: optimization_add_indexes.sql
+-- Deskripsi: Menambahkan indeks ke kolom-kolom kunci untuk mempercepat
+--            query pencarian, filter, dan join di seluruh aplikasi.
+
+USE tokoatk_db;
+
+-- [1] Indeks untuk tabel `products`
+-- Mempercepat pencarian berdasarkan nama dan filter berdasarkan tipe & status.
+CREATE INDEX idx_products_item_name ON products(item_name);
+CREATE INDEX idx_products_item_type ON products(item_type);
+CREATE INDEX idx_products_is_active ON products(is_active);
+
+-- [2] Indeks untuk tabel `product_variants`
+-- Mempercepat join ke tabel produk dan filter berdasarkan status.
+CREATE INDEX idx_product_variants_product_id ON product_variants(product_id);
+CREATE INDEX idx_product_variants_is_active ON product_variants(is_active);
+
+-- [3] Indeks untuk tabel `transactions`
+-- Mempercepat filter laporan berdasarkan tanggal dan pencarian berdasarkan kode.
+CREATE INDEX idx_transactions_date ON transactions(transaction_date);
+CREATE INDEX idx_transactions_code ON transactions(transaction_code);
+
+-- [4] Indeks untuk tabel `transaction_details`
+-- Mempercepat join ke tabel transaksi, produk, dan varian. Ini sangat penting.
+CREATE INDEX idx_transaction_details_transaction_id ON transaction_details(transaction_id);
+CREATE INDEX idx_transaction_details_product_id ON transaction_details(product_id);
+CREATE INDEX idx_transaction_details_variant_id ON transaction_details(variant_id);
+
+-- [5] Indeks untuk tabel `stock_movements`
+-- Mempercepat pengambilan riwayat stok untuk produk/varian tertentu.
+CREATE INDEX idx_stock_movements_product_id ON stock_movements(product_id);
+CREATE INDEX idx_stock_movements_variant_id ON stock_movements(variant_id);
+
+-- [6] Indeks untuk tabel `expenses`
+-- Mempercepat filter laporan pengeluaran berdasarkan tanggal.
+CREATE INDEX idx_expenses_date ON expenses(expense_date);
+
+-- [7] Indeks untuk tabel `debts` (Piutang)
+-- Mempercepat join ke transaksi dan filter berdasarkan status hutang.
+CREATE INDEX idx_debts_transaction_id ON debts(transaction_id);
+CREATE INDEX idx_debts_status ON debts(status);

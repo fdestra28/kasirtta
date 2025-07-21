@@ -41,14 +41,10 @@ function setupProductPageEvents() {
   });
 
   // Search filter input with debounce
-  let searchTimeout;
-  document.getElementById("productFilter").addEventListener("input", () => {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-      productCurrentPage = 1; // Reset ke halaman pertama saat mencari
-      renderProductTable();
-    }, 300);
-  });
+  document.getElementById('productFilter').addEventListener('input', debounce(() => {
+    productCurrentPage = 1;
+    renderProductTable();
+}, 300)); // Delay 300 milidetik
 
   // Main action buttons
   document

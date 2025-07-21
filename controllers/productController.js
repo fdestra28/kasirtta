@@ -1,7 +1,10 @@
 // controllers/productController.js
 const { db } = require('../config/database');
+const { getFromCache, setInCache, clearCache } = require('../utils/cache'); // 
 const { parse } = require('csv-parse'); // Untuk CSV
 const xlsx = require('xlsx');           // Untuk Excel
+
+const PRODUCTS_CACHE_KEY = 'all_products_list';
 
 // --- PERBAIKAN PADA DEFINISI FUNGSI ---
 // Pastikan 'connection' adalah parameter pertama
@@ -27,13 +30,25 @@ const getAllProducts = async (req, res) => {
     try {
         const { search, type, active } = req.query;
 
-        // --- QUERY YANG DISEMPURNAKAN ---
+        // --- Logika Cache ---
+        // Kita hanya akan menggunakan cache jika tidak ada filter pencarian/tipe,
+        // dan hanya untuk mengambil produk yang aktif (kasus paling umum di halaman kasir).
+        const isCacheable = !search && !type && (active === 'true' || active === undefined);
+        
+        if (isCacheable) {
+            const cachedProducts = getFromCache(PRODUCTS_CACHE_KEY);
+            if (cachedProducts) {
+                return res.json({ success: true, data: cachedProducts, fromCache: true });
+            }
+        }
+        // --- Akhir Logika Cache ---
+
+        // Query SQL yang sudah disempurnakan (tidak berubah)
         let query = `
             SELECT 
                 p.*,
                 CASE 
                     WHEN p.has_variants = TRUE THEN (
-                        -- Ambil total stok dari semua varian aktif
                         SELECT SUM(pv.current_stock) 
                         FROM product_variants pv 
                         WHERE pv.product_id = p.product_id AND pv.is_active = TRUE
@@ -42,7 +57,6 @@ const getAllProducts = async (req, res) => {
                 END AS total_stock,
                 CASE 
                     WHEN p.has_variants = TRUE THEN (
-                        -- Ambil harga jual terendah dari varian aktif
                         SELECT MIN(pv.selling_price) 
                         FROM product_variants pv 
                         WHERE pv.product_id = p.product_id AND pv.is_active = TRUE
@@ -51,7 +65,6 @@ const getAllProducts = async (req, res) => {
                 END AS min_price,
                 CASE 
                     WHEN p.has_variants = TRUE THEN (
-                        -- Ambil harga jual tertinggi dari varian aktif
                         SELECT MAX(pv.selling_price) 
                         FROM product_variants pv 
                         WHERE pv.product_id = p.product_id AND pv.is_active = TRUE
@@ -60,7 +73,6 @@ const getAllProducts = async (req, res) => {
                 END AS max_price,
                 CASE 
                     WHEN p.has_variants = TRUE THEN (
-                        -- Ambil data JSON semua varian aktif
                         SELECT CONCAT('[', GROUP_CONCAT(JSON_OBJECT(
                             'variant_id', pv.variant_id,
                             'variant_name', pv.variant_name,
@@ -79,7 +91,6 @@ const getAllProducts = async (req, res) => {
             FROM products p
             WHERE 1=1
         `;
-        // --- AKHIR QUERY YANG DISEMPURNAKAN ---
 
         const params = [];
 
@@ -105,13 +116,20 @@ const getAllProducts = async (req, res) => {
                 try {
                     p.variants = JSON.parse(p.variants_json);
                 } catch (e) {
-                    p.variants = []; // Tangani jika GROUP_CONCAT menghasilkan NULL/kosong
+                    p.variants = [];
                 }
             }
             delete p.variants_json;
         });
 
-        res.json({ success: true, data: products });
+        // --- Logika Penyimpanan Cache ---
+        // Simpan hasil ke cache HANYA jika query-nya cacheable
+        if (isCacheable) {
+            setInCache(PRODUCTS_CACHE_KEY, products);
+        }
+        // --- Akhir Logika Penyimpanan Cache ---
+
+        res.json({ success: true, data: products, fromCache: false });
     } catch (error) {
         console.error("Error in getAllProducts:", error);
         res.status(500).json({ success: false, message: 'Gagal mengambil data produk!', error: error.message });
@@ -267,6 +285,7 @@ const createProduct = async (req, res) => {
         // --- AKHIR LOGIKA BARU ---
 
         await connection.commit();
+        clearCache(PRODUCTS_CACHE_KEY);
         res.status(201).json({ 
             success: true, 
             message: 'Produk berhasil ditambahkan!', 
@@ -423,6 +442,7 @@ const updateProduct = async (req, res) => {
         // --- AKHIR BLOK 'ELSE' ---
         
         await connection.commit();
+        clearCache(PRODUCTS_CACHE_KEY);
         res.json({ success: true, message: 'Produk berhasil diupdate!' });
     } catch (error) {
         await connection.rollback();
@@ -537,6 +557,7 @@ const updateStock = async (req, res) => {
         }
         
         await connection.commit();
+        clearCache(PRODUCTS_CACHE_KEY);
         res.json({ success: true, message: 'Stok berhasil diupdate!' });
 
     } catch (error) {
@@ -603,6 +624,7 @@ const deleteProduct = async (req, res) => {
             await connection.query('DELETE FROM stock_movements WHERE product_id = ?', [id]);
             await connection.query('DELETE FROM products WHERE product_id = ?', [id]);
             await connection.commit();
+            clearCache(PRODUCTS_CACHE_KEY); 
             res.json({ success: true, message: 'Produk berhasil dihapus' });
         }
     } catch (error) {
@@ -735,6 +757,7 @@ const importProducts = async (req, res) => {
         }
 
         await connection.commit();
+        clearCache(PRODUCTS_CACHE_KEY);
         res.json({ 
             success: true, 
             message: `Impor selesai. Berhasil: ${importedCount} produk induk, Dilewati/Gagal: ${skippedCount}.`,

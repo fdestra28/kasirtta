@@ -1648,3 +1648,24 @@ async function reprintLastTransaction() {
         showNotification('Gagal mengambil data transaksi terakhir.', 'error');
     }
 }
+
+/**
+ * Membuat versi debounced dari sebuah fungsi yang menunda pemanggilannya
+ * hingga `delay` milidetik telah berlalu sejak pemanggilan terakhir.
+ * @param {Function} func Fungsi yang akan di-debounce.
+ * @param {number} delay Waktu tunda dalam milidetik.
+ * @returns {Function} Fungsi baru yang sudah di-debounce.
+ */
+function debounce(func, delay) {
+    let timeoutId;
+
+    return function(...args) {
+        // Hapus timer sebelumnya jika ada
+        clearTimeout(timeoutId);
+
+        // Atur timer baru
+        timeoutId = setTimeout(() => {
+            func.apply(this, args);
+        }, delay);
+    };
+}
