@@ -3,16 +3,15 @@ const { db } = require('../config/database');
 
 const getInventory = async (req, res) => {
     try {
-        // Query ini menggunakan UNION ALL untuk menggabungkan dua set data:
-        // 1. Produk tunggal yang tidak memiliki varian.
-        // 2. Semua varian dari produk yang memiliki varian.
+        // [PERBAIKAN] Query ini secara eksplisit menyamakan collation
+        // untuk kolom-kolom yang akan digabungkan untuk menghindari error
+        // 'Illegal mix of collations'.
         const [inventoryItems] = await db.query(`
-            -- Ambil semua produk tunggal (bukan produk induk)
             SELECT 
                 p.product_id,
                 NULL AS variant_id,
                 p.item_code,
-                p.item_name,
+                p.item_name COLLATE utf8mb4_unicode_ci AS item_name, -- [PERBAIKAN] Menyamakan collation
                 p.current_stock,
                 p.min_stock
             FROM products p
@@ -20,12 +19,11 @@ const getInventory = async (req, res) => {
 
             UNION ALL
 
-            -- Ambil semua varian dari produk induk yang aktif
             SELECT 
                 p.product_id,
                 pv.variant_id,
                 pv.item_code,
-                CONCAT(p.item_name, ' (', pv.variant_name, ')') AS item_name,
+                CONCAT(p.item_name, ' (', pv.variant_name, ')') COLLATE utf8mb4_unicode_ci AS item_name, -- [PERBAIKAN] Menyamakan collation
                 pv.current_stock,
                 pv.min_stock
             FROM product_variants pv
