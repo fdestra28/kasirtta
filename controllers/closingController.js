@@ -77,7 +77,7 @@ const generateFinancialReport = async (req, res) => {
                 COALESCE(SUM(total_amount), 0) as total_revenue,
                 COALESCE(SUM(CASE WHEN payment_method = 'cash' THEN total_amount ELSE 0 END), 0) as cash_in
              FROM transactions 
-             WHERE DATE(CONVERT_TZ(transaction_date, 'UTC', '+04:00')) BETWEEN ? AND ?`,
+             WHERE DATE(CONVERT_TZ(transaction_date, 'UTC', '+0800')) BETWEEN ? AND ?`,
             [start_date, end_date]
         );
         const totalRevenue = parseFloat(revenueResult[0].total_revenue);
@@ -90,7 +90,7 @@ const generateFinancialReport = async (req, res) => {
              FROM transaction_details td
              JOIN transactions t ON td.transaction_id = t.transaction_id
              JOIN products p ON td.product_id = p.product_id
-             WHERE DATE(CONVERT_TZ(t.transaction_date, 'UTC', '+04:00')) BETWEEN ? AND ?
+             WHERE DATE(CONVERT_TZ(t.transaction_date, 'UTC', '+08:00')) BETWEEN ? AND ?
                AND p.item_type = 'barang'
                AND td.purchase_price > 0`,
             [start_date, end_date]
