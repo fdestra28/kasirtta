@@ -322,3 +322,19 @@ CREATE INDEX idx_expenses_date ON expenses(expense_date);
 -- Mempercepat join ke transaksi dan filter berdasarkan status hutang.
 CREATE INDEX idx_debts_transaction_id ON debts(transaction_id);
 CREATE INDEX idx_debts_status ON debts(status);
+
+-- Menyamakan collation kolom `item_name` di tabel `products`
+ALTER TABLE products MODIFY COLUMN item_name VARCHAR(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;
+
+-- Menyamakan collation kolom `variant_name` di tabel `product_variants`
+ALTER TABLE product_variants MODIFY COLUMN variant_name VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;
+
+-- Perbaiki tabel `products`
+ALTER TABLE products 
+    MODIFY COLUMN item_name VARCHAR(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+    MODIFY COLUMN item_code VARCHAR(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci UNIQUE;
+
+-- Perbaiki tabel `product_variants`
+ALTER TABLE product_variants 
+    MODIFY COLUMN variant_name VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+    MODIFY COLUMN item_code VARCHAR(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci UNIQUE;
