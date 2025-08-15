@@ -33,7 +33,7 @@ const createTransaction = async (req, res) => {
     const connection = await db.getConnection();
 
     try {
-        const { items, payment_method, payment_received, debt_details } = req.body;
+        const { items, payment_method, payment_received, debt_details, client_timestamp } = req.body;
 
         if (!items || !Array.isArray(items) || items.length === 0) {
             return res.status(400).json({ success: false, message: 'Item transaksi tidak boleh kosong!' });
@@ -145,9 +145,9 @@ const createTransaction = async (req, res) => {
         const transaction_code = await generateTransactionCode();
 
         const [transResult] = await connection.query(
-            `INSERT INTO transactions (transaction_code, admin_id, total_amount, payment_method, payment_received, change_amount)
-             VALUES (?, ?, ?, ?, ?, ?)`,
-            [transaction_code, req.user.user_id, server_calculated_total, payment_method, final_payment_received, change_amount]
+            `INSERT INTO transactions (transaction_code, admin_id, total_amount, payment_method, payment_received, change_amount, transaction_date)
+             VALUES (?, ?, ?, ?, ?, ?, ?)`, // Tambah satu placeholder
+            [transaction_code, req.user.user_id, server_calculated_total, payment_method, final_payment_received, change_amount, client_timestamp] // Tambah client_timestamp
         );
 
         const transaction_id = transResult.insertId;

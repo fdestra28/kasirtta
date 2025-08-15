@@ -805,6 +805,8 @@ async function finalizeTransaction(transactionData) {
   processBtn.disabled = true;
   processBtn.innerHTML = '<span class="spinner-sm"></span> Memproses...';
 
+  transactionData.client_timestamp = new Date().toISOString(); 
+  
   try {
     const response = await apiRequest("/transactions", {
       method: "POST",

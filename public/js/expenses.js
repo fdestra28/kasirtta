@@ -185,7 +185,7 @@ async function saveExpense(e) {
     e.preventDefault();
     
     const expenseData = {
-        expense_date: document.getElementById('expenseDate').value,
+        expense_date: new Date(expenseDateValue).toISOString(),
         category_id: document.getElementById('expenseCategory').value,
         description: document.getElementById('expenseDescription').value,
         amount: parseFloat(document.getElementById('expenseAmount').value),
