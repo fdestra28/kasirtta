@@ -38,7 +38,7 @@ const createExpense = async (req, res) => {
         const [result] = await db.query(
             `INSERT INTO expenses (expense_date, category_id, description, amount, payment_method, receipt_number, notes, created_by)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-            [expense_date, category_id, description, amount, payment_method || 'cash', receipt_number, notes, req.user.user_id]
+            [new Date(expense_date), category_id, description, amount, payment_method || 'cash', receipt_number, notes, req.user.user_id]
         );
         
         res.status(201).json({

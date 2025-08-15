@@ -146,8 +146,8 @@ const createTransaction = async (req, res) => {
 
         const [transResult] = await connection.query(
             `INSERT INTO transactions (transaction_code, admin_id, total_amount, payment_method, payment_received, change_amount, transaction_date)
-             VALUES (?, ?, ?, ?, ?, ?, ?)`, // Tambah satu placeholder
-            [transaction_code, req.user.user_id, server_calculated_total, payment_method, final_payment_received, change_amount, client_timestamp] // Tambah client_timestamp
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [transaction_code, req.user.user_id, server_calculated_total, payment_method, final_payment_received, change_amount, new Date(client_timestamp)]
         );
 
         const transaction_id = transResult.insertId;
