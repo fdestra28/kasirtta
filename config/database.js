@@ -11,7 +11,7 @@ const pool = mysql.createPool({
     waitForConnections: true,
     connectionLimit: 4, 
     queueLimit: 0,
-    timezone: '+08:00'  // <-- TAMBAHKAN BARIS INI
+    timezone: '+04:00'  // <-- TAMBAHKAN BARIS INI
 });
 
 // Buat promise wrapper untuk async/await

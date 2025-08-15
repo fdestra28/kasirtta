@@ -346,7 +346,7 @@ const getDailySummary = async (req, res) => {
         const { date } = req.query;
         const targetDate = date || new Date().toISOString().slice(0, 10);
 
-        let baseQuery = "DATE(CONVERT_TZ(transaction_date, 'UTC', '+08:00')) = ?";
+        let baseQuery = "DATE(CONVERT_TZ(transaction_date, 'UTC', '+04:00')) = ?";
         let params = [targetDate];
 
         // If admin, only show their own summary
@@ -427,11 +427,11 @@ const getReportData = async (req, res) => {
         // Get revenue data
         const [revenueData] = await db.query(
             `SELECT 
-                DATE_FORMAT(CONVERT_TZ(transaction_date, 'UTC', '+08:00'), ?) as period, 
+                DATE_FORMAT(CONVERT_TZ(transaction_date, 'UTC', '+04:00'), ?) as period, 
                 COUNT(*) as total_transactions, 
                 SUM(total_amount) as total_revenue 
              FROM transactions 
-             WHERE DATE(CONVERT_TZ(transaction_date, 'UTC', '+08:00')) BETWEEN ? AND ? 
+             WHERE DATE(CONVERT_TZ(transaction_date, 'UTC', '+04:00')) BETWEEN ? AND ? 
              GROUP BY period 
              ORDER BY period`,
             [dateFormat, start_date, end_date]
@@ -447,7 +447,7 @@ const getReportData = async (req, res) => {
              FROM transaction_details td 
              JOIN transactions t ON td.transaction_id = t.transaction_id 
              JOIN products p ON td.product_id = p.product_id 
-             WHERE DATE(CONVERT_TZ(t.transaction_date, 'UTC', '+08:00')) BETWEEN ? AND ? 
+             WHERE DATE(CONVERT_TZ(t.transaction_date, 'UTC', '+04:00')) BETWEEN ? AND ? 
              GROUP BY p.product_id 
              ORDER BY total_revenue DESC`,
             [start_date, end_date]
@@ -461,7 +461,7 @@ const getReportData = async (req, res) => {
                 SUM(t.total_amount) as total_revenue 
              FROM transactions t 
              JOIN users u ON t.admin_id = u.user_id 
-             WHERE DATE(CONVERT_TZ(t.transaction_date, 'UTC', '+08:00')) BETWEEN ? AND ? 
+             WHERE DATE(CONVERT_TZ(t.transaction_date, 'UTC', '+04:00')) BETWEEN ? AND ? 
              GROUP BY u.user_id 
              ORDER BY total_revenue DESC`,
             [start_date, end_date]
