@@ -2693,6 +2693,16 @@ body.sidebar-open .sidebar-backdrop {
     /* Bisa diklik saat tampil */
 }
 
+.user-info span {
+        /* Sembunyikan teks nama user */
+        display: none;
+    }
+
+    .user-info ion-icon {
+        /* Buat ikon user sedikit lebih besar agar menonjol */
+        font-size: 1.8rem; /* Anda bisa sesuaikan ukurannya */
+    }
+
 @media (max-width: 480px) {
     .login-box {
         padding: var(--spacing-xl);
@@ -2930,6 +2940,37 @@ textarea:focus-visible {
     .closing-form, .closing-history {
         overflow: scroll;
     }
+    /* 1. Atur layout untuk grup ikon di kanan */
+    .header-info {
+        gap: var(--spacing-sm); /* Kurangi jarak antar ikon */
+    }
+
+    /* 2. Sembunyikan teks tombol Logout */
+    #logoutBtn span {
+        display: none;
+    }
+
+    /* 3. Buat semua tombol ikon di header memiliki ukuran yang sama */
+    .printer-status .btn,
+    #logoutBtn {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border-radius: var(--radius-full);
+    }
+    
+    /* 4. Pastikan ukuran ikon di dalam tombol juga seragam */
+    .printer-status .btn ion-icon,
+    #logoutBtn ion-icon {
+        margin: 0;
+        font-size: var(--font-size-lg);
+    }
+
+    /* 5. Atur ulang ukuran ikon user agar seragam dengan yang lain */
+    .user-info ion-icon {
+        font-size: 1.9rem; /* Sedikit penyesuaian agar visualnya seimbang */
+        color: var(--color-text-secondary); /* Samakan warna dengan ikon lain */
+    }
 }
 
 .filterDiv {
@@ -3110,4 +3151,56 @@ input:checked + .slider:before {
 .variant-selector-item div:first-child small {
     display: block;
     color: var(--color-text-secondary);
+}
+
+/* Styling untuk Status Printer di Header */
+.printer-status .btn-outline {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background: transparent;
+}
+.printer-status .btn-outline:hover {
+    background: var(--color-primary-alpha);
+}
+.printer-status .btn-outline:disabled {
+    border-color: var(--color-text-muted);
+    color: var(--color-text-muted);
+    background: var(--color-bg-secondary);
+    opacity: 0.7;
+}
+
+/* Penyesuaian gap di header-info */
+.header-info {
+    gap: var(--spacing-md);
+}
+
+.printer-status {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.printer-status .btn span {
+    display: inline; /* Pastikan teks terlihat */
+}
+
+/* Kondisi untuk tablet dan mobile */
+@media (max-width: 768px) {
+    .printer-status .btn {
+        /* Buat tombol menjadi lingkaran sempurna */
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border-radius: var(--radius-full);
+    }
+
+    .printer-status .btn span {
+        /* Sembunyikan teks di dalam tombol */
+        display: none;
+    }
+
+    .printer-status .btn ion-icon {
+        /* Pusatkan ikon karena tidak ada teks lagi */
+        margin: 0;
+        font-size: var(--font-size-lg);
+    }
 }

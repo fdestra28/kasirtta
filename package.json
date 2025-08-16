@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "cross-env NODE_ENV=production node server.js",
-    "dev": "nodemon server.js"
+    "start": "cross-env TZ='Asia/Makassar' NODE_ENV=production node server.js",
+    "dev": "cross-env TZ='Asia/Makassar' nodemon server.js"
   },
   "keywords": [],
   "author": "Fajar Destrada",

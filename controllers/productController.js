@@ -305,7 +305,7 @@ const updateProduct = async (req, res) => {
     try {
         await connection.beginTransaction();
         const { id } = req.params;
-        const { item_name, is_active, variants, selling_price, purchase_price, current_stock, min_stock } = req.body;
+        const { item_name, is_active, selling_price, purchase_price, min_stock, has_variants, variants } = req.body;
 
         const [products] = await connection.query('SELECT * FROM products WHERE product_id = ? FOR UPDATE', [id]);
         if (products.length === 0) {
@@ -314,10 +314,8 @@ const updateProduct = async (req, res) => {
         }
         const product = products[0];
 
-        // --- INI ADALAH BLOK 'ELSE' YANG HILANG ---
         if (product.has_variants) {
-            // Logika untuk PRODUK DENGAN VARIAN (sudah benar)
-            // ... (kode dari revisi sebelumnya kita letakkan di sini)
+            // Logika untuk PRODUK DENGAN VARIAN (sudah benar, tidak perlu diubah)
             await connection.query(
                 'UPDATE products SET item_name = ?, is_active = ? WHERE product_id = ?',
                 [item_name, is_active === undefined ? product.is_active : is_active, id]
@@ -326,7 +324,7 @@ const updateProduct = async (req, res) => {
             if (!variants || !Array.isArray(variants)) {
                 throw new Error("Data varian tidak valid atau tidak ada.");
             }
-            // ... (dan seterusnya, seluruh logika varian diletakkan di dalam blok if ini)
+            
             const [existingVariantsResult] = await connection.query('SELECT variant_id FROM product_variants WHERE product_id = ?', [id]);
             const existingVariantIds = new Set(existingVariantsResult.map(v => v.variant_id));
 
@@ -353,7 +351,7 @@ const updateProduct = async (req, res) => {
                          const quantity = Math.abs(stockDiff);
                          await connection.query(
                              `INSERT INTO stock_movements (product_id, variant_id, movement_type, quantity, reference_type, notes, user_id) 
-                              VALUES (?, ?, ?, ?, 'adjustment', 'Update via edit varian', ?)`,
+                              VALUES (?, ?, ?, ?, 'manual', 'Update via edit varian', ?)`, // Di sini juga kita gunakan 'manual'
                              [id, variantId, movementType, quantity, req.user.user_id]
                          );
 
@@ -393,39 +391,50 @@ const updateProduct = async (req, res) => {
                 params.push(item_name);
             }
             if (selling_price !== undefined) {
-                if (req.user.role !== 'owner') {
-                    await connection.rollback();
-                    return res.status(403).json({ success: false, message: 'Hanya owner yang bisa mengubah harga!' });
-                }
                 updateFields.push('selling_price = ?');
                 params.push(selling_price);
             }
             const newPurchasePrice = parseFloat(purchase_price) || product.purchase_price;
             if (purchase_price !== undefined) {
-                 if (req.user.role !== 'owner') {
-                    await connection.rollback();
-                    return res.status(403).json({ success: false, message: 'Hanya owner yang bisa mengubah harga!' });
-                }
                 updateFields.push('purchase_price = ?');
                 params.push(newPurchasePrice);
             }
-            if (current_stock !== undefined && product.item_type === 'barang') {
-                const stockDiff = parseInt(current_stock) - product.current_stock;
+            
+            const newStockBody = req.body.current_stock;
+            if (newStockBody !== undefined && product.item_type === 'barang') {
+                const currentStock = parseInt(newStockBody, 10);
+                const stockDiff = currentStock - product.current_stock;
+                
                 if (stockDiff !== 0) {
                     updateFields.push('current_stock = ?');
-                    params.push(current_stock);
+                    params.push(currentStock);
+                    
                     const movementType = stockDiff > 0 ? 'in' : 'out';
                     const quantity = Math.abs(stockDiff);
-                    await connection.query(`INSERT INTO stock_movements (product_id, movement_type, quantity, reference_type, notes, user_id) VALUES (?, ?, ?, 'adjustment', 'Update via edit produk', ?)`, [id, movementType, quantity, req.user.user_id]);
+                    
+                    // =================== PERBAIKAN DI SINI ===================
+                    // Nilai 'adjustment' diubah menjadi 'manual'
+                    await connection.query(
+                        `INSERT INTO stock_movements (product_id, movement_type, quantity, reference_type, notes, user_id) 
+                         VALUES (?, ?, ?, 'manual', 'Update via edit produk', ?)`,
+                        [id, movementType, quantity, req.user.user_id]
+                    );
+                    // =========================================================
+                    
                     if (stockDiff > 0 && newPurchasePrice > 0) {
                         const totalPurchaseCost = stockDiff * newPurchasePrice;
                         const [categories] = await connection.query(`SELECT category_id FROM expense_categories WHERE category_name = 'Pembelian Barang' LIMIT 1`);
                         if (categories.length > 0) {
-                            await connection.query(`INSERT INTO expenses (expense_date, category_id, description, amount, payment_method, notes, created_by) VALUES (NOW(), ?, ?, ?, 'cash', ?, ?)`, [categories[0].category_id, `Penambahan stok (edit): ${product.item_name}`, totalPurchaseCost, `Penambahan stok dari menu edit produk #${id}`, req.user.user_id]);
+                            await connection.query(
+                                `INSERT INTO expenses (expense_date, category_id, description, amount, payment_method, notes, created_by) 
+                                 VALUES (NOW(), ?, ?, ?, 'cash', ?, ?)`,
+                                [categories[0].category_id, `Penambahan stok (edit): ${product.item_name}`, totalPurchaseCost, `Stok dari edit produk #${id}`, req.user.user_id]
+                            );
                         }
                     }
                 }
             }
+            
             if (min_stock !== undefined && product.item_type === 'barang') {
                 updateFields.push('min_stock = ?');
                 params.push(min_stock);
@@ -434,22 +443,23 @@ const updateProduct = async (req, res) => {
                 updateFields.push('is_active = ?');
                 params.push(is_active);
             }
+            
             if (updateFields.length > 0) {
                 params.push(id);
                 await connection.query(`UPDATE products SET ${updateFields.join(', ')} WHERE product_id = ?`, params);
             }
         }
-        // --- AKHIR BLOK 'ELSE' ---
         
         await connection.commit();
         clearCache(PRODUCTS_CACHE_KEY);
         res.json({ success: true, message: 'Produk berhasil diupdate!' });
+
     } catch (error) {
         await connection.rollback();
         console.error('Update product error:', error);
         res.status(500).json({ success: false, message: 'Gagal mengupdate produk!', error: error.message });
     } finally {
-        connection.release();
+        if (connection) connection.release();
     }
 };
 

@@ -338,3 +338,75 @@ ALTER TABLE products
 ALTER TABLE product_variants 
     MODIFY COLUMN variant_name VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
     MODIFY COLUMN item_code VARCHAR(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci UNIQUE;
+
+-- db_collation_fix.sql
+-- Script untuk menyeragamkan collation di seluruh database untuk mencegah error.
+
+USE tokoatk_db; -- Pastikan Anda menggunakan database yang benar
+
+-- Ubah Collation Database Default
+ALTER DATABASE tokoatk_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- Perbaiki Tabel: users
+ALTER TABLE users
+    MODIFY COLUMN username VARCHAR(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL UNIQUE,
+    MODIFY COLUMN password VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+    MODIFY COLUMN full_name VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+    MODIFY COLUMN role ENUM('owner', 'admin') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;
+
+-- Perbaiki Tabel: products
+ALTER TABLE products
+    MODIFY COLUMN item_code VARCHAR(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci UNIQUE,
+    MODIFY COLUMN item_name VARCHAR(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+    MODIFY COLUMN item_type ENUM('barang', 'jasa') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;
+
+-- Perbaiki Tabel: product_variants
+ALTER TABLE product_variants
+    MODIFY COLUMN variant_name VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+    MODIFY COLUMN item_code VARCHAR(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci UNIQUE;
+
+-- Perbaiki Tabel: transactions
+ALTER TABLE transactions
+    MODIFY COLUMN transaction_code VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL UNIQUE,
+    MODIFY COLUMN payment_method ENUM('cash', 'transfer', 'hutang') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'cash';
+
+-- Perbaiki Tabel: stock_movements
+ALTER TABLE stock_movements
+    MODIFY COLUMN movement_type ENUM('in', 'out', 'adjustment') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+    MODIFY COLUMN reference_type ENUM('transaction', 'manual', 'initial') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+    MODIFY COLUMN notes TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- Perbaiki Tabel: book_closings
+ALTER TABLE book_closings
+    MODIFY COLUMN period_name VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+    MODIFY COLUMN notes TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+    MODIFY COLUMN backup_file VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    
+-- Perbaiki Tabel: expense_categories
+ALTER TABLE expense_categories
+    MODIFY COLUMN category_name VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+    MODIFY COLUMN category_type ENUM('operational', 'purchase', 'other') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'operational',
+    MODIFY COLUMN description TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    
+-- Perbaiki Tabel: expenses
+ALTER TABLE expenses
+    MODIFY COLUMN description VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+    MODIFY COLUMN payment_method ENUM('cash', 'transfer') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'cash',
+    MODIFY COLUMN receipt_number VARCHAR(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+    MODIFY COLUMN notes TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    
+-- Perbaiki Tabel: settings
+ALTER TABLE settings
+    MODIFY COLUMN setting_key VARCHAR(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+    MODIFY COLUMN setting_value TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    
+-- Perbaiki Tabel: customers
+ALTER TABLE customers
+    MODIFY COLUMN full_name VARCHAR(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+    MODIFY COLUMN phone_number VARCHAR(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci UNIQUE,
+    MODIFY COLUMN address TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    
+-- Perbaiki Tabel: debts
+ALTER TABLE debts
+    MODIFY COLUMN status ENUM('unpaid', 'partially_paid', 'paid') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'unpaid',
+    MODIFY COLUMN notes TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

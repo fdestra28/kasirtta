@@ -2,7 +2,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const { testConnection } = require('./config/database');
+const { testConnection, pool } = require('./config/database');
 const path = require('path');
 
 // Initialize express
@@ -42,28 +42,58 @@ console.log("Memuat rute produk dari ./routes/productRoutes ...");
 // app.use('/api/products', require('./routes/productRoutes'));
 console.log("Rute produk selesai dimuat.");
 
+const serverInstance = null; // Kita akan simpan instance server di sini
+
+const gracefulShutdown = () => {
+  console.log('Menerima sinyal shutdown, membersihkan koneksi...');
+  // Hentikan server menerima koneksi baru
+  if (serverInstance) {
+    serverInstance.close(() => {
+      console.log('HTTP server ditutup.');
+      // Tutup koneksi pool database
+      pool.end(err => {
+        if (err) {
+          console.error('Error saat menutup pool database:', err.message);
+        } else {
+          console.log('Pool database berhasil ditutup.');
+        }
+        process.exit(err ? 1 : 0);
+      });
+    });
+  } else {
+     // Jika server belum sempat jalan, langsung tutup pool
+     pool.end(err => {
+        if (err) console.error('Error saat menutup pool database:', err.message);
+        else console.log('Pool database berhasil ditutup.');
+        process.exit(err ? 1 : 0);
+      });
+  }
+};
+
+// Dengarkan sinyal shutdown dari OS atau Vercel
+process.on('SIGTERM', gracefulShutdown);
+process.on('SIGINT', gracefulShutdown);
+
 // Start server
-const PORT = process.env.PORT || 3000; // Konsisten dengan environment variable
+const PORT = process.env.PORT || 5000; // Konsisten dengan environment variable
 const HOST = process.env.HOST || '0.0.0.0'; // PENTING: Listen pada semua interface
 
 // Fungsi startup yang lebih aman
 const startServer = async () => {
     try {
-        console.log("Mencoba menyambungkan ke database...");
-        // Test database connection saat startup
         await testConnection();
-        console.log("✅ Database terhubung!");
 
-        // Jika koneksi berhasil, baru jalankan server
-        // PERBAIKAN KRITIS: Listen pada 0.0.0.0, bukan localhost
-        app.listen(PORT, HOST, () => {
+        // GANTI BAGIAN app.listen MENJADI INI:
+        const server = app.listen(PORT, HOST, () => {
             console.log(`🚀 Server berjalan di http://${HOST}:${PORT}`);
         });
+        // Simpan instance server untuk graceful shutdown
+        // (Meskipun di Vercel tidak terlalu relevan, ini praktik terbaik)
+        
     } catch (error) {
-        console.error("❌ Error koneksi database:", error.message);
-        // Jika koneksi gagal saat startup, baru kita matikan proses
-        console.error("Gagal memulai server karena koneksi database tidak berhasil.");
-        process.exit(1);
+        console.error("❌ Gagal memulai server karena koneksi database tidak berhasil.", error.message);
+        // Panggil graceful shutdown agar pool ditutup sebelum exit
+        gracefulShutdown();
     }
 };
 

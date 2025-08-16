@@ -1,37 +1,59 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - Kasirtta</title>
-    <link rel="stylesheet" href="css/style.css">
-</head>
-<body class="login-page">
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body class="login-page">
     <div class="login-container">
-        <div class="login-box">
-            <div class="login-header">
-                <h1>KASIRTTA</h1>
-                <p>Kasir Modern Pilihan UMKM</p>
-            </div>
-            
-            <form id="loginForm" class="login-form">
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required autocomplete="username">
-                </div>
-                
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required autocomplete="current-password">
-                </div>
-                
-                <div id="errorMessage" class="error-message"></div>
-                
-                <button type="submit" class="btn btn-primary btn-block">Login</button>
-            </form>
+      <div class="login-box">
+        <div class="login-header">
+          <h1>KASIRTTA</h1>
+          <p>Kasir Modern Pilihan UMKM</p>
         </div>
+
+        <form id="loginForm" class="login-form">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              required
+              autocomplete="username"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              required
+              autocomplete="current-password"
+            />
+          </div>
+
+          <div id="errorMessage" class="error-message"></div>
+
+          <button type="submit" class="btn btn-primary btn-block">Login</button>
+        </form>
+        <p
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 16px;
+          "
+        >
+          Username : owner Password : admin123
+        </p>
+      </div>
     </div>
-    
+
     <script src="js/auth.js"></script>
-</body>
+  </body>
 </html>

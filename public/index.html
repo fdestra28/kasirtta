@@ -50,13 +50,21 @@
         </div>
         <div class="header-right">
           <div class="header-info">
+            <!-- Tombol dan Status Printer Baru -->
+            <div class="printer-status">
+              <button id="connectPrinterBtn" class="btn btn-sm btn-outline">
+                <ion-icon name="bluetooth-outline"></ion-icon>
+                <span id="printerStatusText">Hubungkan Printer</span>
+              </button>
+            </div>
+
             <div class="user-info">
               <ion-icon name="person-circle-outline"></ion-icon>
               <span id="userInfo"></span>
             </div>
             <button id="logoutBtn" class="btn btn-secondary btn-sm">
               <ion-icon name="log-out-outline"></ion-icon>
-              Logout
+              <span>Logout</span>
             </button>
           </div>
         </div>
@@ -1095,7 +1103,16 @@
                   </div>
                 </div>
                 <div class="form-row">
-                             <div class="form-group"><label>Stok Minimal</label><input type="number" id="variantMinStock" class="form-input" min="0" value="10"></div>
+                  <div class="form-group">
+                    <label>Stok Minimal</label
+                    ><input
+                      type="number"
+                      id="variantMinStock"
+                      class="form-input"
+                      min="0"
+                      value="10"
+                    />
+                  </div>
                 </div>
                 <button
                   type="button"
@@ -1393,39 +1410,67 @@
 
     <!-- Closing Confirmation Modal -->
     <div id="closingModal" class="modal">
+      <!-- [FIX] Tambahkan backdrop yang hilang -->
       <div class="modal-backdrop"></div>
+
+      <!-- [FIX] Gunakan struktur .modal-content standar -->
       <div class="modal-content">
+        <!-- [FIX] Tambahkan .modal-header standar -->
         <div class="modal-header">
           <h3>Konfirmasi Tutup Buku</h3>
-          <button class="close" id="cancelClosingModalBtn" aria-label="Close">
+          <button class="close" aria-label="Close">
             <ion-icon name="close-outline"></ion-icon>
           </button>
         </div>
-        <div class="modal-body">
-          <p>Anda akan melakukan tutup buku untuk periode:</p>
-          <div id="closingConfirmDetails" class="confirm-details"></div>
-          <div class="form-group">
-            <label>Masukkan password untuk konfirmasi:</label>
-            <input
-              type="password"
-              id="closingPassword"
-              class="form-input"
-              required
-            />
+
+        <form id="closingConfirmForm">
+          <!-- [FIX] Bungkus konten dengan .modal-body -->
+          <div class="modal-body">
+            <div id="closingConfirmDetails"></div>
+            <div class="form-group">
+              <label for="closingPassword">Password Anda</label>
+              <input
+                type="password"
+                id="closingPassword"
+                class="form-input"
+                required
+                autocomplete="current-password"
+              />
+            </div>
           </div>
-          <div class="checkbox-group">
-            <label>
-              <input type="checkbox" id="confirmBackup" />
-              <span>Saya sudah memahami bahwa data transaksi akan direset</span>
-            </label>
+
+          <!-- [FIX] Bungkus tombol dengan .modal-actions -->
+          <div class="modal-actions">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              id="cancelClosingModalBtn"
+            >
+              Batal
+            </button>
+
+            <!-- Tombol Langkah 1: Download Backup -->
+            <button
+              type="button"
+              class="btn btn-primary"
+              id="downloadBackupBtn"
+            >
+              <ion-icon name="download-outline"></ion-icon> 1. Download Backup &
+              Lanjutkan
+            </button>
+
+            <!-- Tombol Langkah 2: Eksekusi Final (awalnya disembunyikan) -->
+            <button
+              type="button"
+              class="btn btn-danger"
+              id="executeClosingBtn"
+              style="display: none"
+            >
+              <ion-icon name="warning-outline"></ion-icon> 2. Konfirmasi & Hapus
+              Data
+            </button>
           </div>
-        </div>
-        <div class="modal-actions">
-          <button id="executeClosingBtn" class="btn btn-danger" disabled>
-            <ion-icon name="lock-closed-outline"></ion-icon>
-            Tutup Buku Sekarang
-          </button>
-        </div>
+        </form>
       </div>
     </div>
 
@@ -1647,6 +1692,7 @@
     <script src="js/expenses.js"></script>
     <script src="js/settings.js"></script>
     <script src="js/debts.js"></script>
+    <script src="js/printer.js"></script>
   </body>
   <!-- Footer -->
   <footer class="main-footer-copyright">

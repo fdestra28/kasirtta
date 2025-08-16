@@ -41,11 +41,9 @@ function setupClosingEvents() {
     });
 
     // Closing Confirmation Modal
-    document.getElementById('confirmBackup').addEventListener('change', (e) => {
-        document.getElementById('executeClosingBtn').disabled = !e.target.checked;
-    });
     document.getElementById('cancelClosingModalBtn').addEventListener('click', () => closeModal('closingModal'));
-    document.getElementById('executeClosingBtn').addEventListener('click', executeClosing);
+    document.getElementById('downloadBackupBtn').addEventListener('click', downloadBackupAndProceed); // Panggil fungsi baru
+    document.getElementById('executeClosingBtn').addEventListener('click', executeClosing); // Tetap panggil fungsi lama
 
     // Historical Report Modal
     document.getElementById('closeHistoricalReportModalBtn').addEventListener('click', () => closeModal('historicalReportModal'));
@@ -175,11 +173,16 @@ function showClosingModal() {
             <p><strong>Laba Bersih:</strong> <span class="text-success">${formatCurrency(net_profit)}</span></p>
             <p><strong>Modal Akhir:</strong> <span class="text-primary">${formatCurrency(ending_capital)}</span></p>
         </div>
-        <p class="text-danger" style="margin-top: 1rem;"><strong>PERINGATAN:</strong> Semua data transaksi dan pengeluaran akan direset dan diarsipkan. Proses ini tidak dapat dibatalkan.</p>
+        <p class="text-danger" style="margin-top: 1rem;"><strong>PERINGATAN:</strong> Semua data transaksi dan pengeluaran akan direset. Proses ini tidak dapat dibatalkan.</p>
     `;
+    
+    // Reset form dan state tombol
     document.getElementById('closingPassword').value = '';
-    document.getElementById('confirmBackup').checked = false;
-    document.getElementById('executeClosingBtn').disabled = true;
+    document.getElementById('downloadBackupBtn').style.display = 'inline-flex';
+    document.getElementById('downloadBackupBtn').disabled = false;
+    document.getElementById('downloadBackupBtn').innerHTML = '<ion-icon name="download-outline"></ion-icon> 1. Download Backup & Lanjutkan';
+    document.getElementById('executeClosingBtn').style.display = 'none';
+    
     openModal('closingModal');
 }
 
@@ -211,7 +214,11 @@ async function executeClosing() {
     execButton.innerHTML = '<span class="spinner-sm"></span> Memproses...';
 
     try {
-        const response = await apiRequest('/closing/execute', { method: 'POST', body: JSON.stringify(closingData) });
+        // HANYA BLOK INI YANG DIPERLUKAN DI FRONTEND
+        const response = await apiRequest('/closing/execute', {
+            method: 'POST',
+            body: JSON.stringify(closingData)
+        });
         const data = await response.json();
 
         if (data.success) {
@@ -223,13 +230,15 @@ async function executeClosing() {
             }, 5000);
         } else {
             showNotification(data.message || 'Gagal melakukan tutup buku', 'error');
+            // Re-enable tombol hanya jika gagal
             execButton.disabled = false;
-            execButton.innerHTML = '<ion-icon name="lock-closed-outline"></ion-icon> Tutup Buku Sekarang';
+            execButton.innerHTML = '<ion-icon name="warning-outline"></ion-icon> 2. Konfirmasi & Hapus Data';
         }
     } catch (error) {
         console.error('Execute closing error:', error);
+        showNotification('Terjadi kesalahan saat memproses tutup buku.', 'error');
         execButton.disabled = false;
-        execButton.innerHTML = '<ion-icon name="lock-closed-outline"></ion-icon> Tutup Buku Sekarang';
+        execButton.innerHTML = '<ion-icon name="warning-outline"></ion-icon> 2. Konfirmasi & Hapus Data';
     }
 }
 
@@ -243,15 +252,18 @@ async function loadClosingHistory() {
         if (data.success) {
             const tbody = document.getElementById('closingHistory');
             if (data.data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="padding: 40px; color: var(--color-text-muted);">Belum ada riwayat tutup buku</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="padding: 40px; color: var(--color-text-muted);">Belum ada riwayat tutup buku</td></tr>';
             } else {
                 tbody.innerHTML = data.data.map(c => `
                     <tr>
                         <td>${c.period_name}</td>
                         <td>${formatDate(c.closing_date)}</td>
                         <td>${c.closed_by_name}</td>
-                        <td><a href="${API_URL}/closing/backup/${c.backup_file}?token=${localStorage.getItem('token')}" class="btn btn-sm btn-primary" download><ion-icon name="archive-outline"></ion-icon></a></td>
-                        <td><button class="btn btn-sm" onclick="viewHistoricalReport('${c.closing_id}')"><ion-icon name="eye-outline"></ion-icon></button></td>
+                        <td>
+                            <button class="btn btn-sm" onclick="viewHistoricalReport('${c.closing_id}')" title="Lihat Laporan Historis">
+                                <ion-icon name="eye-outline"></ion-icon>
+                            </button>
+                        </td>
                     </tr>
                 `).join('');
             }
@@ -335,3 +347,58 @@ function exportFinancialReportToCSV(report, periodName) {
 }
 // Ekspos fungsi ke global scope
 window.exportFinancialReportToCSV = exportFinancialReportToCSV;
+
+/**
+ * Memulai download backup SQL dan mengubah UI ke langkah konfirmasi.
+ */
+async function downloadBackupAndProceed() {
+    const password = document.getElementById('closingPassword').value;
+    if (!password) {
+        showNotification('Masukkan password Anda untuk melanjutkan!', 'error');
+        return;
+    }
+
+    const btn = document.getElementById('downloadBackupBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-sm"></span> Membuat Backup...';
+
+    try {
+        // Kita gunakan fetch untuk validasi password terlebih dahulu.
+        const response = await apiRequest('/closing/download-backup', {
+            method: 'POST', // Menggunakan POST untuk mengirim password jika diperlukan (meski tidak kita gunakan di body)
+            // Kita tidak perlu mengirim body, cukup token di header sudah cukup untuk otentikasi.
+        });
+
+        if (!response.ok) {
+            // Jika server mengembalikan error (misal, user tidak terotentikasi), tampilkan pesan
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Gagal membuat backup');
+        }
+
+        // Jika validasi OK, ambil konten sebagai blob (binary large object)
+        const blob = await response.blob();
+        const fileName = response.headers.get('content-disposition').split('filename=')[1].replace(/"/g, '');
+
+        // Buat link sementara untuk men-trigger download
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        a.remove();
+        
+        showNotification('Backup berhasil diunduh. Silakan periksa file Anda.', 'success');
+
+        // Ubah UI ke langkah selanjutnya
+        document.getElementById('downloadBackupBtn').style.display = 'none';
+        document.getElementById('executeClosingBtn').style.display = 'inline-flex';
+
+    } catch (error) {
+        showNotification(error.message, 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<ion-icon name="download-outline"></ion-icon> 1. Download Backup & Lanjutkan';
+    }
+}

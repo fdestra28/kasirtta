@@ -12,9 +12,11 @@ router.use(verifyToken, ownerOnly);
 router.get('/report', closingController.generateFinancialReport);
 // ====================================================
 
+router.post('/download-backup', closingController.downloadBackupBeforeClosing);
+
 router.post('/execute', closingController.executeClosing);
 router.get('/history', closingController.getClosingHistory);
-router.get('/backup/:filename', closingController.downloadBackup);
+// router.get('/backup/:filename', closingController.downloadBackup);
 router.get('/history/:id', closingController.getHistoricalReport)
 
 module.exports = router;

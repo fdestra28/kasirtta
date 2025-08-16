@@ -492,9 +492,13 @@ function showReceiptPreview(transaction) {
         </div>`;
 
   contentDiv.innerHTML = receiptHtml;
-  document.getElementById("receiptPrintBtn").onclick = () =>
-    printReceipt(transaction);
-  openModal("receiptPreviewModal");
+
+    document.getElementById("receiptPrintBtn").onclick = async () => {
+        // Langsung panggil fungsi print yang baru
+        await thermalPrinter.print(transaction, appSettings);
+    };
+    
+    openModal("receiptPreviewModal");
 }
 
 function handleKeyboardNavigation(e) {
